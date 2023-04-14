@@ -10,4 +10,5 @@ const setupCoverage = () => {
   }
 };
 setupCoverage();
-myPluginSetup();
+
+myPluginSetup({ addControlToUI: true });
