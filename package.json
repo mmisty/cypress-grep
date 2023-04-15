@@ -74,6 +74,6 @@
     "webpack": "^5.75.0"
   },
   "dependencies": {
-    "cypress-controls-ext": "^0.0.8"
+    "cypress-controls-ext": "^0.0.9"
   }
 }

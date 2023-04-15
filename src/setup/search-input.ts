@@ -9,13 +9,24 @@ export const getItemValueForUI = (item: string, selector: string): string | unde
 
   return val ? `${val}` : undefined;
 };
+const height = 30;
 
 export const addSearchInput = () =>
   setupControlsExtension({
     mode: { open: true },
+    selectorToInject: '.reporter .controls',
     id: 'searchInput',
     style: parentId =>
       `
+     
+      .reporter .controls {
+         height: ${height}px;
+      }
+      
+      .reporter .stats  {
+        height: ${height}px;
+      }
+      
 #${parentId} {
   display: flex;
   flex-direction: row;
@@ -25,19 +36,18 @@ export const addSearchInput = () =>
 }
 
 .input-container {
-  height: 24px;
+  height: ${height}px;
   box-sizing: border-box;
-  width: 100%;
+  min-width: 250px;
   display: flex;
   align-items: center;
-  border: 1px solid #2e3247;
   border-radius: 5px;
   padding: 5px;
 }
 
 .icon-container {
-  height: 24px;
-  width: 24px;
+  height: ${height}px;
+  width: ${height}px;
   box-sizing: border-box;
   border-radius: 5px;
   margin: 0px;
@@ -49,7 +59,7 @@ export const addSearchInput = () =>
 }
 
 .icon-container i {
-  padding-top: 7px;
+  padding-top: ${height / 3}px;
 }
 .icon-container:hover {
   cursor:pointer;
@@ -87,7 +97,7 @@ export const addSearchInput = () =>
 }
 
 input[type="text"] {
-  height: 24px;
+  height: ${height}px;
   border: none;
   outline: none;
   flex-grow: 1;
@@ -96,7 +106,8 @@ input[type="text"] {
 
 .clear-input {
   width: 14px;
-  height: 24px;
+  height: ${height - 2}px;
+  margin-top: -${2}px;
   opacity: 1;
   padding-left: 10px;
   padding-right: 15px;
@@ -104,9 +115,6 @@ input[type="text"] {
   background-color:#76767624;
   display: flex;
   align-items: center;
-  border-radius: 5px;
-  box-sizing: border-box;
-  
   margin-right: -5px;
   
 }
@@ -121,6 +129,8 @@ input[type="text"] {
 
 
 .number-input {
+  height: ${height}px;
+  padding-top: ${height / 7}px;
   color: #c4c4c4;
   border: none;
   outline: none;
