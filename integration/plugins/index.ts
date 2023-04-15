@@ -4,7 +4,6 @@ import { preprocessor } from './ts-preprocessor';
 import { existsSync, rmdirSync } from 'fs';
 import { resolve } from 'path';
 import { COVERAGE } from '../common/constants';
-import { configureEnv } from 'cy-local/plugins';
 
 /**
  * Clear compiled js files from previous runs, otherwise coverage will be messed up
@@ -33,12 +32,6 @@ export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
   }
 
   on('file:preprocessor', preprocessor(isCov));
-
-  // HERE you put your plugin functions
-  configureEnv(on, config);
-
-  console.log('CYPRESS ENV:');
-  console.log(config.env);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables

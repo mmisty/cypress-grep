@@ -1,8 +1,6 @@
-import { registerCommands } from '../commands';
-import { cypressAppSelect } from 'cypress-controls-ext';
 import { setupSelectTests } from 'cy-local/setup/select-tests';
 import { selectionTestGrep } from 'cy-local/setup/regexp';
-import { addSearchInput, getItemValueForUI } from 'cy-local/setup/search-input';
+import { addSearchInput, getItemValueForUI, updateCount } from 'cy-local/setup/search-input';
 
 const getStrSelection = () => {
   const storage = getItemValueForUI('GREP', '#grep');
@@ -29,20 +27,12 @@ const selectTests = () => {
   return selectionTestGrep(selected);
 };
 
-export const myPluginSetup = (config?: { addControlToUI?: boolean; showTagsInTitle?: boolean }) => {
+export const registerCypressGrep = (config?: { addControlToUI?: boolean; showTagsInTitle?: boolean }) => {
   // here you can do setup for each test file in browser
 
-  setupSelectTests(selectTests, config?.showTagsInTitle, count => {
-    const testCount = cypressAppSelect('#tests-count');
-
-    if (testCount.length > 0) {
-      testCount.text(count);
-    }
-  });
+  setupSelectTests(selectTests, config?.showTagsInTitle, updateCount);
 
   if (config?.addControlToUI) {
     addSearchInput();
   }
-
-  registerCommands();
 };

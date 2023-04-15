@@ -18,9 +18,11 @@ export const origins = () => ({
   originOnly: describe.only,
   originSkip: describe.skip,
 });
+
 type TestConfig = {
   _testConfig: Cypress.TestConfigOverrides;
 };
+
 const excluded: string[] = [];
 
 const removeEmptySuites = (
@@ -37,7 +39,6 @@ const removeEmptySuites = (
 
     if (currentSuiteTags) {
       if (typeof currentSuiteTags === 'string') {
-        // const currentTags =
         // todo when tags in title
         suite.title = `${suite.title} ${currentSuiteTags}`;
       } else {
@@ -119,19 +120,19 @@ export const setupSelectTests = (
 
   // eslint-disable-next-line func-names
   const selectedSuitesConstruct = function () {
-    function descWithTags(...args: any[]): Suite {
-      const currentSuiteTags = args?.[1]?.tags;
-      console.log(JSON.stringify(suiteTags));
+    function descWithTags(...args: unknown[]): Suite {
+      const [, currentSuiteTags] = args;
+      const tags2 = (currentSuiteTags as { tags: string[] | string }).tags;
 
-      if (currentSuiteTags) {
-        if (typeof currentSuiteTags === 'string') {
-          suiteTags.push(currentSuiteTags);
+      if (tags2) {
+        if (typeof tags2 === 'string') {
+          suiteTags.push(tags2);
         } else {
-          suiteTags.push(...currentSuiteTags);
+          suiteTags.push(...tags2);
         }
       }
 
-      const suite = (originalSuites.originDescribe as (...a: any[]) => Suite)(...args);
+      const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
 
       console.log(`currentSuiteTags: ${currentSuiteTags}`);
       const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle);

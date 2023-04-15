@@ -1,4 +1,4 @@
-import { myPluginSetup } from 'cy-local';
+import { registerCypressGrep } from 'cy-local';
 import { COVERAGE } from '../common/constants';
 
 const setupCoverage = () => {
@@ -9,9 +9,10 @@ const setupCoverage = () => {
     console.log('COVERAGE NOT ENABLED IN BROWSER');
   }
 };
+
 setupCoverage();
 
-myPluginSetup({
+registerCypressGrep({
   addControlToUI: Cypress.env('GREP_SHOW_UI_CONTROL') === 'true' || Cypress.env('GREP_SHOW_UI_CONTROL') === true,
   showTagsInTitle: Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === 'true' || Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === true,
 });

@@ -1,16 +1,9 @@
 
-# cypress-template
+# @mmisty/cypress-grep
+Filter tests by tags / title using substringa or regular expressions.
 
-Template to create cypress library with jest tests, correct package structure,
-coverage connected to cypress and merging coverage for jest and cypress
+Also package allows to add UI control with ability to filter tests in selected file
 
-- [x] typescript support
-- [x] code coverage for cypress and jest, merge coverage
-- [x] formatting and eslint
-- [x] jest tests
-- [x] proper library extraction
-
-Create repository using this template if you need to create cypress library.
 
 ### Project structure
 
