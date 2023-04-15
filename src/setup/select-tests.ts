@@ -12,7 +12,7 @@ export const uniq = <T>(arr: T[]): T[] => {
 
   return res;
 };
-
+// todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const origins = () => ({
   originDescribe: describe,
@@ -23,12 +23,14 @@ export const origins = () => ({
 type TestConfig = {
   _testConfig: Cypress.TestConfigOverrides;
 };
+const filtered: string[] = [];
 
 const removeEmptySuites = (
   grep: RegExp,
   suite: Suite,
   tg: string[],
   configShowInTitle: boolean | undefined,
+  end: { end: boolean },
   count = 0,
 ): number => {
   let countCurrent = 0;
@@ -58,7 +60,7 @@ const removeEmptySuites = (
       const tagsArr = testTags && typeof testTags === 'string' ? [testTags] : testTags ?? [];
       const testTagsAll = uniq([...inlineSuiteTags, ...uniqSuiteTags, ...tagsArr, ...inlineTagsTest]);
       const testTagsStr = testTags ? (typeof testTags !== 'string' ? testTags.join(' ') : testTags) : '';
-      console.log(`${t.title}: ${JSON.stringify(testTagsAll)}`);
+      // console.log(`${t.title}: ${JSON.stringify(testTagsAll)}`);
       (t as unknown as { tags: string[] }).tags = testTagsAll;
 
       if (configShowInTitle) {
@@ -67,12 +69,14 @@ const removeEmptySuites = (
         t.title = removeTagsFromTitle(t.title);
       }
 
-      const nexTitle = removeTagsFromTitle(t?.fullTitle().replace(/\s\s/g, ' ')) + testTagsAll?.join(' ') ?? '';
+      const nexTitle = removeTagsFromTitle(t?.fullTitle()).replace(/\s+/g, ' ') + (testTagsAll?.join(' ') ?? '');
 
       const strMatch = nexTitle.match(grep) ? '+' : '-';
-      //filtered = uniq(filtered);
-      //filtered.push(`  ${strMatch}  ${nexTitle}`);
-      console.log(`  ${strMatch}  ${nexTitle}`);
+      const filteredLine = `  ${strMatch} ${nexTitle}`;
+
+      if (filtered.indexOf(filteredLine) === -1) {
+        filtered.push(filteredLine);
+      }
 
       return nexTitle.match(grep);
     });
@@ -91,9 +95,9 @@ const removeEmptySuites = (
       if (st.tests.length === 0 && st.suites.length === 0) {
         suite.suites = suite.suites.filter(k => k.title !== st.title);
 
-        return removeEmptySuites(grep, suite, tg, configShowInTitle);
+        return removeEmptySuites(grep, suite, tg, configShowInTitle, end);
       }
-      const testsCount = removeEmptySuites(grep, st, tg, configShowInTitle, count);
+      const testsCount = removeEmptySuites(grep, st, tg, configShowInTitle, end, count);
 
       if (testsCount === 0) {
         // remove suite with 0 tests
@@ -101,6 +105,10 @@ const removeEmptySuites = (
       }
       countCurrent += testsCount;
     }
+  }
+
+  if (!suite.parent?.parent) {
+    end.end = true;
   }
 
   return countCurrent;
@@ -111,12 +119,13 @@ export const setupSelectTests = (
   configShowInTitle: boolean | undefined,
   onCount: (num: number) => void,
 ): void => {
+  before(() => {
+    filtered.splice(0, -1);
+  });
   // eslint-disable-next-line no-console
   console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
 
   const originalSuites = origins();
-
-  // const outputTests = false;
   const suiteTags: string[] = [];
 
   // eslint-disable-next-line func-names
@@ -136,15 +145,13 @@ export const setupSelectTests = (
       }
 
       const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
-
-      const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle);
+      const end = { end: false };
+      const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle, end);
       onCount(count);
 
-      //if (!outputTests && filtered.length > 0) {
-      // eslint-disable-next-line no-console
-      // console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
-      //outputTests = true;
-      // }
+      if (end.end) {
+        console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
+      }
 
       return suite;
     }
