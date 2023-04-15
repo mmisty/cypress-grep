@@ -1,5 +1,7 @@
 import { registerCommands } from '../commands';
 import { cypressAppSelect, setupControlsExtension } from 'cypress-controls-ext';
+import { setupSelectTests } from 'cy-local/setup/select-tests';
+import { selectionTestGrep } from 'cy-local/setup/regexp';
 
 const getItemValueForUI = (item: string, selector: string): string | undefined => {
   const val =
@@ -23,9 +25,42 @@ const helpText = `
  </div>
 `;
 
+const getStrSelection = () => {
+  const storage = getItemValueForUI('GREP', '#grep');
+
+  // use UI input value only when interactive mode
+  if (Cypress.config('isInteractive') && storage != null) {
+    return storage;
+  }
+
+  if (Cypress.env('GREP') != null && Cypress.env('GREP') !== '') {
+    return Cypress.env('GREP');
+  }
+
+  return '';
+};
+
+const selectTests = () => {
+  const selected = getStrSelection();
+
+  if (selected !== '') {
+    Cypress.env('showTagsInTitle', 'true');
+  }
+
+  return selectionTestGrep(selected);
+};
+
 //style="padding: 2px;width:10px;font-size:15px;"
 export const myPluginSetup = (config?: { addControlToUI: boolean }) => {
   // here you can do setup for each test file in browser
+
+  setupSelectTests(selectTests, count => {
+    const testCount = cypressAppSelect('#tests-count');
+
+    if (testCount.length > 0) {
+      testCount.val(count);
+    }
+  });
 
   if (config?.addControlToUI) {
     setupControlsExtension({
