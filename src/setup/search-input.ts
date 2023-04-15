@@ -32,6 +32,7 @@ const setZIndex = (val: number) => {
 export const addSearchInput = () => {
   setupControlsExtension({
     mode: { open: true },
+    inject: 'start',
     selectorToInject: '.reporter .controls',
     id: 'searchInput',
     style: style(testsCountSelector, iconSearch),

@@ -5,7 +5,7 @@ const cypressFolder = 'integration';
 
 export default defineConfig({
   env: {
-    GREP_SHOW_TAGS_IN_TITLE: false,
+    GREP_SHOW_TAGS_IN_TITLE: true,
     GREP_SHOW_UI_CONTROL: true,
   },
   e2e: {

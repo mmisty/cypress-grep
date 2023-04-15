@@ -1,4 +1,5 @@
 import type { Suite } from 'mocha';
+import { parseTags, removeTagsFromTitle } from 'cy-local/setup/tags';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -23,8 +24,6 @@ type TestConfig = {
   _testConfig: Cypress.TestConfigOverrides;
 };
 
-const excluded: string[] = [];
-
 const removeEmptySuites = (
   grep: RegExp,
   suite: Suite,
@@ -33,45 +32,47 @@ const removeEmptySuites = (
   count = 0,
 ): number => {
   let countCurrent = 0;
+  const inlineSuiteTags = parseTags(suite.title).map(t => `@${t.tag}`);
 
   if (configShowInTitle) {
     const currentSuiteTags = (suite as unknown as TestConfig)._testConfig?.tags;
 
     if (currentSuiteTags) {
       if (typeof currentSuiteTags === 'string') {
-        // todo when tags in title
         suite.title = `${suite.title} ${currentSuiteTags}`;
       } else {
         const tagsNotFoud = currentSuiteTags.filter(t => suite.title.indexOf(t) === -1);
         suite.title = currentSuiteTags.length > 0 ? suite.title + tagsNotFoud.join(' ') : suite.title;
       }
     }
+  } else {
+    suite.title = removeTagsFromTitle(suite.title);
   }
 
   if (suite.tests?.length > 0) {
     suite.tests = suite.tests.filter(t => {
-      console.log(`tg: ${JSON.stringify(tg)}`);
       const testTags = (t as unknown as TestConfig)._testConfig?.tags;
+      const inlineTagsTest = parseTags(t.title).map(t => `@${t.tag}`);
       // for some reason duplicate spaces
-      const uniqTags = uniq(tg);
-      console.log(`suiteTagsAll: ${JSON.stringify(uniqTags)}`);
+      const uniqSuiteTags = uniq(tg);
       const tagsArr = testTags && typeof testTags === 'string' ? [testTags] : testTags ?? [];
-      const testTagsAll = [...uniqTags, ...tagsArr];
-
-      console.log(`testTagsAll: ${JSON.stringify(testTagsAll)}`);
-
+      const testTagsAll = uniq([...inlineSuiteTags, ...uniqSuiteTags, ...tagsArr, ...inlineTagsTest]);
       const testTagsStr = testTags ? (typeof testTags !== 'string' ? testTags.join(' ') : testTags) : '';
+      console.log(`${t.title}: ${JSON.stringify(testTagsAll)}`);
+      (t as unknown as { tags: string[] }).tags = testTagsAll;
 
       if (configShowInTitle) {
         t.title += t.title.indexOf(testTagsStr) === -1 ? testTagsStr : '';
+      } else {
+        t.title = removeTagsFromTitle(t.title);
       }
 
-      const nexTitle = t?.fullTitle().replace(/\s\s/g, ' ') + testTagsAll?.join(' ') ?? '';
-      console.log('nexTitle');
-      console.log(nexTitle);
+      const nexTitle = removeTagsFromTitle(t?.fullTitle().replace(/\s\s/g, ' ')) + testTagsAll?.join(' ') ?? '';
 
       const strMatch = nexTitle.match(grep) ? '+' : '-';
-      excluded.push(`  ${strMatch}  ${nexTitle}`);
+      //filtered = uniq(filtered);
+      //filtered.push(`  ${strMatch}  ${nexTitle}`);
+      console.log(`  ${strMatch}  ${nexTitle}`);
 
       return nexTitle.match(grep);
     });
@@ -115,14 +116,16 @@ export const setupSelectTests = (
 
   const originalSuites = origins();
 
-  let outputTests = false;
+  // const outputTests = false;
   const suiteTags: string[] = [];
 
   // eslint-disable-next-line func-names
   const selectedSuitesConstruct = function () {
     function descWithTags(...args: unknown[]): Suite {
       const [, currentSuiteTags] = args;
-      const tags2 = (currentSuiteTags as { tags: string[] | string }).tags;
+
+      const tags2 =
+        typeof currentSuiteTags !== 'function' ? (currentSuiteTags as { tags: string[] | string }).tags : [];
 
       if (tags2) {
         if (typeof tags2 === 'string') {
@@ -134,15 +137,14 @@ export const setupSelectTests = (
 
       const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
 
-      console.log(`currentSuiteTags: ${currentSuiteTags}`);
       const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle);
       onCount(count);
 
-      if (!outputTests && excluded.length > 0) {
-        // eslint-disable-next-line no-console
-        console.log(`\nFiltered tests: \n\n${uniq(excluded).join('\n')}\n`);
-        outputTests = true;
-      }
+      //if (!outputTests && filtered.length > 0) {
+      // eslint-disable-next-line no-console
+      // console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
+      //outputTests = true;
+      // }
 
       return suite;
     }

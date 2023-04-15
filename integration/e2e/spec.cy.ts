@@ -2,6 +2,7 @@ describe('empty spec1', { tags: ['@parent'] }, () => {
   it('passes just parent', { tags: '@P1' }, () => {
     expect('cy').eq('cy');
   });
+
   describe('empty spec2', { tags: ['@hell'] }, () => {
     describe('empty spec3', { tags: ['@deep'] }, () => {
       it('passes t1', { tags: ['@t1'] }, () => {
