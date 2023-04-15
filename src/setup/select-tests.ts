@@ -23,14 +23,22 @@ type TestConfig = {
 };
 const excluded: string[] = [];
 
-const removeEmptySuites = (grep: RegExp, suite: Suite, tg: string[], count = 0): number => {
+const removeEmptySuites = (
+  grep: RegExp,
+  suite: Suite,
+  tg: string[],
+  configShowInTitle: boolean | undefined,
+  count = 0,
+): number => {
   let countCurrent = 0;
 
-  if (Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === 'true' || Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === true) {
+  if (configShowInTitle) {
     const currentSuiteTags = (suite as unknown as TestConfig)._testConfig?.tags;
 
     if (currentSuiteTags) {
       if (typeof currentSuiteTags === 'string') {
+        // const currentTags =
+        // todo when tags in title
         suite.title = `${suite.title} ${currentSuiteTags}`;
       } else {
         const tagsNotFoud = currentSuiteTags.filter(t => suite.title.indexOf(t) === -1);
@@ -53,7 +61,7 @@ const removeEmptySuites = (grep: RegExp, suite: Suite, tg: string[], count = 0):
 
       const testTagsStr = testTags ? (typeof testTags !== 'string' ? testTags.join(' ') : testTags) : '';
 
-      if (Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === 'true' || Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === true) {
+      if (configShowInTitle) {
         t.title += t.title.indexOf(testTagsStr) === -1 ? testTagsStr : '';
       }
 
@@ -81,9 +89,9 @@ const removeEmptySuites = (grep: RegExp, suite: Suite, tg: string[], count = 0):
       if (st.tests.length === 0 && st.suites.length === 0) {
         suite.suites = suite.suites.filter(k => k.title !== st.title);
 
-        return removeEmptySuites(grep, suite, tg);
+        return removeEmptySuites(grep, suite, tg, configShowInTitle);
       }
-      const testsCount = removeEmptySuites(grep, st, tg, count);
+      const testsCount = removeEmptySuites(grep, st, tg, configShowInTitle, count);
 
       if (testsCount === 0) {
         // remove suite with 0 tests
@@ -96,7 +104,11 @@ const removeEmptySuites = (grep: RegExp, suite: Suite, tg: string[], count = 0):
   return countCurrent;
 };
 
-export const setupSelectTests = (selector: () => RegExp, onCount: (num: number) => void): void => {
+export const setupSelectTests = (
+  selector: () => RegExp,
+  configShowInTitle: boolean | undefined,
+  onCount: (num: number) => void,
+): void => {
   // eslint-disable-next-line no-console
   console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
 
@@ -122,7 +134,7 @@ export const setupSelectTests = (selector: () => RegExp, onCount: (num: number) 
       const suite = (originalSuites.originDescribe as (...a: any[]) => Suite)(...args);
 
       console.log(`currentSuiteTags: ${currentSuiteTags}`);
-      const count = removeEmptySuites(selector(), suite, suiteTags);
+      const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle);
       onCount(count);
 
       if (!outputTests && excluded.length > 0) {

@@ -26,4 +26,8 @@ describe('empty spec1', { tags: ['@parent'] }, () => {
       });
     });
   });
+
+  it('passes t4 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
 });

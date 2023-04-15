@@ -1,4 +1,25 @@
-// todo make a note
+// todo add link to readme
+export const helpText = `
+  <p>You can put regexp expression here to filter tests </p>
+  <h2>Examples</h2>
+  <h3>And</h3>
+  <p>All tests with @tag1 and @tag2
+    <pre>@tag1&@tag2</pre>
+  </p>
+  <h3>Or</h3>
+  <p>All tests with @tag1 Or @tag2
+  <pre>@tag1|@tag2</pre>
+  </p>
+   <h3>Not</h3>
+   <p>
+  All tests without @tag1 and without @tag2
+  <pre>!@tag1&@tag2</pre>
+  </p>
+  
+  <p><a href="link to git">more info</a></p>
+ 
+`;
+
 export const selectionTestGrep = (str: string): RegExp => {
   // '=/hello$/i'
   if (str.startsWith('=')) {
