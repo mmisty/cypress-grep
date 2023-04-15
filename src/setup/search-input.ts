@@ -36,17 +36,21 @@ export const addSearchInput = () =>
 }
 
 .icon-container {
-  margin-right: 5px;
-  padding: 4px;
-  box-sizing: border-box;
   height: 24px;
   width: 24px;
-  border-radius: 8px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  margin: 0px;
+  margin-left: -5px;
+  padding: 0px;
   color: #848799;
   font-weight: bold;
   text-align: center;
 }
 
+.icon-container i {
+  padding-top: 7px;
+}
 .icon-container:hover {
   cursor:pointer;
   background-color: #474c61;
@@ -65,7 +69,8 @@ export const addSearchInput = () =>
   white-space: nowrap;
   text-align: left;
   max-height: 300px;
-  overflow:auto;
+  overflow-y:auto;
+  overflow-x:hidden;
 }
 .tooltip:hover{
   cursor:initial;
@@ -82,18 +87,28 @@ export const addSearchInput = () =>
 }
 
 input[type="text"] {
+  height: 24px;
   border: none;
   outline: none;
   flex-grow: 1;
-  
-  background-color:#00000024;
+  background-color:#00000000;
 }
 
 .clear-input {
   width: 14px;
-  opacity: 0;
-  margin-left: 5px;
+  height: 24px;
+  opacity: 1;
+  padding-left: 10px;
+  padding-right: 15px;
   cursor: pointer;
+  background-color:#76767624;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  box-sizing: border-box;
+  
+  margin-right: -5px;
+  
 }
 
 .clear-input i {
@@ -106,13 +121,31 @@ input[type="text"] {
 
 
 .number-input {
-  margin-left: 5px;
-  background-color:#00000024;
   color: #c4c4c4;
   border: none;
   outline: none;
-  width:40px;
+  min-width:20px;
   text-align: center;
+  font-size: 14px;
+  border-right: 1px solid #2e3247;
+  border-left: 1px solid #2e3247;
+}
+
+.number-input::after{
+  content: attr(data-tooltip);
+  z-index: 1;
+  position: absolute;
+  padding: 4px 8px 4px 8px;
+  border-radius: 5px;
+  background-color: #555868;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  display: none;
+}
+
+.number-input:hover::after {
+  display: block;
 }
 
 `,
@@ -131,6 +164,10 @@ input[type="text"] {
 
   </div>
   <div class="input-wrapper">
+  
+    <div class="number-input" id="tests-count" data-tooltip="number of found tests">
+       ${getItemValueForUI('GREP_COUNT', '#tests-count') ?? '0'}
+    </div>
     <input type="text" id="grep" placeholder="Search tests..." value="${
       Cypress.env('GREP') ?? getItemValueForUI('GREP', '#grep') ?? ''
     }"/>
@@ -139,9 +176,7 @@ input[type="text"] {
       <i class="fas fa-times"></i>
     </div>
 
-    <div class="number-input" id="tests-count">
-       ${getItemValueForUI('GREP_COUNT', '#tests-count') ?? '0'}
-    </div>
+    
   </div>
 </div>`,
     addEventListener: (parentId, listener, cyStop, cyRestart) => {
@@ -150,37 +185,38 @@ input[type="text"] {
         cyRestart();
       });
 
-      listener('#grep', 'input', () => {
-        const searchField = cypressAppSelect('#grep');
-        const clearInput = cypressAppSelect('.clear-input');
-        const value = searchField.val() as string;
-        clearInput.css('opacity', value?.length > 0 ? '1' : '0');
-      });
-
       listener('.clear-input', 'click', () => {
         console.log('CLEAR');
         const searchField = cypressAppSelect('#grep');
-        const clearInput = cypressAppSelect('.clear-input');
         searchField.val('');
-        clearInput.css('opacity', '0');
       });
 
-      listener('.icon-container', 'mouseover', () => {
-        const tooltip = cypressAppSelect('#tooltip');
+      const setZindex = (val: number) => {
         // for some reason cypress header has sticky position and hovers tooltip
         const cyHeader = cypressAppSelect('.reporter .runnable-header');
 
-        tooltip.css('opacity', '1');
-        cyHeader.css('z-index', '0');
+        cyHeader.css('z-index', `${val}`);
+      };
+
+      listener('.icon-container', 'mouseover', () => {
+        console.log('HOVER');
+        setZindex(0);
+      });
+
+      listener('.number-input', 'mouseover', () => {
+        // for some reason cypress header has sticky position and hovers tooltip
+        console.log('HOVER');
+        setZindex(0);
       });
 
       listener('.icon-container', 'mouseout', () => {
-        const tooltip = cypressAppSelect('#tooltip');
-        // for some reason cypress header has sticky position and hovers tooltip
-        const cyHeader = cypressAppSelect('.reporter .runnable-header');
+        console.log('OUTHOVER');
+        setZindex(1);
+      });
 
-        tooltip.css('opacity', '0');
-        cyHeader.css('z-index', '1');
+      listener('.number-input', 'mouseout', () => {
+        console.log('OUTHOVER');
+        setZindex(0);
       });
     },
   });

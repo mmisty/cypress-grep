@@ -1,6 +1,9 @@
 // todo add link to readme
 export const helpText = `
-  <p>You can put regexp expression here to filter tests </p>
+  <p>You can put regexp expression here to filter tests. Case insensitive.</p>
+  <p>To run regexp type: <pre>=/my regexp/i</pre></p>
+  
+  <p>Will search for all tests with tags @t1 or @t2 (case insensitive)<pre>=/@t[12]+/i</pre></p></p>
   <h2>Examples</h2>
   <h3>And</h3>
   <p>All tests with @tag1 and @tag2

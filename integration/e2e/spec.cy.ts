@@ -27,6 +27,21 @@ describe('empty spec1', { tags: ['@parent'] }, () => {
     });
   });
 
+  it('passes t41 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
+  it('passes t4 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
+  it('passes t43 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
+  it('passes t44 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
+  it('passes t45 @tagInTitle', () => {
+    expect(checkCov('cypress')).eq('cypress');
+  });
   it('passes t4 @tagInTitle', () => {
     expect(checkCov('cypress')).eq('cypress');
   });

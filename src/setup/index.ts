@@ -36,7 +36,7 @@ export const myPluginSetup = (config?: { addControlToUI?: boolean; showTagsInTit
     const testCount = cypressAppSelect('#tests-count');
 
     if (testCount.length > 0) {
-      testCount.val(count);
+      testCount.text(count);
     }
   });
 
