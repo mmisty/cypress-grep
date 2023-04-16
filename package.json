@@ -1,5 +1,5 @@
 {
-  "name": "cypress-grep",
+  "name": "@mmisty/cypress-grep",
   "version": "1.0.0",
   "description": "Filters tests by tags or by title using substring or regular expressions",
   "main": "index.js",
