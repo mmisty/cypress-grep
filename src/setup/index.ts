@@ -1,11 +1,11 @@
-import { setupSelectTests } from 'cy-local/setup/select-tests';
-import { selectionTestGrep } from 'cy-local/setup/regexp';
-import { addSearchInput, getItemValueForUI, updateCount } from 'cy-local/setup/search-input';
+import { setupSelectTests } from './select-tests';
+import { selectionTestGrep } from './regexp';
+import { addSearchInput, getItemValueForUI, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
-import { GrepConfig } from 'cy-local/setup/config.type';
+import { GrepConfig } from './config.type';
 
 const getGrepExpression = () => {
-  const uiValue = getItemValueForUI('#grep');
+  const uiValue = getItemValueForUI('.grep');
 
   // use UI input value only when interactive mode
   if (!Cypress.env('TEST_GREP') && Cypress.config('isInteractive') && uiValue != null) {

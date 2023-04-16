@@ -1,4 +1,4 @@
-import { getItemValueForUI } from 'cy-local/setup/search-input';
+import { getItemValueForUI } from '../search-input';
 
 // todo add link to readme
 const helpText = `
@@ -35,7 +35,7 @@ export const html = (
     </div>
     
     
-    <input type="text" id="${grepSelector.slice(
+    <input type="text" class="${grepSelector.slice(
       1,
     )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${
   Cypress.env('GREP') ?? getItemValueForUI(grepSelector) ?? ''

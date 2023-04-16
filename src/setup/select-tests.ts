@@ -1,6 +1,6 @@
 import type { Suite } from 'mocha';
-import { parseTags, removeTagsFromTitle } from 'cy-local/setup/tags';
-import { GrepConfig } from 'cy-local/setup/config.type';
+import { parseTags, removeTagsFromTitle } from './tags';
+import { GrepConfig } from './config.type';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -209,7 +209,7 @@ export const setupSelectTests = (
       const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
 
       // the end, root suite, filter recursively
-      if (!suite.parent?.parent) {
+      if (suite && !suite.parent?.parent) {
         const filtered: string[] = [];
 
         const count = filterTests(
