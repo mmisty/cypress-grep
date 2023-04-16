@@ -4,6 +4,7 @@ This package helps to filter tests by tags or by title using substring or regula
 And package allows to add UI control with ability to filter tests inside selected file:
 
 ![tags_search_0.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_0.jpg)
+![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/p1.gif)
 
 ## Installation
 
