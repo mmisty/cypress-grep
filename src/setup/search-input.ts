@@ -1,4 +1,4 @@
-import { cypressAppSelect, setupControlsExtension } from 'cypress-controls-ext';
+import { cypressAppSelect, ListenerSetting, setupControlsExtension } from 'cypress-controls-ext';
 import { style } from 'cy-local/setup/select-element/select-element-css';
 import { html } from 'cy-local/setup/select-element/select-element-html';
 
@@ -29,6 +29,16 @@ const setZIndex = (val: number) => {
   cyHeader.css('z-index', `${val}`);
 };
 
+const tooltipCorrect = (selector: string, eq: number, listener: ListenerSetting) => {
+  listener(`${selector}:eq(${eq})`, 'mouseover', () => {
+    setZIndex(0);
+  });
+
+  listener(`${selector}:eq(${eq})`, 'mouseout', () => {
+    setZIndex(1);
+  });
+};
+
 export const addSearchInput = (showTags: boolean, showPending: boolean) => {
   setupControlsExtension({
     mode: { open: true },
@@ -56,57 +66,26 @@ export const addSearchInput = (showTags: boolean, showPending: boolean) => {
       });
 
       listener('.show-tags', 'click', () => {
+        const tagsDataSel = 'data-show-tags';
         const tags = cypressAppSelect('.show-tags');
-        const val = tags.attr('data-show-tags');
+        const val = tags.attr(tagsDataSel);
 
-        if (val === 'true') {
-          tags.attr('data-show-tags', 'false');
-        } else {
-          tags.attr('data-show-tags', 'true');
-        }
+        tags.attr(tagsDataSel, val === 'true' ? 'false' : 'true');
       });
 
       listener('.show-pending', 'click', () => {
+        const pendingDataSel = 'data-show-pending';
         const tags = cypressAppSelect('.show-pending');
-        const val = tags.attr('data-show-pending');
+        const val = tags.attr(pendingDataSel);
 
-        if (val === 'true') {
-          tags.attr('data-show-pending', 'false');
-        } else {
-          tags.attr('data-show-pending', 'true');
-        }
+        tags.attr(pendingDataSel, val === 'true' ? 'false' : 'true');
       });
 
-      listener(iconSearch, 'mouseover', () => {
-        setZIndex(0);
-      });
-
-      listener(iconSearch, 'mouseout', () => {
-        setZIndex(1);
-      });
-      listener('.show-tags', 'mouseover', () => {
-        setZIndex(0);
-      });
-
-      listener('.show-tags', 'mouseout', () => {
-        setZIndex(1);
-      });
-
-      listener('.show-pending', 'mouseover', () => {
-        setZIndex(0);
-      });
-
-      listener('.show-pending', 'mouseout', () => {
-        setZIndex(1);
-      });
-
-      listener(testsCountSelector, 'mouseover', () => {
-        setZIndex(0);
-      });
-
-      listener(testsCountSelector, 'mouseout', () => {
-        setZIndex(1);
-      });
+      tooltipCorrect('.btn-wrapper', 0, listener);
+      tooltipCorrect('.btn-wrapper', 1, listener);
+      tooltipCorrect('.btn-wrapper', 2, listener);
+      tooltipCorrect(iconSearch, 0, listener);
+      tooltipCorrect(testsCountSelector, 0, listener);
     },
   });
 };

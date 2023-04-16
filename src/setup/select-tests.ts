@@ -1,5 +1,6 @@
 import type { Suite } from 'mocha';
 import { parseTags, removeTagsFromTitle } from 'cy-local/setup/tags';
+import { GrepConfig } from 'cy-local/setup/config.type';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -62,7 +63,7 @@ const tagsSuite = (st: Mocha.Suite): string[] => {
  * @param rootSuite
  * @param setting
  */
-const suiteTitleChange = (rootSuite: Mocha.Suite, setting: Settings) => {
+const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
   for (const suite of rootSuite.suites) {
     const suiteTags = tagsSuite(suite);
 
@@ -112,7 +113,7 @@ type MochaTestExtended = Mocha.Test & {
   fullTitleWithTags?: string;
 };
 
-const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: Settings): string => {
+const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepConfig): string => {
   const testTagsAll = getTestTags(test, suiteTags);
   const line = test.fullTitle() + testTagsAll.join(' ');
 
@@ -129,15 +130,10 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: Setti
   return fullTitleWithTags;
 };
 
-type Settings = {
-  showTagsInTitle: boolean;
-  showExcludedTests: boolean;
-};
-
 function filterTests(
   suiteoInint: Mocha.Suite,
   regexp: RegExp,
-  settings: Settings,
+  settings: GrepConfig,
   onFilteredTest: (test: MochaTestExtended) => void,
   onExcludedTest: (test: MochaTestExtended) => void,
 ): number {
@@ -194,9 +190,15 @@ function filterTests(
   return filteredCount;
 }
 
-export const setupSelectTests = (selector: () => RegExp, settings: Settings, onCount: (num: number) => void): void => {
-  // eslint-disable-next-line no-console
-  console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
+export const setupSelectTests = (
+  selector: () => RegExp,
+  settings: GrepConfig,
+  onCount: (num: number) => void,
+): void => {
+  if (settings.debugLog) {
+    // eslint-disable-next-line no-console
+    console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
+  }
 
   const originalSuites = origins();
 
@@ -225,7 +227,10 @@ export const setupSelectTests = (selector: () => RegExp, settings: Settings, onC
         onCount(count);
         suiteTitleChange(suite, settings);
 
-        console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
+        if (settings.debugLog) {
+          // eslint-disable-next-line no-console
+          console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
+        }
       }
 
       return suite;

@@ -2,6 +2,7 @@ import { setupSelectTests } from 'cy-local/setup/select-tests';
 import { selectionTestGrep } from 'cy-local/setup/regexp';
 import { addSearchInput, getItemValueForUI, updateCount } from 'cy-local/setup/search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
+import { GrepConfig } from 'cy-local/setup/config.type';
 
 const getGrepExpression = () => {
   const uiValue = getItemValueForUI('#grep');
@@ -21,10 +22,6 @@ const getGrepExpression = () => {
 const selectTests = () => {
   const grepSelected = getGrepExpression();
 
-  if (grepSelected !== '') {
-    Cypress.env('showTagsInTitle', 'true');
-  }
-
   return selectionTestGrep(grepSelected);
 };
 
@@ -38,45 +35,25 @@ const elVal = (selector: string, dataSelector: string, initial?: boolean) => {
   return el.attr(dataSelector) === 'true';
 };
 
-type GrepConfig = {
-  /**
-   * Add UI control to filter test (only for interactive mode), default false
-   */
-  addControlToUI?: boolean;
-  /**
-   * Show tags in test title, default false
-   */
-  showTagsInTitle?: boolean;
-  /**
-   * Show excluded tests as pending, default false
-   */
-  showExcludedTests?: boolean;
-};
-
 export const registerCypressGrep = (config?: GrepConfig) => {
   // here you can do setup for each test file in browser
-  console.log('REGISTER CYPRESS GREP');
-  let showTagsValuUi: boolean | undefined;
-  let showPendingValuUi: boolean | undefined;
+  if (config?.debugLog) {
+    console.log('REGISTER CYPRESS GREP');
+  }
+  let showTagsInTitle: boolean | undefined;
+  let showExcludedTests: boolean | undefined;
 
   if (Cypress.config('isInteractive')) {
-    showTagsValuUi = elVal('.show-tags', 'data-show-tags', config?.showTagsInTitle);
-    showPendingValuUi = elVal('.show-pending', 'data-show-pending', config?.showExcludedTests);
+    showTagsInTitle = elVal('.show-tags', 'data-show-tags', config?.showTagsInTitle);
+    showExcludedTests = elVal('.show-pending', 'data-show-pending', config?.showExcludedTests);
   } else {
-    showTagsValuUi = config?.showTagsInTitle ?? false;
-    showPendingValuUi = config?.showExcludedTests ?? false;
+    showTagsInTitle = config?.showTagsInTitle ?? false;
+    showExcludedTests = config?.showExcludedTests ?? false;
   }
 
   if (config?.addControlToUI) {
-    addSearchInput(showTagsValuUi, showPendingValuUi);
+    addSearchInput(showTagsInTitle, showExcludedTests);
   }
 
-  setupSelectTests(
-    selectTests,
-    {
-      showTagsInTitle: showTagsValuUi,
-      showExcludedTests: showPendingValuUi,
-    },
-    updateCount,
-  );
+  setupSelectTests(selectTests, { ...config, showTagsInTitle, showExcludedTests }, updateCount);
 };
