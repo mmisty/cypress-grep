@@ -2,6 +2,4 @@
 /// <reference path="./cypress/cypress.ts" />
 
 // here export only functions to run in browser
-
-export { something } from './setup/something';
-export { myPluginSetup } from './setup';
+export { registerCypressGrep } from './setup';

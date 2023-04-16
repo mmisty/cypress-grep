@@ -1,89 +1,85 @@
+# @mmisty/cypress-grep
+This package filters tests by tags or by title using substring or regular expressions.
 
-# cypress-template
+Also package allows to add UI control with ability to filter tests in selected file
 
-Template to create cypress library with jest tests, correct package structure,
-coverage connected to cypress and merging coverage for jest and cypress
+### Run tests by tag
+Run by @P1
+![tags_search_0.jpg](./docs-template/tags_search_0.jpg)
 
-- [x] typescript support
-- [x] code coverage for cypress and jest, merge coverage
-- [x] formatting and eslint
-- [x] jest tests
-- [x] proper library extraction
+Show tags in title
+![tags_search_2.jpg](./docs-template/tags_search_2.jpg)
 
-Create repository using this template if you need to create cypress library.
+Show tags in title and show excluded tests
+![tags_search_4.jpg](./docs-template/tags_search_4.jpg)
 
-### Project structure
+### Run tests by combination:
+![tags_search_5.jpg](./docs-template/tags_search_5.jpg)
 
-| Location      | description                                                                                                  |
-|---------------|--------------------------------------------------------------------------------------------------------------|
-| `src`         | all library code will be located here, see [folder src](#folder-src) section                                 |
-| `integration` | folder contains cypress tests for testing the library, see [folder integration](#folder-integration) section |
-| `tests`       | folder contains jest unit tests for testing the library                                                      |
-| `reports`     | directory that will be created after tests run with coverage info and reports                                |
-| `.scripts`    | helper scripts                                                                                               |
-| `.github`     | github actions workflows                                                                                     |
-| `.husky`      | pre-commit hooks (install by `npm run husky:install`)                                                        |
+## Installation
 
-#### Folder src
-Your library will contain only the code that located in this folder
+```
+npm i @mmisty/cypress-grep
+```
 
-| Location       | Description                                                                                                                                                                                                                                                 |
-|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `src/index.ts` | export anything you want to be imported on user side from your library by '<your library name>' that should run in browser                                                                                                                                  |
-| `src/cypress`  | when you library contains additional commands put types for your commands inside `types.ts` file </br></br> When using some other libraries in yours you can import its types within `cypress.ts`</br>**Note**: this folder should have `cypress` name for easier types setup when you library is ready (this way you will not need to add your library in tsconfig.json types section) |
-| `src/plugins`  | when you library need to handle node events (register tasks or other things on node side) you can put it all here. <br/>Export all required methods within `index.ts` file. <br/>So when using library user imports will be `'<your library name>/plugins'` |
-| `src/setup`    | all functions that should be run in browser, export within `index.ts`                                                                                                                                                                                       |
-| `src/utils`    | some functions that can be run on both environments - node and DOM (browser), export within `index.ts`                                                                                                                                                      |
+### Setup
 
-#### Folder integration
-| Location                           | description                                                                                                                                                                                                                                                 |
-|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `integration/plugins`              | use your plugins from `src` here<br/>`ts-preprocessor.ts` is requiered to gather coverage info                                                                                                                                                                |
-| `integration/support`              | use your src/support, import it replacing `src` with `cy-local` to have correct code coverage                                                                                                                                                               |
-| `integration/e2e`                  | tests folder, use anything from `src`, import it replacing `src` with `cy-local` to have correct code coverage                                                                                                                                              |
+```javascript
+// setup.ts
+import { registerCypressGrep } from '@mmisty/cypress-grep';
+
+registerCypressGrep({
+  // will affect only Interactive mode
+  addControlToUI: true,
+  
+  // you can create environment variable to show tags in title if necessary
+  showTagsInTitle: true,
+  
+  // this will be controllable in Interactive mode 
+  showExcludedTests: true, 
+  
+});
+```
+
+### Specify tags
+Tags could be specified in different ways:
+ - just input inline tags in test or suite title like `@smoke`
+ - add config to suite or test `{ tags: '@smoke' }` or `{ tags: ['@smoke'] }`
+ 
+    ```javascript
+    describe('login', { tags: '@smoke' }, () => {
+      it('should login @P0 @regression', ()=> {
+        // ...
+      });
+   
+      it('special case on login', { tags: ['@P1', '@regression'] }, () => {
+        // ...
+      });
+    });
+    
+    ```
+
+### Run by tags
+To run by tags you need to specify environment variable 'GREP'
+
+I used to run it by `CYPRESS_GREP='@smoke' npm run cy:run`
+
+Here are some examples: 
+- `!@` - run all tests without tags
+- `@e2e|@regression` - OR: runs all tests with `@e2e` or `@regression`
+- `@e2e/@regression` - OR: runs all tests with `@e2e` or `@regression`
+- `@P2&@GG` - AND: runs all tests with `@P2` AND `@GG`
+- `@smoke&!@P2&!@P1` - AND with EXCLUSION: runs all tests with `smoke` and without `@P2` and without `@P1`
+- `(@P1|@P2)&!@smoke` - AND with EXCLUSION: runs all tests with `@P2` or `@P1` and without `@smoke`
+- `(@P[12])&!@smoke` - AND with EXCLUSION: runs all tests with `@P2` or `@P1` and without `@smoke`
+
+There is also possibility to input pure regexp:
+- `=/(?=.*@smoke)(?=.*@p1).*/i` - AND - runs all tests that have `@smoke` and `@p1` tags
+- `=/^(?!.*@smoke)(?!.*@p1).*$/i` - runs all tests WITHOUT `@smoke` and WITHOUT `@tags`
+- `=/(?=.*@smoke)(?=.*@p1).*/i` - Exclude (can be used `!` at the beggining of line to inverse the whole expression) - runs all tests WITHOUT `@gg` and WITHOUT `@tags`
+- `=/(?!.*@smoke)(?=.*@p1)/i` - runs all tests WITHOUT `@smoke` and with `@tags`
+- `=/@P[12]/` - runs all tests with `@P1` or `@P2`
 
 
-### Code coverage
-Coverage is being gathered from cypress and from jest, after all tests finished coverages
-from both test packs will be merged
-
-![coverage-example](./docs-template/cov-example.jpg)
 
 
-To see individual coverage reports run:
-- `npm run cov:jest`  html report with coverage for jest tests
-- `npm run cov:cy`  html report with coverage for jest tests
-- `npm run cov`  html report with combined coverage
-
-### Extraction
-
-Before publishing do not forget:
- - to increment package version  for your package
- - fill all fields in package.json for your package
-
-You can test your package by running `npm run try:pack` (All changes should be committed before that)
-
-![structure](./docs-template/structure.jpg)
-
-### Scripts
-
-| script          | description                                                                                                                                                   |
-|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `husky:install` | install precommit hooks                                                                                                                                       |
-| `lint`          | lint code                                                                                                                                                     |
-| `build`         | compile typescript by [tsconfig.build.json](./tsconfig.build.json)                                                                                            |
-| `test`          | run all jest tests                                                                                                                                            |
-| `test:cov`      | run all jest tests with coverage                                                                                                                              |
-| `cy:open`       | start cypress in interactive mode                                                                                                                             |
-| `cy:open:cov`   | start cypress in interactive mode with coverage                                                                                                               |
-| `cy:run`        | run cypress tests                                                                                                                                             |
-| `cy:run:cov`    | run cypress tests with coverage                                                                                                                               |
-| `cov:merge`     | merge jest and cypress coverage results                                                                                                                       |
-| `cov:jest`      | show html report for jest coverage (http-server should be installed globally, `npm i http-server -g`)                                                         |
-| `cov:cy`        | show html report for cypress coverage (http-server should be installed globally, `npm i http-server -g`)                                                      |
-| `cov`           | show html report for full coverage (http-server should be installed globally, `npm i http-server -g`)                                                         |
-| `cov:check`     | check coverage by thresholds specified in [nyc.config.js](./nyc.config.js)                                                                                    |
-| `pre`           | run all necessary scripts  (fmt, lint, build, tests and check cov)                                                                                            |
-| `extract`       | should be run after tsc and after everything is staged. Extracts everything from 'lib' to root directory. This is required for nice imports in target library |
-| `extract:undo`  | Be careful, commit everything you need before. Removes files and dirs that were extracted after `extract`                                                     |
-| `try:pack`      | try to pack the library - will create archieve with library files                                                                                             |

@@ -1,10 +1,10 @@
 {
-  "name": "cypress-template",
+  "name": "@mmisty/cypress-grep",
   "version": "1.0.0",
-  "description": "cypress template to create cypress libraries with typescript / jest / code coverage",
+  "description": "Filters tests by tags or by title using substring or regular expressions",
   "main": "index.js",
-  "repository": "git@github.com:mmisty/cypress-template.git",
-  "homepage": "https://github.com/mmisty/cypress-template#readme",
+  "repository": "git@github.com:mmisty/cypress-grep.git",
+  "homepage": "https://github.com/mmisty/cypress-grep#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
@@ -13,7 +13,10 @@
     "e2e",
     "tests",
     "typescript",
-    "template"
+    "template",
+    "grep",
+    "select",
+    "filter"
   ],
   "author": "Taisia Pitko (mmisty) <minydas@yandex.ru>",
   "scripts": {
@@ -24,6 +27,7 @@
     "cy": "cypress",
     "cy:open": "npm run cy -- open",
     "cy:run": "npm run cy -- run --browser chrome --headless",
+    "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/example/**/small.cy.ts'",
     "cy:run:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy -- run",
     "cy:open:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy -- open",
     "build": "tsc --project tsconfig.build.json",
@@ -40,7 +44,7 @@
     "pre": "rm -rf ./node_modules/.cache lib reports coverage-nyc .nyc_output && npm run lint && npm run build:all && npm run test:all && npm run cov:merge",
     "extract": "node .scripts/extract.js  --source lib --target . --package package.json",
     "extract:undo": "npm run extract -- --undo",
-    "prepublishOnly": "npm run pre && npm run extract",
+    "prepublishOnly": "npm run extract",
     "postpublish": "npm run extract:undo",
     "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish"
   },
@@ -52,7 +56,7 @@
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
-    "cypress": "^11.2.0",
+    "cypress": "^12.9.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-cypress": "^2.12.1",
@@ -72,5 +76,14 @@
     "tsconfig-paths-webpack-plugin": "^4.0.0",
     "typescript": "^4.9.3",
     "webpack": "^5.75.0"
-  }
+  },
+  "dependencies": {
+    "cypress-controls-ext": "^0.1.4"
+  },
+  "files": [
+    "cypress/**",
+    "index.d.ts",
+    "index.js",
+    "setup/**"
+  ]
 }
