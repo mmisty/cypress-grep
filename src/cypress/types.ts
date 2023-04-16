@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-namespace
-declare namespace Cypress {
-  interface SuiteConfigOverrides {
+namespace Cypress {
+  export interface SuiteConfigOverrides {
     /**
      * List of tags for the suite, could be string or array of strings
      * @example
@@ -10,7 +10,7 @@ declare namespace Cypress {
     tags?: string | string[];
   }
 
-  interface TestConfigOverrides {
+  export interface TestConfigOverrides {
     /**
      * List of tags for test  - could be string or array of strings
      * @example

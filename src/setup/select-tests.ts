@@ -209,7 +209,7 @@ export const setupSelectTests = (
       const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
 
       // the end, root suite, filter recursively
-      if (!suite.parent?.parent) {
+      if (suite && !suite.parent?.parent) {
         const filtered: string[] = [];
 
         const count = filterTests(
