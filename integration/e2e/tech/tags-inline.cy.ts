@@ -11,7 +11,11 @@ const toTest = () => {
     });
   });
 };
-const result = ['parent suite test inside1 apple @regression @P0', 'parent suite test inside2 banana @regression @P1'];
+
+const result = [
+  'parent suite test inside1 apple @regressionInline @P0Inline',
+  'parent suite test inside2 banana @regressionInline @P1Inline',
+];
 suiteTest('tags cases inline', '@regression', toTest, result);
 /*suiteTest('tags cases one', '@P0', toTest, ['parent suite @regressionInline test inside1 apple @P0Inline']);
 suiteTest('tags cases one', '@P1', toTest, ['parent suite @regressionInline test inside2 banana @P1Inline']);

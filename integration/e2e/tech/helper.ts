@@ -8,7 +8,7 @@ export const suiteTest = (title: string, grep: string, testedSuite: () => void, 
   registerCypressGrep({
     addControlToUI: true,
     showTagsInTitle: false,
-    omitFilteredTests: true,
+    showExcludedTests: false,
   });
 
   describe('parent', () => {
@@ -25,7 +25,7 @@ export const suiteTest = (title: string, grep: string, testedSuite: () => void, 
   registerCypressGrep({
     addControlToUI: true,
     showTagsInTitle: true,
-    omitFilteredTests: true,
+    showExcludedTests: false,
   });
 
   describe(`${title} ${grep}`, () => {
