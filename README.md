@@ -11,6 +11,9 @@ npm i @mmisty/cypress-grep
 ```
 
 ### Setup
+Add `registerCypressGrep` to you `support/index.ts` file (or `support/e2e.ts` whichever you user)
+
+Types will be added automatically.
 
 ```javascript
 // setup.ts
@@ -19,8 +22,8 @@ import { registerCypressGrep } from '@mmisty/cypress-grep';
 registerCypressGrep({
   // will affect only Interactive mode
   addControlToUI: true,
-  
-  // you can create environment variable to show tags in title if necessary
+
+   // this will be controllable in Interactive mode 
   showTagsInTitle: true,
   
   // this will be controllable in Interactive mode 
@@ -57,9 +60,14 @@ Run by @P1
 To run by tags you need to specify environment variable 'GREP'
 
 Run all tests with @P1 tag
-`CYPRESS_GREP='@P1' npm run cy:run`
+```
+CYPRESS_GREP='@P1' npm run cy:run
+```
+or 
 
-I used to run it by `CYPRESS_GREP='@smoke' npm run cy:run`
+```
+npx cypress run --env GREP='@p1'
+```
 
 Here are some examples: 
 - `!@` - run all tests without tags
