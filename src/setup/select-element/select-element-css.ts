@@ -40,7 +40,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
 }
 ${iconContainerSearch} {
   height: ${controlsHeight}px;
-  width: ${iconHeight}px;
+  width: ${iconHeight + 5}px;
   box-sizing: border-box;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
