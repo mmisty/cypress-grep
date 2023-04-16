@@ -11,6 +11,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   }
 .reporter .controls {
   height: ${controlsHeight}px;
+  border-radius: 6px;
 }
 
 .reporter .stats  {
