@@ -1,5 +1,5 @@
 {
-  "name": "@mmisty/cypress-grep",
+  "name": "cypress-grep",
   "version": "1.0.0",
   "description": "Filters tests by tags or by title using substring or regular expressions",
   "main": "index.js",
@@ -79,5 +79,11 @@
   },
   "dependencies": {
     "cypress-controls-ext": "^0.1.4"
-  }
+  },
+  "files": [
+    "cypress/**",
+    "index.d.ts",
+    "index.js",
+    "setup/**"
+  ]
 }

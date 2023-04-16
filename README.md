@@ -1,4 +1,4 @@
-# @mmisty/cypress-grep
+# cypress-grep
 This package filters tests by tags or by title using substring or regular expressions.
 
 Also package allows to add UI control with ability to filter tests in selected file
@@ -19,7 +19,7 @@ Show tags in title and show excluded tests
 ## Installation
 
 ```
-npm i @mmisty/cypress-grep
+npm i cypress-grep
 ```
 
 ### Setup
