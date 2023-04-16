@@ -1,4 +1,4 @@
-import { getItemValueForUI } from 'cy-local/setup/search-input';
+import { getItemValueForUI } from '../search-input';
 
 // todo add link to readme
 const helpText = `
