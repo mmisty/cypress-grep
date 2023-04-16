@@ -1,7 +1,7 @@
 {
   "name": "@mmisty/cypress-grep",
   "version": "1.0.0",
-  "description": "cypress template to create cypress libraries with typescript / jest / code coverage",
+  "description": "Filters tests by tags or by title using substring or regular expressions",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
   "homepage": "https://github.com/mmisty/cypress-grep#readme",
@@ -14,7 +14,9 @@
     "tests",
     "typescript",
     "template",
-    "grep"
+    "grep",
+    "select",
+    "filter"
   ],
   "author": "Taisia Pitko (mmisty) <minydas@yandex.ru>",
   "scripts": {
