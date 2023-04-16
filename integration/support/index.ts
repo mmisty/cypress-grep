@@ -20,4 +20,5 @@ registerCypressGrep({
   addControlToUI: valBoolEq('GREP_SHOW_UI_CONTROL', true),
   showTagsInTitle: valBoolEq('GREP_SHOW_TAGS_IN_TITLE', true),
   showExcludedTests: valBoolEq('GREP_SHOW_EXCLUDED_TESTS', true),
+  debugLog: true,
 });

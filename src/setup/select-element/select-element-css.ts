@@ -1,5 +1,6 @@
 const controlsHeight = 30;
-const iconWidth = 16;
+const iconHeight = 20;
+const inputWidth = 116;
 
 export const style = (testsCountSelector: string, iconContainerSearch: string) => (parentId: string) =>
   `
@@ -18,7 +19,8 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
       
 #${parentId} {
   display: flex;
-  flex-direction: row;
+  flex-grow: 2;
+  flex-direction: column;
   align-items: baseline;
   padding:0px;
   margin:0px;
@@ -27,27 +29,36 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
 .input-container {
   height: ${controlsHeight}px;
   box-sizing: border-box;
-  min-width: 250px;
+  min-width: 150px;
   display: flex;
   align-items: center;
-  border-radius: 5px;
+  border-radius: 4px;
   padding: 5px;
 }
-
+.btn-wrapper-2{
+  height: ${controlsHeight - 2}px;
+}
 ${iconContainerSearch} {
   height: ${controlsHeight}px;
-  width: ${controlsHeight}px;
+  width: ${iconHeight}px;
   box-sizing: border-box;
-  border-radius-left: 4px;
-  margin: 0px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  margin: -0px;
   margin-left: -5px;
   padding: 0px;
   font-weight: bold;
   text-align: center;
 }
 
+.flex-center {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+}
+
 ${iconContainerSearch} i {
-  padding-top: ${controlsHeight / 3.5}px;
   color: #5a5f7a;
 }
 
@@ -61,7 +72,7 @@ ${iconContainerSearch}:hover {
   display: none;
   position: absolute;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 4px;
   background-color: #f3f3fb;
   border: 1px solid #2e3247;
  
@@ -90,10 +101,12 @@ ${iconContainerSearch}:hover .tooltip {
   display: flex;
   align-items: center;
   flex-grow: 1;
+  margin-top: -7px;
 }
 
 input[type="text"] {
   height: ${controlsHeight}px;
+  max-width: ${inputWidth}px;
   border: none;
   outline: none;
   flex-grow: 1;
@@ -102,8 +115,6 @@ input[type="text"] {
 
 ${testsCountSelector} {
   height: ${controlsHeight - 2}px;
-  margin-top: -2px;
-  padding-top: ${controlsHeight / 7}px;
   color: #5a5f7a;
   font-weight: bold;
   border: none;
@@ -111,28 +122,30 @@ ${testsCountSelector} {
   min-width:30px;
   text-align: center;
   font-size: 14px;
-  border-right: 1px solid #2e3247;
-  border-left: 1px solid #2e3247;
+  /**border-right: 1px solid #2e3247;
+  border-left: 1px solid #2e3247;**/
 }
-.btn-wrapper{
 
-}
 .btn {
   box-sizing: border-box;
   border: 1px solid #00000000;
-  
-  width: ${controlsHeight + 4}px;
-  height: ${controlsHeight - 2}px;
-  margin-top: -${2}px;
+ 
+  width: ${iconHeight + 4}px;
+  height: ${controlsHeight - 1}px;
+  margin-top: 1px;
   opacity: 1;
-  padding-left: ${controlsHeight - 19}px;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
+
+.btn.show-pending {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 .btn.clear-input{
   border-right: 1px solid #2e3247;
-  width: ${controlsHeight}px;
+  width: ${iconHeight}px;
 }
 .btn i {
   color: #5a5f7a;
@@ -155,6 +168,7 @@ ${testsCountSelector} {
   background-color: #363c52;
 }
 
+
 .btn[data-show-tags="true"] i {
   color: #8298e1;
 }
@@ -168,7 +182,7 @@ ${testsCountSelector} {
   position: absolute;
   z-index: 1;
   padding: 4px 8px 4px 8px;
-  border-radius: 5px;
+  border-radius: 4px;
   border: 1px solid #2e3247;
   background-color: #f3f3fb;
   color: #000;
@@ -184,7 +198,7 @@ ${testsCountSelector}::after {
   z-index: 1;
   position: absolute;
   padding: 4px 8px 4px 8px;
-  border-radius: 5px;
+  border-radius: 4px;
   background-color: #f3f3fb;
   color: #000;
   font-weight: normal;

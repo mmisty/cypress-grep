@@ -42,8 +42,11 @@ const tooltipCorrect = (selector: string, eq: number, listener: ListenerSetting)
 export const addSearchInput = (showTags: boolean, showPending: boolean) => {
   setupControlsExtension({
     mode: { open: true },
-    inject: 'start',
-    selectorToInject: '.reporter .controls',
+    inject: 'insertAfter',
+    // selectorToInject: '.reporter .controls',
+    //selectorToInject: 'header',
+    // selectorToInject: '.reporter .container .runnable-header',
+    selectorToInject: '.reporter header .toggle-specs-wrapper',
     id: 'searchInput',
     style: style(testsCountSelector, iconSearch),
     control: () => html(testsCountSelector, inputGrep, iconSearch, showTags, showPending),
@@ -84,8 +87,19 @@ export const addSearchInput = (showTags: boolean, showPending: boolean) => {
       tooltipCorrect('.btn-wrapper', 0, listener);
       tooltipCorrect('.btn-wrapper', 1, listener);
       tooltipCorrect('.btn-wrapper', 2, listener);
+      tooltipCorrect('.btn-wrapper', 3, listener);
       tooltipCorrect(iconSearch, 0, listener);
+
       tooltipCorrect(testsCountSelector, 0, listener);
+      listener(iconSearch, 'mouseover', () => {
+        const tool = cypressAppSelect('.tooltip');
+        tool.css('display', 'block');
+      });
+
+      listener(iconSearch, 'mouseout', () => {
+        const tool = cypressAppSelect('.tooltip');
+        tool.css('display', 'none');
+      });
     },
   });
 };

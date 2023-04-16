@@ -25,35 +25,43 @@ const selectTests = () => {
   return selectionTestGrep(grepSelected);
 };
 
-const elVal = (selector: string, dataSelector: string, initial?: boolean) => {
+const elVal = (selector: string, dataSelector: string, initial: boolean): boolean => {
   const el = cypressAppSelect(selector);
 
-  if (!el.attr(dataSelector) && (initial !== undefined || initial)) {
-    el.attr(dataSelector, initial ? 'true' : 'false');
+  if (!el?.attr('class')) {
+    console.log('NOT LOADED YET');
+
+    return initial;
   }
 
   return el.attr(dataSelector) === 'true';
 };
 
 export const registerCypressGrep = (config?: GrepConfig) => {
+  const initShowTagsInTitle = config?.showTagsInTitle ?? false;
+  const initShowExcludedTests = config?.showExcludedTests ?? false;
+
   // here you can do setup for each test file in browser
-  if (config?.debugLog) {
-    console.log('REGISTER CYPRESS GREP');
-  }
-  let showTagsInTitle: boolean | undefined;
-  let showExcludedTests: boolean | undefined;
+  const log = (message: unknown) => {
+    if (config?.debugLog) {
+      console.log(message);
+    }
+  };
+  log('REGISTER CYPRESS GREP: ');
+
+  let showTagsInTitle: boolean = initShowTagsInTitle;
+  let showExcludedTests: boolean = initShowExcludedTests;
 
   if (Cypress.config('isInteractive')) {
-    showTagsInTitle = elVal('.show-tags', 'data-show-tags', config?.showTagsInTitle);
-    showExcludedTests = elVal('.show-pending', 'data-show-pending', config?.showExcludedTests);
-  } else {
-    showTagsInTitle = config?.showTagsInTitle ?? false;
-    showExcludedTests = config?.showExcludedTests ?? false;
+    showTagsInTitle = elVal('.show-tags', 'data-show-tags', initShowTagsInTitle);
+    showExcludedTests = elVal('.show-pending', 'data-show-pending', initShowExcludedTests);
   }
 
   if (config?.addControlToUI) {
     addSearchInput(showTagsInTitle, showExcludedTests);
   }
+  const configEvaluated = { ...config, showTagsInTitle, showExcludedTests };
 
-  setupSelectTests(selectTests, { ...config, showTagsInTitle, showExcludedTests }, updateCount);
+  log(configEvaluated);
+  setupSelectTests(selectTests, configEvaluated, updateCount);
 };
