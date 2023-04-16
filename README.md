@@ -5,16 +5,16 @@ Also package allows to add UI control with ability to filter tests in selected f
 
 ### Run tests by tag
 Run by @P1
-![tags_search_0.jpg](./docs-template/tags_search_0.jpg)
+![tags_search_0.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_0.jpg)
 
 Show tags in title
-![tags_search_2.jpg](./docs-template/tags_search_2.jpg)
+![tags_search_2.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_2.jpg)
 
 Show tags in title and show excluded tests
-![tags_search_4.jpg](./docs-template/tags_search_4.jpg)
+![tags_search_4.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_4.jpg)
 
 ### Run tests by combination:
-![tags_search_5.jpg](./docs-template/tags_search_5.jpg)
+![tags_search_5.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_5.jpg)
 
 ## Installation
 
