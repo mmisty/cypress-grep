@@ -5,7 +5,7 @@ import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.type';
 
 const getGrepExpression = () => {
-  const uiValue = getItemValueForUI('#grep');
+  const uiValue = getItemValueForUI('.grep');
 
   // use UI input value only when interactive mode
   if (!Cypress.env('TEST_GREP') && Cypress.config('isInteractive') && uiValue != null) {

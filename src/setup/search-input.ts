@@ -3,7 +3,7 @@ import { style } from './select-element/select-element-css';
 import { html } from './select-element/select-element-html';
 
 const testsCountSelector = '.number-input';
-const inputGrep = '#grep';
+const inputGrep = '.grep';
 const iconSearch = '.icon-container';
 
 export const getItemValueForUI = (selector: string): string | undefined => {
