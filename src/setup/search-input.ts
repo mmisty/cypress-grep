@@ -29,41 +29,52 @@ const setZIndex = (val: number) => {
   cyHeader.css('z-index', `${val}`);
 };
 
-export const addSearchInput = () => {
+export const addSearchInput = (showTags: boolean, showPending: boolean) => {
   setupControlsExtension({
     mode: { open: true },
     inject: 'start',
     selectorToInject: '.reporter .controls',
     id: 'searchInput',
     style: style(testsCountSelector, iconSearch),
-    control: () => html(testsCountSelector, inputGrep, iconSearch),
+    control: () => html(testsCountSelector, inputGrep, iconSearch, showTags, showPending),
     addEventListener: (parentId, listener, cyStop, cyRestart) => {
       listener(inputGrep, 'change', () => {
         cyStop();
         cyRestart();
       });
 
-      /*listener(inputGrep, 'click', () => {
-        const searchField = cypressAppSelect(inputGrep);
-        const val = searchField.val() as string;
-
-        if (val.length === 0) {
-          searchField.attr('placeholder', '');
+      listener(inputGrep, 'keypress', event => {
+        if ((event as any).key === 'Enter') {
+          cyStop();
+          cyRestart();
         }
-      });*/
-
-      /*listener(inputGrep, 'mouseleave', () => {
-        const searchField = cypressAppSelect(inputGrep);
-        const val = searchField.val() as string;
-
-        if (val.length === 0) {
-          searchField.attr('placeholder', 'search tests...');
-        }
-      });*/
+      });
 
       listener('.clear-input', 'click', () => {
         const searchField = cypressAppSelect(inputGrep);
         searchField.val('');
+      });
+
+      listener('.show-tags', 'click', () => {
+        const tags = cypressAppSelect('.show-tags');
+        const val = tags.attr('data-show-tags');
+
+        if (val === 'true') {
+          tags.attr('data-show-tags', 'false');
+        } else {
+          tags.attr('data-show-tags', 'true');
+        }
+      });
+
+      listener('.show-pending', 'click', () => {
+        const tags = cypressAppSelect('.show-pending');
+        const val = tags.attr('data-show-pending');
+
+        if (val === 'true') {
+          tags.attr('data-show-pending', 'false');
+        } else {
+          tags.attr('data-show-pending', 'true');
+        }
       });
 
       listener(iconSearch, 'mouseover', () => {
@@ -71,6 +82,21 @@ export const addSearchInput = () => {
       });
 
       listener(iconSearch, 'mouseout', () => {
+        setZIndex(1);
+      });
+      listener('.show-tags', 'mouseover', () => {
+        setZIndex(0);
+      });
+
+      listener('.show-tags', 'mouseout', () => {
+        setZIndex(1);
+      });
+
+      listener('.show-pending', 'mouseover', () => {
+        setZIndex(0);
+      });
+
+      listener('.show-pending', 'mouseout', () => {
         setZIndex(1);
       });
 

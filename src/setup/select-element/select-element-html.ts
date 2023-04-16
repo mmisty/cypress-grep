@@ -15,7 +15,13 @@ const helpText = `
   <p><a href="https://github.com/mmisty/cypress-grep/blob/main/README.md">more info</a></p>
 `;
 
-export const html = (testsCountSelector: string, grepSelector: string, iconContainerSearch: string) => `<hr/>
+export const html = (
+  testsCountSelector: string,
+  grepSelector: string,
+  iconContainerSearch: string,
+  showTags: boolean,
+  showPending: boolean,
+) => `<hr/>
 <div class="input-container">
   <div class="${iconContainerSearch.slice(1)}" >
     <i class="fas fa-search"></i>
@@ -34,6 +40,13 @@ export const html = (testsCountSelector: string, grepSelector: string, iconConta
 }"/>
     <div class="clear-input">
       <i class="fas fa-times"></i>
+    </div>
+    <div class="show-tags" data-show-tags="${showTags}" data-tooltip="show tags in test title">
+      <i class="fas fa-tag"></i>
+    </div>
+   
+    <div class="show-pending" data-show-pending="${showPending}" data-tooltip="show excluded tests as pedning">
+      <i class="fas fa-minus"></i>
     </div>
   </div>
 </div>`;

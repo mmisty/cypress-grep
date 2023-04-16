@@ -1,21 +1,17 @@
 import { setupSelectTests } from 'cy-local/setup/select-tests';
 import { selectionTestGrep } from 'cy-local/setup/regexp';
 import { addSearchInput, getItemValueForUI, updateCount } from 'cy-local/setup/search-input';
+import { cypressAppSelect } from 'cypress-controls-ext';
 
 const getGrepExpression = () => {
   const uiValue = getItemValueForUI('#grep');
-  console.log(`uiValue: ${uiValue}`);
 
   // use UI input value only when interactive mode
   if (!Cypress.env('TEST_GREP') && Cypress.config('isInteractive') && uiValue != null) {
-    console.log(`storage${uiValue}`);
-
     return uiValue;
   }
 
   if (Cypress.env('GREP') != null && Cypress.env('GREP') !== '') {
-    console.log(`grep: ${Cypress.env('GREP')}`);
-
     return Cypress.env('GREP');
   }
 
@@ -24,7 +20,6 @@ const getGrepExpression = () => {
 
 const selectTests = () => {
   const grepSelected = getGrepExpression();
-  console.log(`getGrepExpression: ${grepSelected}`);
 
   if (grepSelected !== '') {
     Cypress.env('showTagsInTitle', 'true');
@@ -33,23 +28,55 @@ const selectTests = () => {
   return selectionTestGrep(grepSelected);
 };
 
-export const registerCypressGrep = (config?: {
+const elVal = (selector: string, dataSelector: string, initial?: boolean) => {
+  const el = cypressAppSelect(selector);
+
+  if (!el.attr(dataSelector) && (initial !== undefined || initial)) {
+    el.attr(dataSelector, initial ? 'true' : 'false');
+  }
+
+  return el.attr(dataSelector) === 'true';
+};
+
+type GrepConfig = {
+  /**
+   * Add UI control to filter test (only for interactive mode), default false
+   */
   addControlToUI?: boolean;
+  /**
+   * Show tags in test title, default false
+   */
   showTagsInTitle?: boolean;
-  omitFilteredTests?: boolean;
-}) => {
+  /**
+   * Show excluded tests as pending, default false
+   */
+  showExcludedTests?: boolean;
+};
+
+export const registerCypressGrep = (config?: GrepConfig) => {
   // here you can do setup for each test file in browser
   console.log('REGISTER CYPRESS GREP');
+  let showTagsValuUi: boolean | undefined;
+  let showPendingValuUi: boolean | undefined;
+
+  if (Cypress.config('isInteractive')) {
+    showTagsValuUi = elVal('.show-tags', 'data-show-tags', config?.showTagsInTitle);
+    showPendingValuUi = elVal('.show-pending', 'data-show-pending', config?.showExcludedTests);
+  } else {
+    showTagsValuUi = config?.showTagsInTitle ?? false;
+    showPendingValuUi = config?.showExcludedTests ?? false;
+  }
+
+  if (config?.addControlToUI) {
+    addSearchInput(showTagsValuUi, showPendingValuUi);
+  }
+
   setupSelectTests(
     selectTests,
     {
-      showTagsInTitle: config?.showTagsInTitle ?? false,
-      omitFilteredTests: config?.omitFilteredTests ?? false,
+      showTagsInTitle: showTagsValuUi,
+      showExcludedTests: showPendingValuUi,
     },
     updateCount,
   );
-
-  if (config?.addControlToUI) {
-    addSearchInput();
-  }
 };

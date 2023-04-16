@@ -10,10 +10,14 @@ const setupCoverage = () => {
   }
 };
 
+const valBoolEq = (name: string, value: boolean): boolean => {
+  return Cypress.env(name) === `${value}` || Cypress.env(name) === value;
+};
+
 setupCoverage();
 
 registerCypressGrep({
-  addControlToUI: Cypress.env('GREP_SHOW_UI_CONTROL') === 'true' || Cypress.env('GREP_SHOW_UI_CONTROL') === true,
-  showTagsInTitle: false, //Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === 'true' || Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === true,
-  omitFilteredTests: true, //Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === 'true' || Cypress.env('GREP_SHOW_TAGS_IN_TITLE') === true,
+  addControlToUI: valBoolEq('GREP_SHOW_UI_CONTROL', true),
+  showTagsInTitle: valBoolEq('GREP_SHOW_TAGS_IN_TITLE', true),
+  showExcludedTests: valBoolEq('GREP_SHOW_EXCLUDED_TESTS', true),
 });

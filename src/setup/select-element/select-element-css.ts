@@ -124,6 +124,64 @@ input[type="text"] {
   background-color: #292e40;
 }
 
+
+.show-tags {
+  width: ${iconWidth}px;
+  height: ${controlsHeight - 2}px;
+  margin-top: -${2}px;
+  opacity: 1;
+  padding-left: 10px;
+  padding-right: ${iconWidth + 2}px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-right: -5px;
+  outline: none;
+}
+
+.show-tags i {
+  color: #5a5f7a;
+}
+
+.show-tags:hover i {
+  color: #888;
+}
+.show-tags:hover {
+  background-color: #292e40;
+}
+.show-tags[data-show-tags="true"]{
+  background-color: #363c52;
+}
+
+
+.show-pending {
+  width: ${iconWidth}px;
+  height: ${controlsHeight - 2}px;
+  margin-top: -${2}px;
+  opacity: 1;
+  padding-left: 10px;
+  padding-right: ${iconWidth + 2}px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-right: -5px;
+  outline: none;
+}
+
+.show-pending i {
+  color: #5a5f7a;
+}
+
+.show-pending:hover i {
+  color: #888;
+}
+.show-pending:hover {
+  background-color: #292e40;
+}
+.show-pending[data-show-pending="true"]{
+  background-color: #363c52;
+}
+
 ${testsCountSelector} {
   height: ${controlsHeight}px;
   padding-top: ${controlsHeight / 7}px;
@@ -136,6 +194,37 @@ ${testsCountSelector} {
   font-size: 14px;
   border-right: 1px solid #2e3247;
   border-left: 1px solid #2e3247;
+}
+
+.show-tags::after {
+  content: attr(data-tooltip);
+  z-index: 1;
+  position: relative;
+  top: 30px;
+  left: -10px;
+  padding: 4px 8px 4px 8px;
+  border-radius: 5px;
+  background-color: #f3f3fb;
+  color: #000;
+  font-weight: normal;
+  font-size: 12px;
+  white-space: nowrap;
+  display: none;
+}
+.show-pending::after {
+  content: attr(data-tooltip);
+  z-index: 1;
+  position: relative;
+  top: 30px;
+  left: -10px;
+  padding: 4px 8px 4px 8px;
+  border-radius: 5px;
+  background-color: #f3f3fb;
+  color: #000;
+  font-weight: normal;
+  font-size: 12px;
+  white-space: nowrap;
+  display: none;
 }
 
 ${testsCountSelector}::after {
@@ -152,7 +241,7 @@ ${testsCountSelector}::after {
   display: none;
 }
 
-${testsCountSelector}:hover::after {
+[data-tooltip]:hover::after {
   display: block;
 }
 

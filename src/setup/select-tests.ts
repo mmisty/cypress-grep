@@ -131,7 +131,7 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: Setti
 
 type Settings = {
   showTagsInTitle: boolean;
-  omitFilteredTests: boolean;
+  showExcludedTests: boolean;
 };
 
 function filterTests(
@@ -168,14 +168,14 @@ function filterTests(
 
     // Remove not matched test
     if (test.parent) {
-      if (settings.omitFilteredTests) {
-        test.parent.tests = test.parent.tests.filter(t => t.fullTitle() !== test.fullTitle());
-      } else {
+      if (settings.showExcludedTests) {
         test.parent.tests.forEach(t => {
           if (t.fullTitle() === test.fullTitle()) {
             t.pending = true;
           }
         });
+      } else {
+        test.parent.tests = test.parent.tests.filter(t => t.fullTitle() !== test.fullTitle());
       }
     }
 
