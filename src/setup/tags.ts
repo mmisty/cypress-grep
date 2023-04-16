@@ -33,7 +33,7 @@ const encodeDecode = (str: string, isEncode: boolean) => {
   return newStr;
 };
 
-const encodeFailReason = (str: string) => encodeDecode(encodeURIComponent(str), true);
+// const encodeFailReason = (str: string) => encodeDecode(encodeURIComponent(str), true);
 const decodeFailReason = (str: string) => encodeDecode(decodeURIComponent(str), false);
 
 export const parseOneTag = (tg: string): Tag => {
