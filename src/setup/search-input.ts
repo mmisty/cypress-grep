@@ -6,7 +6,7 @@ const testsCountSelector = '.number-input';
 const inputGrep = '#grep';
 const iconSearch = '.icon-container';
 
-export const getItemValueForUI = (item: string, selector: string): string | undefined => {
+export const getItemValueForUI = (selector: string): string | undefined => {
   const el = cypressAppSelect(selector);
   const val = el.val() !== undefined ? el.val() : el.text();
 
@@ -42,6 +42,24 @@ export const addSearchInput = () => {
         cyStop();
         cyRestart();
       });
+
+      /*listener(inputGrep, 'click', () => {
+        const searchField = cypressAppSelect(inputGrep);
+        const val = searchField.val() as string;
+
+        if (val.length === 0) {
+          searchField.attr('placeholder', '');
+        }
+      });*/
+
+      /*listener(inputGrep, 'mouseleave', () => {
+        const searchField = cypressAppSelect(inputGrep);
+        const val = searchField.val() as string;
+
+        if (val.length === 0) {
+          searchField.attr('placeholder', 'search tests...');
+        }
+      });*/
 
       listener('.clear-input', 'click', () => {
         const searchField = cypressAppSelect(inputGrep);

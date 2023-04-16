@@ -25,10 +25,12 @@ export const html = (testsCountSelector: string, grepSelector: string, iconConta
   </div>
   <div class="input-wrapper">
     <div class="${testsCountSelector.slice(1)}" data-tooltip="number of found tests">
-       ${getItemValueForUI('GREP_COUNT', testsCountSelector) ?? '0'}
+       ${getItemValueForUI(testsCountSelector) ?? '0'}
     </div>
-    <input type="text" id="${grepSelector.slice(1)}" placeholder="Search tests..." value="${
-  Cypress.env('GREP') ?? getItemValueForUI('GREP', grepSelector) ?? ''
+    <input type="text" id="${grepSelector.slice(
+      1,
+    )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${
+  Cypress.env('GREP') ?? getItemValueForUI(grepSelector) ?? ''
 }"/>
     <div class="clear-input">
       <i class="fas fa-times"></i>

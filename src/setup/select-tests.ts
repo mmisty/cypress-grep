@@ -23,133 +23,208 @@ export const origins = () => ({
 type TestConfig = {
   _testConfig: Cypress.TestConfigOverrides;
 };
-const filtered: string[] = [];
 
-const removeEmptySuites = (
-  grep: RegExp,
-  suite: Suite,
-  tg: string[],
-  configShowInTitle: boolean | undefined,
-  end: { end: boolean },
-  count = 0,
-): number => {
-  let countCurrent = 0;
-  const inlineSuiteTags = parseTags(suite.title).map(t => `@${t.tag}`);
+const getCurrentTestTags = (test: Mocha.Test): string[] => {
+  const testTags = (test as unknown as TestConfig)._testConfig?.tags;
+  const inlineTagsTest = parseTags(test.title).map(t => `@${t.tag}`);
+  const tagsArr = testTags && typeof testTags === 'string' ? [testTags] : testTags ?? [];
 
-  if (configShowInTitle) {
-    const currentSuiteTags = (suite as unknown as TestConfig)._testConfig?.tags;
-
-    if (currentSuiteTags) {
-      if (typeof currentSuiteTags === 'string') {
-        suite.title = `${suite.title} ${currentSuiteTags}`;
-      } else {
-        const tagsNotFoud = currentSuiteTags.filter(t => suite.title.indexOf(t) === -1);
-        suite.title = currentSuiteTags.length > 0 ? suite.title + tagsNotFoud.join(' ') : suite.title;
-      }
-    }
-  } else {
-    suite.title = removeTagsFromTitle(suite.title);
-  }
-
-  if (suite.tests?.length > 0) {
-    suite.tests = suite.tests.filter(t => {
-      const testTags = (t as unknown as TestConfig)._testConfig?.tags;
-      const inlineTagsTest = parseTags(t.title).map(t => `@${t.tag}`);
-      // for some reason duplicate spaces
-      const uniqSuiteTags = uniq(tg);
-      const tagsArr = testTags && typeof testTags === 'string' ? [testTags] : testTags ?? [];
-      const testTagsAll = uniq([...inlineSuiteTags, ...uniqSuiteTags, ...tagsArr, ...inlineTagsTest]);
-      const testTagsStr = testTags ? (typeof testTags !== 'string' ? testTags.join(' ') : testTags) : '';
-      // console.log(`${t.title}: ${JSON.stringify(testTagsAll)}`);
-      (t as unknown as { tags: string[] }).tags = testTagsAll;
-
-      if (configShowInTitle) {
-        t.title += t.title.indexOf(testTagsStr) === -1 ? testTagsStr : '';
-      } else {
-        t.title = removeTagsFromTitle(t.title);
-      }
-
-      const nexTitle = removeTagsFromTitle(t?.fullTitle()).replace(/\s+/g, ' ') + (testTagsAll?.join(' ') ?? '');
-
-      const strMatch = nexTitle.match(grep) ? '+' : '-';
-      const filteredLine = `  ${strMatch} ${nexTitle}`;
-
-      if (filtered.indexOf(filteredLine) === -1) {
-        filtered.push(filteredLine);
-      }
-
-      return nexTitle.match(grep);
-    });
-  }
-
-  if (suite.tests?.length > 0 && suite.suites?.length === 0) {
-    return suite.tests.length + count;
-  }
-
-  if (suite.tests?.length > 0) {
-    countCurrent += suite.tests.length;
-  }
-
-  if (suite.suites?.length > 0) {
-    for (const st of suite.suites) {
-      if (st.tests.length === 0 && st.suites.length === 0) {
-        suite.suites = suite.suites.filter(k => k.title !== st.title);
-
-        return removeEmptySuites(grep, suite, tg, configShowInTitle, end);
-      }
-      const testsCount = removeEmptySuites(grep, st, tg, configShowInTitle, end, count);
-
-      if (testsCount === 0) {
-        // remove suite with 0 tests
-        suite.suites = suite.suites.filter(k => k.title !== st.title);
-      }
-      countCurrent += testsCount;
-    }
-  }
-
-  if (!suite.parent?.parent) {
-    end.end = true;
-  }
-
-  return countCurrent;
+  return uniq([...tagsArr, ...inlineTagsTest]);
 };
 
-export const setupSelectTests = (
-  selector: () => RegExp,
-  configShowInTitle: boolean | undefined,
-  onCount: (num: number) => void,
-): void => {
-  before(() => {
-    filtered.splice(0, -1);
+const getTestTags = (test: Mocha.Test, suiteTags: string[]): string[] => {
+  return uniq([...suiteTags, ...getCurrentTestTags(test)]);
+};
+
+const tagsLineForTitle = (tags: string[]) => {
+  return tags.join(' ');
+
+  //return tags && tags.length > 0 ? JSON.stringify(tags).replace(/"/g, '') : '';
+};
+
+const tagsFormConfig = (tags?: string | string[]): string[] => {
+  return tags ? (typeof tags === 'string' ? [tags] : tags) : [];
+};
+
+/**
+ * Get all tags for suite - inline and from config
+ * @param st - suite
+ */
+const tagsSuite = (st: Mocha.Suite): string[] => {
+  const tagsFromConfig = tagsFormConfig((st as unknown as TestConfig)._testConfig?.tags);
+  const inlineTagsFromTitle = parseTags(st.title).map(tag => `@${tag.tag}`);
+
+  return uniq([...tagsFromConfig, ...inlineTagsFromTitle]);
+};
+
+/**
+ * Add tags to title when specific setting
+ * @param rootSuite
+ * @param setting
+ */
+const suiteTitleChange = (rootSuite: Mocha.Suite, setting: Settings) => {
+  for (const suite of rootSuite.suites) {
+    const suiteTags = tagsSuite(suite);
+
+    if (setting.showTagsInTitle && suiteTags.length > 0) {
+      const tagsLine = tagsLineForTitle(suiteTags);
+      suite.title = `${suite.title} ${tagsLine}`;
+    }
+
+    if (!setting.showTagsInTitle) {
+      removeSuiteInlineTags(suite);
+    }
+
+    suiteTitleChange(suite, setting);
+  }
+};
+
+/**
+ * Get all suite tags for test
+ * @param test
+ */
+const getSuiteTagsForTest = (test: Mocha.Test | undefined): string[] => {
+  const tags: string[] = [];
+
+  let suite: Mocha.Suite | undefined = test?.parent;
+
+  while (suite) {
+    const suiteTags = tagsSuite(suite);
+    tags.push(...suiteTags);
+
+    suite = suite.parent;
+  }
+
+  return tags;
+};
+
+const removeSuiteInlineTags = (st: Mocha.Suite | undefined) => {
+  if (st) {
+    st.title = removeTagsFromTitle(st.title);
+    st.suites.forEach(s => {
+      removeSuiteInlineTags(s);
+    });
+  }
+};
+
+type MochaTestExtended = Mocha.Test & {
+  tags?: string[];
+  fullTitleWithTags?: string;
+};
+
+const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: Settings): string => {
+  const testTagsAll = getTestTags(test, suiteTags);
+  const line = test.fullTitle() + testTagsAll.join(' ');
+
+  const tags = tagsLineForTitle(getCurrentTestTags(test));
+  test.title = removeTagsFromTitle(test.title);
+
+  if (settings.showTagsInTitle) {
+    test.title = test.title + tags;
+  }
+  const fullTitleWithTags = (removeTagsFromTitle(line) + testTagsAll.join(' ')).replace(/\s\s*/g, ' ');
+  (test as MochaTestExtended).tags = testTagsAll;
+  (test as MochaTestExtended).fullTitleWithTags = fullTitleWithTags;
+
+  return fullTitleWithTags;
+};
+
+type Settings = {
+  showTagsInTitle: boolean;
+  omitFilteredTests: boolean;
+};
+
+function filterTests(
+  suiteoInint: Mocha.Suite,
+  regexp: RegExp,
+  settings: Settings,
+  onFilteredTest: (test: MochaTestExtended) => void,
+  onExcludedTest: (test: MochaTestExtended) => void,
+): number {
+  let filteredCount = 0;
+
+  // Remove empty suites
+  suiteoInint.suites.forEach((suite: Mocha.Suite) => {
+    if (suite.tests.length === 0 && suite.suites.length === 0) {
+      if (suite.parent) {
+        const suiteTitle = suite.fullTitle();
+        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
+      }
+    }
   });
+
+  // Remove filtered tests and their parent suites
+  suiteoInint.eachTest((test: Mocha.Test): void => {
+    const testSuiteTags = getSuiteTagsForTest(test);
+    const fullTitleWithTags = prepareTestTitle(test, testSuiteTags, settings);
+
+    if (regexp.test(fullTitleWithTags)) {
+      filteredCount++;
+      onFilteredTest?.(test as MochaTestExtended);
+
+      return;
+    }
+    onExcludedTest?.(test as MochaTestExtended);
+
+    // Remove not matched test
+    if (test.parent) {
+      if (settings.omitFilteredTests) {
+        test.parent.tests = test.parent.tests.filter(t => t.fullTitle() !== test.fullTitle());
+      } else {
+        test.parent.tests.forEach(t => {
+          if (t.fullTitle() === test.fullTitle()) {
+            t.pending = true;
+          }
+        });
+      }
+    }
+
+    // Remove empty parent suites recursively
+    let suite = test.parent;
+
+    while (suite && suite.tests.length === 0 && suite.suites.length === 0) {
+      if (suite.parent) {
+        const suiteTitle = suite.fullTitle();
+        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
+      }
+      suite = suite.parent;
+    }
+  });
+
+  return filteredCount;
+}
+
+export const setupSelectTests = (selector: () => RegExp, settings: Settings, onCount: (num: number) => void): void => {
   // eslint-disable-next-line no-console
   console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
 
   const originalSuites = origins();
-  const suiteTags: string[] = [];
 
   // eslint-disable-next-line func-names
   const selectedSuitesConstruct = function () {
     function descWithTags(...args: unknown[]): Suite {
-      const [, currentSuiteTags] = args;
-
-      const tags2 =
-        typeof currentSuiteTags !== 'function' ? (currentSuiteTags as { tags: string[] | string }).tags : [];
-
-      if (tags2) {
-        if (typeof tags2 === 'string') {
-          suiteTags.push(tags2);
-        } else {
-          suiteTags.push(...tags2);
-        }
-      }
-
+      const regexp = selector();
       const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
-      const end = { end: false };
-      const count = removeEmptySuites(selector(), suite, suiteTags, configShowInTitle, end);
-      onCount(count);
 
-      if (end.end) {
+      // the end, root suite, filter recursively
+      if (!suite.parent?.parent) {
+        const filtered: string[] = [];
+
+        const count = filterTests(
+          suite,
+          regexp,
+          settings,
+          test => {
+            filtered.push(` + ${test.fullTitleWithTags}`);
+          },
+          excludedTest => {
+            filtered.push(` - ${excludedTest.fullTitleWithTags}`);
+          },
+        );
+
+        onCount(count);
+        suiteTitleChange(suite, settings);
+
         console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
       }
 
