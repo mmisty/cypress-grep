@@ -1,8 +1,7 @@
 # @mmisty/cypress-grep
 This package helps to filter tests by tags or by title using substring or regular expressions.
 
-And package allows to add UI control with ability to filter tests inside selected file:
-
+You can forget about `.only` - this package allows to add UI control with ability to filter tests inside selected file:
 ![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/p1.gif)
 
 ## Installation
