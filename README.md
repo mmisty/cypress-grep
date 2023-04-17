@@ -103,6 +103,47 @@ There is also possibility to input pure regexp:
 - `=/(?!.*@smoke)(?=.*@p1)/i` - runs all tests WITHOUT `@smoke` and with `@tags`
 - `=/@P[12]/` - runs all tests with `@P1` or `@P2`
 
+### Prefilter ability
+When dealing with numerous spec files, filtering through all tests 
+can be time-consuming. 
+Luckily, with new version of the package we have enhanced pre-filtering 
+capabilities which bosts the speed of test execution when working with grep. 
+
+We can filter tests by dynamic tags or test titles, as demonstrated by the example 
+code block provided:
+
+Example:
+Assume we have the following file and we want to quickly run only tests with `@Release3.0` and `@P1` tags.
+```javascript
+const P1 = '@P1';
+const Releases = ['1.1', '1.2', '3.0'].map(tag => '@Release' + tag);
+
+describe('login', { tags: Releases }, () => {
+   it('special case on login', { tags: [P1] }, () => {
+      // ...
+   });
+});
+
+```
+To do so you need to run cypress twice: 
+ 1. first time with `GREP_PRE_FILTER=true` env variable and with your Grep expression (`GREP="@Release3\.0&@P1"`)
+ 2. second time with the same grep expression
+
+You can create script in package.json to simplify this: 
+```json
+"cy:run:grep": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run",
+```
+
+and run it by `GREP="@Release3\.0&@P1" npm run cy:run:grep`
+
+To conigure files/paths: 
+ - set `GREP_TEMP_PATH` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
+ - set `GREP_ALL_TESTS_NAME` = test file name, default `all_tests.ts`
+
+
+Under the hood:
+- this will create file with all tests, quckly filters all tests inside it and write file with result
+- on next run will read the file and run only filtered files
 
 ### UI Control
 
