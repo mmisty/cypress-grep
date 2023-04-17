@@ -7,15 +7,15 @@ import { envVarPlugin, isEnvTruePlugin } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
 
 /**
- * Will add functionality to prefilter tests and run more quickly when using grep
+ * This will add prefiltering capabilities and speed up the execution
+ * of tests when utilizing grep
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
   const envVar = envVarPlugin(config);
 
   if (!envVar('GREP')) {
-    console.warn('To prefilter spec specify env var GREP');
-
-    return;
+    console.warn('To prefilter spec specify env var GREP, will select all tests');
+    envVar('GREP', '.*');
   }
 
   const filteredSpecs = envVar('GREP_TEMP_PATH') ?? `${config.projectRoot}/filtered_test_paths.json`;

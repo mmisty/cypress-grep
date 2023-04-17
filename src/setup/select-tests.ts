@@ -136,16 +136,13 @@ function filterTests(
   settings: GrepConfig,
   onFilteredTest: (test: Mocha.Test) => void,
   onExcludedTest: (test: Mocha.Test) => void,
-): number {
-  let filteredCount = 0;
-
+): void {
   // Remove filtered tests and their parent suites
   suiteoInint.eachTest((test: Mocha.Test): void => {
     const testSuiteTags = getSuiteTagsForTest(test);
     const fullTitleWithTags = prepareTestTitle(test, testSuiteTags, settings);
 
     if (regexp.test(fullTitleWithTags)) {
-      filteredCount++;
       onFilteredTest?.(test);
 
       return;
@@ -176,8 +173,6 @@ function filterTests(
       suite = suite.parent;
     }
   });
-
-  return filteredCount;
 }
 
 const turnOffBeforeHook = () => {
@@ -195,6 +190,7 @@ export const setupSelectTests = (
 ): void => {
   const grep = Cypress.env('GREP') ?? '';
   let total = 0;
+  let filteredCount = 0;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -219,11 +215,13 @@ export const setupSelectTests = (
       if (suite && !suite.parent?.parent) {
         const filtered: string[] = [];
 
-        const count = filterTests(
+        filterTests(
           suite,
           regexp,
           settings,
           test => {
+            total++;
+            filteredCount++;
             filtered.push(` + ${test.fullTitleWithTags}`);
 
             if (isPrerun) {
@@ -233,7 +231,6 @@ export const setupSelectTests = (
                 tags: test.tags,
                 title: test.title,
               });
-              total++;
               test.pending = true;
             }
           },
@@ -243,7 +240,7 @@ export const setupSelectTests = (
           },
         );
 
-        onCount(count);
+        onCount(filteredCount);
         suiteTitleChange(suite, settings);
 
         if (settings.debugLog) {

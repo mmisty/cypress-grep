@@ -1,5 +1,3 @@
-import { getItemValueForUI } from '../search-input';
-
 // todo add link to readme
 const helpText = `
   <p>Enter search term to find tests. Does accept tags, substring of test title / suite title. You can use:
@@ -38,7 +36,7 @@ export const html = (
     <input type="text" class="${grepSelector.slice(
       1,
     )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${
-  Cypress.env('GREP') ?? getItemValueForUI(grepSelector) ?? ''
+  Cypress.env('GREP') ?? ''
 }"/>
      <div class="btn-wrapper" data-tooltip="clear search (Rerun)">
       <div class="btn clear-input flex-center">
@@ -47,9 +45,7 @@ export const html = (
     </div>
     
     <div class="btn-wrapper" data-tooltip="number of found tests">
-      <div class="${testsCountSelector.slice(1)} flex-center" >
-         ${getItemValueForUI(testsCountSelector) ?? '0'}
-      </div>
+      <div class="${testsCountSelector.slice(1)} flex-center">0</div>
     </div>
     
     <div class="btn-wrapper" data-tooltip="show tags in test title (Rerun)">

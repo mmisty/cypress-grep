@@ -37,7 +37,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   padding: 5px;
 }
 .btn-wrapper-icon {
-  height: ${controlsHeight - 2}px;
+  height: ${controlsHeight}px;
 }
 ${iconContainerSearch} {
   height: ${controlsHeight}px;
@@ -115,7 +115,7 @@ input[type="text"] {
 }
 
 ${testsCountSelector} {
-  height: ${controlsHeight - 2}px;
+  height: ${controlsHeight}px;
   color: #5a5f7a;
   font-weight: bold;
   border: none;
@@ -132,7 +132,7 @@ ${testsCountSelector} {
   border: 1px solid #00000000;
  
   width: ${iconHeight + 4}px;
-  height: ${controlsHeight - 1}px;
+  height: ${controlsHeight}px;
   margin-top: 1px;
   opacity: 1;
   cursor: pointer;

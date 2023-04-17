@@ -7,13 +7,6 @@ const testsCountSelector = '.number-input';
 const inputGrep = '.grep';
 const iconSearch = '.icon-container';
 
-export const getItemValueForUI = (selector: string): string | undefined => {
-  const el = cypressAppSelect(selector);
-  const val = el.val() !== undefined ? el.val() : el.text();
-
-  return val ? `${val}` : undefined;
-};
-
 export const updateCount = (count: number) => {
   const testCountElement = cypressAppSelect(testsCountSelector);
 

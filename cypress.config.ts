@@ -8,7 +8,7 @@ export default defineConfig({
   env: {
     GREP_SHOW_UI_CONTROL: true,
     GREP_SHOW_TAGS_IN_TITLE: true,
-    GREP_SHOW_EXCLUDED_TESTS: false,
+    GREP_SHOW_EXCLUDED_TESTS: true,
   },
   e2e: {
     specPattern: `${cypressFolder}/e2e/**/*.(cy|test|spec).ts`,
