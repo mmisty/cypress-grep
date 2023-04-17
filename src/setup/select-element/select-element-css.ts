@@ -36,7 +36,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   border-radius: 4px;
   padding: 5px;
 }
-.btn-wrapper-2{
+.btn-wrapper-icon {
   height: ${controlsHeight - 2}px;
 }
 ${iconContainerSearch} {

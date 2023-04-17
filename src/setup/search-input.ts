@@ -89,14 +89,15 @@ export const addSearchInput = (showTags: boolean, showPending: boolean) => {
       tooltipCorrect('.btn-wrapper', 2, listener);
       tooltipCorrect('.btn-wrapper', 3, listener);
       tooltipCorrect(iconSearch, 0, listener);
-
       tooltipCorrect(testsCountSelector, 0, listener);
-      listener(iconSearch, 'mouseover', () => {
+      tooltipCorrect('.btn-wrapper-icon', 0, listener);
+
+      listener('.btn-wrapper-icon', 'mouseover', () => {
         const tool = cypressAppSelect('.tooltip');
         tool.css('display', 'block');
       });
 
-      listener(iconSearch, 'mouseout', () => {
+      listener('.btn-wrapper-icon', 'mouseout', () => {
         const tool = cypressAppSelect('.tooltip');
         tool.css('display', 'none');
       });
