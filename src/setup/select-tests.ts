@@ -194,6 +194,7 @@ export const setupSelectTests = (
   isPrerun: boolean,
 ): void => {
   const grep = Cypress.env('GREP') ?? '';
+  let total = 0;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -201,6 +202,7 @@ export const setupSelectTests = (
   }
 
   if (isPrerun) {
+    settings.showExcludedTests = false;
     turnOffBeforeHook();
   }
 
@@ -231,10 +233,12 @@ export const setupSelectTests = (
                 tags: test.tags,
                 title: test.title,
               });
+              total++;
               test.pending = true;
             }
           },
           excludedTest => {
+            total++;
             filtered.push(` - ${excludedTest.fullTitleWithTags}`);
           },
         );
@@ -257,7 +261,7 @@ export const setupSelectTests = (
   if (isPrerun) {
     after(() => {
       if (filteredTests.length > 0) {
-        const result = { grep, tests: filteredTests };
+        const result = { total, grep, tests: filteredTests };
         cy.task('writeTempFileWithSelectedTests', JSON.stringify(result, null, '  '));
       }
     });

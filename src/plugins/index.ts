@@ -74,7 +74,10 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
   }
 
   const testParsed = parsePrefilteredSpecs(filteredSpecs);
-  const uniqPaths: string[] = uniq(testParsed.tests.map(f => parentTestsFolder + f.filePath));
+
+  const uniqPaths: string[] = uniq(
+    testParsed.tests.map(f => (f.filePath.startsWith(parentTestsFolder) ? f.filePath : parentTestsFolder + f.filePath)),
+  );
 
   if (uniqPaths.length === 0) {
     console.warn(`Not found any tests with grep= ${envVar('GREP')} and specPattern= ${config.specPattern}`);
