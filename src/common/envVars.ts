@@ -3,7 +3,6 @@ enum envVars {
   'GREP_PRE_FILTER',
   'GREP_ALL_TESTS_NAME',
   'GREP_TEMP_PATH',
-  'GREP_TEST_ROOT',
   'TEST_GREP',
 }
 

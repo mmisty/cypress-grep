@@ -10,7 +10,7 @@ ${tests}
 };
 
 const testCode = (relativePath: string) => {
-  return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/')}\`, () => {
+  return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/').slice(1)}\`, () => {
     require('.${relativePath.replace(/.[tj]s$/, '')}');
   });`;
 };
