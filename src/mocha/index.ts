@@ -4,4 +4,8 @@ namespace Mocha {
     tags?: string[];
     fullTitleWithTags?: string;
   }
+  export interface Runnable {
+    tags?: string[];
+    fullTitleWithTags?: string;
+  }
 }

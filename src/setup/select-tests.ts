@@ -117,9 +117,9 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepC
   test.title = removeTagsFromTitle(test.title);
 
   if (settings.showTagsInTitle) {
-    test.title = test.title + tags;
+    test.title = `${test.title} ${tags}`;
   }
-  const fullTitleWithTags = (removeTagsFromTitle(line) + testTagsAll.join(' ')).replace(/\s\s*/g, ' ');
+  const fullTitleWithTags = `${removeTagsFromTitle(line)} ${testTagsAll.join(' ')}`.replace(/\s\s*/g, ' ');
   test.tags = testTagsAll;
   test.fullTitleWithTags = fullTitleWithTags;
 

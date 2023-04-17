@@ -13,7 +13,7 @@ export const suiteTest = (title: string, grep: string, testedSuite: () => void, 
 
   describe('parent', () => {
     beforeEach(function () {
-      tests.push((this.currentTest as any)?.fullTitleWithTags ?? '');
+      tests.push(this.currentTest?.fullTitleWithTags ?? '');
     });
 
     testedSuite();
