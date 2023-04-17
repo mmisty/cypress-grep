@@ -19,7 +19,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   }
 
   const filteredSpecs = envVar('GREP_TEMP_PATH') ?? `${config.projectRoot}/filtered_test_paths.json`;
-  const parentTestsFolder = getRootFolder(config.specPattern, config.projectRoot);
+  const parentTestsFolder = envVar('GREP_TEST_ROOT') ?? `${config.projectRoot}/cypress`;
 
   on('task', taskWrite(filteredSpecs));
 
@@ -33,6 +33,10 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
     updateSpecPattern(config, filteredSpecs, parentTestsFolder);
 
     return;
+  }
+
+  if (!existsSync(parentTestsFolder)) {
+    throw new Error(`Does not exist \'${parentTestsFolder}\', specify GREP_TEST_ROOT env var to prefilter`);
   }
 
   // create all tests file
