@@ -1,6 +1,8 @@
 import type { Suite } from 'mocha';
 import { parseTags, removeTagsFromTitle } from './tags';
 import { GrepConfig } from './config.types';
+import { TransportTest } from '../common/types';
+import { envVar } from '../common/envVars';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -179,16 +181,31 @@ function filterTests(
   return filteredCount;
 }
 
+const turnOffBeforeHook = () => {
+  // some tests uses visit in before
+  (global as unknown as { before: unknown }).before = () => {
+    // ignore
+  };
+};
+
 export const setupSelectTests = (
   selector: () => RegExp,
   settings: GrepConfig,
   onCount: (num: number) => void,
+  isPrerun: boolean,
 ): void => {
+  const grep = envVar('GREP') ?? '';
+
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
     console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
   }
 
+  if (isPrerun) {
+    turnOffBeforeHook();
+  }
+
+  const filteredTests: TransportTest[] = [];
   const originalSuites = origins();
 
   // eslint-disable-next-line func-names
@@ -207,6 +224,16 @@ export const setupSelectTests = (
           settings,
           test => {
             filtered.push(` + ${test.fullTitleWithTags}`);
+
+            if (isPrerun) {
+              const filePath = test.titlePath()[1]?.replace(/\/\/+/g, '/');
+              filteredTests.push({
+                filePath,
+                tags: test.tags,
+                title: test.title,
+              });
+              test.pending = true;
+            }
           },
           excludedTest => {
             filtered.push(` - ${excludedTest.fullTitleWithTags}`);
@@ -228,6 +255,14 @@ export const setupSelectTests = (
     return descWithTags;
   };
 
+  if (isPrerun) {
+    after(() => {
+      if (filteredTests.length > 0) {
+        const result = { grep, tests: filteredTests };
+        cy.task('writeTempFileWithSelectedTests', JSON.stringify(result, null, '  '));
+      }
+    });
+  }
   (global as { describe: unknown }).describe = selectedSuitesConstruct();
 
   (global as { describe: { only: unknown; skip: unknown } }).describe.only = originalSuites.originOnly;

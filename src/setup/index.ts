@@ -3,7 +3,6 @@ import { selectionTestGrep } from './regexp';
 import { addSearchInput, getItemValueForUI, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
-import { testsPrefilter } from './prefilter-tests';
 import { envVar, isEnvTrue } from '../common/envVars';
 
 export const isInteractive = () => {
@@ -68,9 +67,5 @@ export const registerCypressGrep = (config?: GrepConfig) => {
   const configEvaluated = { ...config, showTagsInTitle, showExcludedTests };
 
   log(configEvaluated);
-  setupSelectTests(selectTests, configEvaluated, updateCount);
-
-  if (isEnvTrue('GREP_PRE_FILTER')) {
-    testsPrefilter(log);
-  }
+  setupSelectTests(selectTests, configEvaluated, updateCount, isEnvTrue('GREP_PRE_FILTER'));
 };
