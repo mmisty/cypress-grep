@@ -1,5 +1,6 @@
 import { defineConfig } from 'cypress';
 import { setupPlugins } from './integration/plugins';
+import { pluginGrep } from './src/plugins';
 
 const cypressFolder = 'integration';
 
@@ -7,7 +8,7 @@ export default defineConfig({
   env: {
     GREP_SHOW_UI_CONTROL: true,
     GREP_SHOW_TAGS_IN_TITLE: true,
-    GREP_SHOW_EXCLUDED_TESTS: true,
+    GREP_SHOW_EXCLUDED_TESTS: false,
   },
   e2e: {
     specPattern: `${cypressFolder}/e2e/**/*.(cy|test|spec).ts`,
@@ -19,6 +20,8 @@ export default defineConfig({
     video: false,
 
     setupNodeEvents(on, config) {
+      pluginGrep(on, config);
+
       setupPlugins(on, config);
 
       return config;

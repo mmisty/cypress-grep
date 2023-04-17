@@ -13,6 +13,10 @@
 /integration/downloads
 /integration/screenshots
 
+# prefilter
+all-tests.ts
+filtered_test_paths.json
+
 # coverage and test reports
 /reports
 /.nyc_output

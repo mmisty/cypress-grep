@@ -3,6 +3,8 @@ import { selectionTestGrep } from './regexp';
 import { addSearchInput, getItemValueForUI, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
+import { testsPrefilter } from './prefilter-tests';
+import { envVar, isEnvTrue } from '../common/envVars';
 
 export const isInteractive = () => {
   // INTER env var for testing
@@ -13,15 +15,11 @@ const getGrepExpression = () => {
   const uiValue = getItemValueForUI('.grep');
 
   // use UI input value only when interactive mode
-  if (!Cypress.env('TEST_GREP') && isInteractive() && uiValue != null) {
+  if (!envVar('TEST_GREP') && isInteractive() && uiValue != null) {
     return uiValue;
   }
 
-  if (Cypress.env('GREP') != null && Cypress.env('GREP') !== '') {
-    return Cypress.env('GREP');
-  }
-
-  return '';
+  return envVar('GREP') ?? '';
 };
 
 const selectTests = () => {
@@ -42,16 +40,18 @@ const elVal = (selector: string, dataSelector: string, initial: boolean): boolea
   return el.attr(dataSelector) === 'true';
 };
 
+const logCreate = (config?: GrepConfig) => (message: unknown) => {
+  if (config?.debugLog) {
+    console.log(message);
+  }
+};
+
 export const registerCypressGrep = (config?: GrepConfig) => {
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
 
   // here you can do setup for each test file in browser
-  const log = (message: unknown) => {
-    if (config?.debugLog) {
-      console.log(message);
-    }
-  };
+  const log = logCreate(config);
   log('REGISTER CYPRESS GREP: ');
 
   let showTagsInTitle: boolean = initShowTagsInTitle;
@@ -69,4 +69,8 @@ export const registerCypressGrep = (config?: GrepConfig) => {
 
   log(configEvaluated);
   setupSelectTests(selectTests, configEvaluated, updateCount);
+
+  if (isEnvTrue('GREP_PRE_FILTER')) {
+    testsPrefilter(log);
+  }
 };
