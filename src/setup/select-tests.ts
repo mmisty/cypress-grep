@@ -2,7 +2,6 @@ import type { Suite } from 'mocha';
 import { parseTags, removeTagsFromTitle } from './tags';
 import { GrepConfig } from './config.types';
 import { TransportTest } from '../common/types';
-import { envVar } from '../common/envVars';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -194,7 +193,7 @@ export const setupSelectTests = (
   onCount: (num: number) => void,
   isPrerun: boolean,
 ): void => {
-  const grep = envVar('GREP') ?? '';
+  const grep = Cypress.env('GREP') ?? '';
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
