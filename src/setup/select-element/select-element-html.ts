@@ -12,7 +12,7 @@ const helpText = `
   
   </p>
   
-  <p><a href="https://github.com/mmisty/cypress-grep/blob/main/README.md">more info</a></p>
+  <p><a target="_blank" href="https://github.com/mmisty/cypress-grep/blob/main/README.md">more info</a></p>
 `;
 
 export const html = (

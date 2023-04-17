@@ -2,13 +2,18 @@ import { setupSelectTests } from './select-tests';
 import { selectionTestGrep } from './regexp';
 import { addSearchInput, getItemValueForUI, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
-import { GrepConfig } from './config.type';
+import { GrepConfig } from './config.types';
+
+export const isInteractive = () => {
+  // INTER env var for testing
+  return Cypress.config('isInteractive') || Cypress.env('INTER') === 'true' || Cypress.env('INTER') === true;
+};
 
 const getGrepExpression = () => {
   const uiValue = getItemValueForUI('.grep');
 
   // use UI input value only when interactive mode
-  if (!Cypress.env('TEST_GREP') && Cypress.config('isInteractive') && uiValue != null) {
+  if (!Cypress.env('TEST_GREP') && isInteractive() && uiValue != null) {
     return uiValue;
   }
 
@@ -52,7 +57,7 @@ export const registerCypressGrep = (config?: GrepConfig) => {
   let showTagsInTitle: boolean = initShowTagsInTitle;
   let showExcludedTests: boolean = initShowExcludedTests;
 
-  if (Cypress.config('isInteractive')) {
+  if (isInteractive()) {
     showTagsInTitle = elVal('.show-tags', 'data-show-tags', initShowTagsInTitle);
     showExcludedTests = elVal('.show-pending', 'data-show-pending', initShowExcludedTests);
   }

@@ -11,8 +11,9 @@ export const removeTagsFromTitle = (str: string): string => {
     found.forEach(p => (resultStr = resultStr.replace(p, '')));
   }
 
-  return resultStr;
+  return resultStr.replace(/\s\s*/g, ' ').trim();
 };
+
 type Tag = { tag: string; failReasons: string[] };
 
 const searchParams = [

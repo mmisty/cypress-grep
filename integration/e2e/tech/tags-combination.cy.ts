@@ -1,50 +1,78 @@
-import { suiteTest } from './helper';
+import { registerCypressGrep } from 'cy-local';
 
-const toTest = () => {
+let check = 0;
+
+const toTest = (grep: string, expected: string[]) => {
+  const tests: string[] = [];
+  Cypress.env('GREP', grep);
+  registerCypressGrep({
+    showTagsInTitle: true,
+    showExcludedTests: true,
+    addControlToUI: true,
+  });
+
   describe('suite @regressionInline', { tags: ['@smoke'] }, () => {
-    it('test inside1 apple @P0Inline', { tags: ['@R1', '@R2'] }, () => {
+    it('test inside1 apple @P0Inline', { tags: ['@R1', '@R2'] }, function () {
+      tests.push((this.test as any)?.fullTitleWithTags ?? '');
       cy.log('1');
     });
 
-    it('test inside2 banana @P1Inline', { tags: '@R3' }, () => {
+    it('test inside2 banana @P1Inline', { tags: '@R3' }, function () {
+      tests.push((this.test as any)?.fullTitleWithTags ?? '');
       cy.log('2');
     });
   });
+
+  describe('check @res @regression @smoke @R3 @R1 @R2 @P0Inline @P1Inline', () => {
+    it('check result', () => {
+      check++;
+      expect(tests).to.deep.eq(expected);
+    });
+  });
 };
-describe('1', () => {
-  suiteTest('tags combination', '@regression', toTest, [
-    '1 parent suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline',
-    '1 parent suite test inside2 banana @smoke @regressionInline @R3 @P1Inline',
-  ]);
+
+const tests = [
+  {
+    grep: '@regression',
+    expected: [
+      'suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline',
+      'suite test inside2 banana @smoke @regressionInline @R3 @P1Inline',
+    ],
+  },
+  {
+    grep: '@smoke',
+    expected: [
+      'suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline',
+      'suite test inside2 banana @smoke @regressionInline @R3 @P1Inline',
+    ],
+  },
+  {
+    grep: '@P0|@P1',
+    expected: [
+      'suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline',
+      'suite test inside2 banana @smoke @regressionInline @R3 @P1Inline',
+    ],
+  },
+  {
+    grep: '(!@P0|!@P1)|@res', // @res to have check
+    expected: [],
+  },
+  {
+    grep: '@P0',
+    expected: ['suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline'],
+  },
+  {
+    grep: '@P1',
+    expected: ['suite test inside2 banana @smoke @regressionInline @R3 @P1Inline'],
+  },
+];
+
+tests.forEach(t => {
+  toTest(t.grep, t.expected);
 });
 
-describe('2', () => {
-  suiteTest('tags combination', '@smoke', toTest, [
-    '2 parent suite test inside1 apple @smoke @R1 @R2',
-    '2 parent suite test inside2 banana @smoke @R3',
-  ]);
+describe('Check executed @res', () => {
+  it('Check executed count', () => {
+    expect(check).eq(tests.length);
+  });
 });
-
-describe('3', () => {
-  suiteTest('tags combination', '@regression', toTest, [
-    '3 parent suite test inside1 apple @smoke @R1 @R2',
-    '3 parent suite test inside2 banana @smoke @R3',
-  ]);
-});
-
-/*describe('4', () => {
-  suiteTest('tags combination', '@P0', toTest, [
-    '4 parent suite test inside1 apple @smoke @regressionInline @R1 @R2 @P0Inline',
-  ]);
-});
-
-suiteTest('tags combination', '@R1', toTest, [result[0]]);
-suiteTest('tags combination', '@P1', toTest, [result[1]]);
-suiteTest('tags combination', '@R3', toTest, [result[1]]);
-suiteTest('tags combination with OR', '@P0|@P1', toTest, result);
-suiteTest('tags combination with AND', '@regression&@P0', toTest, [result[0]]);
-suiteTest('tags combination with AND and NOT', '@regression&!@P1', toTest, [result[0]]);
-suiteTest('tags combination with NOT', '!@regression', toTest, []);
-suiteTest('tags combination with NOT regexp', '=/@regression[^\\w@]+/i', toTest, []);
-suiteTest('tags combination with regexp', '=/@regressionInline[^\\w@]+/i', toTest, result);
-suiteTest('tags combination with NOT', '!@smoke', toTest, []);*/

@@ -1,6 +1,7 @@
 import { cypressAppSelect, ListenerSetting, setupControlsExtension } from 'cypress-controls-ext';
 import { style } from './select-element/select-element-css';
 import { html } from './select-element/select-element-html';
+import { isInteractive } from './index';
 
 const testsCountSelector = '.number-input';
 const inputGrep = '.grep';
@@ -41,11 +42,8 @@ const tooltipCorrect = (selector: string, eq: number, listener: ListenerSetting)
 
 export const addSearchInput = (showTags: boolean, showPending: boolean) => {
   setupControlsExtension({
-    mode: { open: true },
+    mode: { open: true, run: isInteractive() },
     inject: 'insertAfter',
-    // selectorToInject: '.reporter .controls',
-    //selectorToInject: 'header',
-    // selectorToInject: '.reporter .container .runnable-header',
     selectorToInject: '.reporter header .toggle-specs-wrapper',
     id: 'searchInput',
     style: style(testsCountSelector, iconSearch),
