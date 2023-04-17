@@ -9,7 +9,7 @@ enum envVars {
 type EnvVars = keyof typeof envVars;
 
 export function envVar(varName: EnvVars, newValue?: any) {
-  if (newValue) {
+  if (!newValue) {
     return Cypress.env(varName);
   }
 
@@ -18,7 +18,7 @@ export function envVar(varName: EnvVars, newValue?: any) {
 
 export const envVarPlugin = (config: Cypress.PluginConfigOptions) =>
   function (varName: EnvVars, newValue?: any) {
-    if (newValue) {
+    if (!newValue) {
       return config.env[varName];
     }
 
