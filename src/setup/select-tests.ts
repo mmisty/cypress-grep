@@ -70,7 +70,8 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
     if (setting.showTagsInTitle && suiteTags.length > 0) {
       const tagsLine = tagsLineForTitle(suiteTags);
       removeSuiteInlineTags(suite);
-      suite.title = `${suite.title} ${tagsLine}`;
+      const add = tagsLine ? ` ${tagsLine}` : '';
+      suite.title = `${suite.title}${add}`;
     }
 
     if (!setting.showTagsInTitle) {
@@ -117,9 +118,11 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepC
   test.title = removeTagsFromTitle(test.title);
 
   if (settings.showTagsInTitle) {
-    test.title = `${test.title} ${tags}`;
+    const add = tags ? ` ${tags}` : '';
+    test.title = `${test.title}${add}`;
   }
-  const fullTitleWithTags = `${removeTagsFromTitle(line)} ${testTagsAll.join(' ')}`.replace(/\s\s*/g, ' ');
+  const tagsAllStr = testTagsAll.length > 0 ? ` ${testTagsAll.join(' ')}` : '';
+  const fullTitleWithTags = `${removeTagsFromTitle(line)}${tagsAllStr}`.replace(/\s\s*/g, ' ');
   test.tags = testTagsAll;
   test.fullTitleWithTags = fullTitleWithTags;
 
