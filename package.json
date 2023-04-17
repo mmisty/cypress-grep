@@ -1,7 +1,7 @@
 {
   "name": "@mmisty/cypress-grep",
   "version": "1.2.11",
-  "description": "Filters tests by tags or by title using substring or regular expressions",
+  "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
   "homepage": "https://github.com/mmisty/cypress-grep#readme",
@@ -28,7 +28,7 @@
     "cy:open": "npm run cy -- open --browser chrome --e2e",
     "cy:open:grep": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy -- open --browser chrome --e2e",
     "cy:run": "npm run cy -- run --browser chrome --headless",
-    "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/many*/**/*.cy.ts'",
+    "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/example/**/*.cy.ts'",
     "cy:run:grep": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run:ex && npm run cy:run:ex",
     "cy:run:inter": "COVERAGE_REPORT_DIR=reports/coverage-cypress-int COVERAGE=true CYPRESS_INTER=true npm run cy -- run --browser chrome --headless",
     "cy:run:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy -- run",
