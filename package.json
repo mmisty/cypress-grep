@@ -84,11 +84,5 @@
   },
   "dependencies": {
     "cypress-controls-ext": "^0.1.4"
-  },
-  "files": [
-    "cypress/**",
-    "index.d.ts",
-    "index.js",
-    "setup/**"
-  ]
+  }
 }
