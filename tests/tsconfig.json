@@ -8,11 +8,7 @@
     "strict": true,
     "skipLibCheck": true,
     "types": ["node", "jest", "jest-test-each"],
-    "baseUrl": "./",
-    "paths": {
-      "cy-local": ["../src"],
-      "cy-local/*": ["../src/*"]
-    }
+
   },
 
   "include": ["./", "../node_modules/jest", "node_modules/jest-test-each/dist/index.d.ts"]

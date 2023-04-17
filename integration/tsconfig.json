@@ -15,5 +15,5 @@
     }
   },
 
-  "include": ["./"]
+  "include": ["./", "../src/mocha"]
 }

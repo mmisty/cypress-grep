@@ -12,7 +12,7 @@ const helpText = `
   
   </p>
   
-  <p><a href="https://github.com/mmisty/cypress-grep/blob/main/README.md">more info</a></p>
+  <p><a target="_blank" href="https://github.com/mmisty/cypress-grep/blob/main/README.md">more info</a></p>
 `;
 
 export const html = (
@@ -25,7 +25,7 @@ export const html = (
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-X7L1bhgb36bF1iFvaqvhgpaGpayKM+vXNNYRlF89BFA5s3vi1qZ8EX9086RlZjy1" crossorigin="anonymous">
 <div class="input-container controls">
   <div class="input-wrapper">
-    <div class="btn-wrapper-2">
+    <div class="btn-wrapper-icon">
       <div class="${iconContainerSearch.slice(1)} flex-center" >
         <i class="fas fa-search"></i>
         

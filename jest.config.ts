@@ -16,6 +16,7 @@ export default {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     'src/*.{ts,tsx}',
+    '!**/integration/**',
     '!**/lib/**',
     '!src/cypress/**',
     '!**/node_modules/**',

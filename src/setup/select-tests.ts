@@ -1,6 +1,6 @@
 import type { Suite } from 'mocha';
 import { parseTags, removeTagsFromTitle } from './tags';
-import { GrepConfig } from './config.type';
+import { GrepConfig } from './config.types';
 
 export const uniq = <T>(arr: T[]): T[] => {
   const res: T[] = [];
@@ -69,7 +69,9 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
 
     if (setting.showTagsInTitle && suiteTags.length > 0) {
       const tagsLine = tagsLineForTitle(suiteTags);
-      suite.title = `${suite.title} ${tagsLine}`;
+      removeSuiteInlineTags(suite);
+      const add = tagsLine ? ` ${tagsLine}` : '';
+      suite.title = `${suite.title}${add}`;
     }
 
     if (!setting.showTagsInTitle) {
@@ -108,11 +110,6 @@ const removeSuiteInlineTags = (st: Mocha.Suite | undefined) => {
   }
 };
 
-type MochaTestExtended = Mocha.Test & {
-  tags?: string[];
-  fullTitleWithTags?: string;
-};
-
 const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepConfig): string => {
   const testTagsAll = getTestTags(test, suiteTags);
   const line = test.fullTitle() + testTagsAll.join(' ');
@@ -121,11 +118,13 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepC
   test.title = removeTagsFromTitle(test.title);
 
   if (settings.showTagsInTitle) {
-    test.title = test.title + tags;
+    const add = tags ? ` ${tags}` : '';
+    test.title = `${test.title}${add}`;
   }
-  const fullTitleWithTags = (removeTagsFromTitle(line) + testTagsAll.join(' ')).replace(/\s\s*/g, ' ');
-  (test as MochaTestExtended).tags = testTagsAll;
-  (test as MochaTestExtended).fullTitleWithTags = fullTitleWithTags;
+  const tagsAllStr = testTagsAll.length > 0 ? ` ${testTagsAll.join(' ')}` : '';
+  const fullTitleWithTags = `${removeTagsFromTitle(line)}${tagsAllStr}`.replace(/\s\s*/g, ' ');
+  test.tags = testTagsAll;
+  test.fullTitleWithTags = fullTitleWithTags;
 
   return fullTitleWithTags;
 };
@@ -134,20 +133,10 @@ function filterTests(
   suiteoInint: Mocha.Suite,
   regexp: RegExp,
   settings: GrepConfig,
-  onFilteredTest: (test: MochaTestExtended) => void,
-  onExcludedTest: (test: MochaTestExtended) => void,
+  onFilteredTest: (test: Mocha.Test) => void,
+  onExcludedTest: (test: Mocha.Test) => void,
 ): number {
   let filteredCount = 0;
-
-  // Remove empty suites
-  suiteoInint.suites.forEach((suite: Mocha.Suite) => {
-    if (suite.tests.length === 0 && suite.suites.length === 0) {
-      if (suite.parent) {
-        const suiteTitle = suite.fullTitle();
-        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
-      }
-    }
-  });
 
   // Remove filtered tests and their parent suites
   suiteoInint.eachTest((test: Mocha.Test): void => {
@@ -156,11 +145,11 @@ function filterTests(
 
     if (regexp.test(fullTitleWithTags)) {
       filteredCount++;
-      onFilteredTest?.(test as MochaTestExtended);
+      onFilteredTest?.(test);
 
       return;
     }
-    onExcludedTest?.(test as MochaTestExtended);
+    onExcludedTest?.(test);
 
     // Remove not matched test
     if (test.parent) {

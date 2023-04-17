@@ -1,8 +1,7 @@
 # @mmisty/cypress-grep
-This package helps to filter tests by tags or by title using substring or regular expressions.
+The package enables filtering of tests based on tags or title, by utilizing substring or regular expressions.
 
-And package allows to add UI control with ability to filter tests inside selected file:
-
+It eliminates the need for using `.only`, as it provides a user interface control that allows tests to be filtered within a selected file, as shown in the following gif:
 ![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/p1.gif)
 
 ## Installation
@@ -12,41 +11,62 @@ npm i @mmisty/cypress-grep
 ```
 
 ### Setup
+To set up @mmisty/cypress-grep in your project, you need to add `registerCypressGrep` to
+your `support/index.ts` file (or `support/e2e.ts` file, 
+depending on how you have set up your project).
+
+Once this is done, types will be added automatically. Here's an example of the code you would need to add to `setup.ts`:
 
 ```javascript
-// setup.ts
 import { registerCypressGrep } from '@mmisty/cypress-grep';
 
 registerCypressGrep({
-  // will affect only Interactive mode
+  // This setting will only affect Interactive mode
   addControlToUI: true,
-  
-  // you can create environment variable to show tags in title if necessary
+
+  // This setting will be controllable in Interactive mode 
   showTagsInTitle: true,
   
-  // this will be controllable in Interactive mode 
+  // This setting will be controllable in Interactive mode 
   showExcludedTests: true, 
   
 });
 ```
+With this configuration, you will be able to control how tags are displayed in 
+the title, and whether or not excluded tests should be displayed (as pending). 
+
+The `addControlToUI` parameter adds the UI control feature to Cypress Interactive mode,
+allowing you to filter tests easily.
 
 ### Specify tags
-Tags could be specified in different ways:
- - just input inline tags in test or suite title like `@smoke`
- - add config to suite or test `{ tags: '@smoke' }` or `{ tags: ['@smoke'] }`
+You can specify tags in different ways while using the package:
+
+1. Inline Tags: You can simply add tags in the title of tests or suites. 
  
-    ```javascript
-    describe('login', { tags: '@smoke' }, () => {
-      it('should login @P0 @regression', ()=> {
-        // ...
-      });
+   For example, `describe('Login @smoke', () => {...})` will add a `@smoke` tag to the suite.
+
+
+2. Config Tags: You can add tags to suites or tests by using the `tags` key in the configuration object
+
+   You can pass a string or an array of strings as the value to `tags`. For example,
+
+   ```javascript
+   describe('login', { tags: '@smoke' }, () => {
+     it('should login @P0 @regression', ()=> {
+       // ...
+     });
    
-      it('special case on login', { tags: ['@P1', '@regression'] }, () => {
-        // ...
-      });
-    });
-    
-    ```
+     it('special case on login', { tags: ['@P1', '@regression'] }, () => {
+       // ...
+     });
+   });
+   ```
+
+   The above code will add the `@smoke` tag to the suite, `@P0` and `@regression` to the first test
+   and `@P1` and `@regression` to the second test.
+
+You can use any of the above ways to add tags to your tests or suites. 
+These tags then help you to easily filter your tests based on their tags.
 
 ### Run by tags
 
@@ -58,9 +78,14 @@ Run by @P1
 To run by tags you need to specify environment variable 'GREP'
 
 Run all tests with @P1 tag
-`CYPRESS_GREP='@P1' npm run cy:run`
+```
+CYPRESS_GREP='@P1' npm run cy:run
+```
+or 
 
-I used to run it by `CYPRESS_GREP='@smoke' npm run cy:run`
+```
+npx cypress run --env GREP='@p1'
+```
 
 Here are some examples: 
 - `!@` - run all tests without tags

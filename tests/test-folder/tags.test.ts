@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { selectionTestGrep } from '../../lib/setup/regexp';
+import { selectionTestGrep } from '../../src/setup/regexp';
 
 describe('utils', () => {
   describe('should grep', () => {

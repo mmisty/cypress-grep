@@ -1,6 +1,7 @@
 import { cypressAppSelect, ListenerSetting, setupControlsExtension } from 'cypress-controls-ext';
 import { style } from './select-element/select-element-css';
 import { html } from './select-element/select-element-html';
+import { isInteractive } from './index';
 
 const testsCountSelector = '.number-input';
 const inputGrep = '.grep';
@@ -41,11 +42,8 @@ const tooltipCorrect = (selector: string, eq: number, listener: ListenerSetting)
 
 export const addSearchInput = (showTags: boolean, showPending: boolean) => {
   setupControlsExtension({
-    mode: { open: true },
+    mode: { open: true, run: isInteractive() },
     inject: 'insertAfter',
-    // selectorToInject: '.reporter .controls',
-    //selectorToInject: 'header',
-    // selectorToInject: '.reporter .container .runnable-header',
     selectorToInject: '.reporter header .toggle-specs-wrapper',
     id: 'searchInput',
     style: style(testsCountSelector, iconSearch),
@@ -89,14 +87,15 @@ export const addSearchInput = (showTags: boolean, showPending: boolean) => {
       tooltipCorrect('.btn-wrapper', 2, listener);
       tooltipCorrect('.btn-wrapper', 3, listener);
       tooltipCorrect(iconSearch, 0, listener);
-
       tooltipCorrect(testsCountSelector, 0, listener);
-      listener(iconSearch, 'mouseover', () => {
+      tooltipCorrect('.btn-wrapper-icon', 0, listener);
+
+      listener('.btn-wrapper-icon', 'mouseover', () => {
         const tool = cypressAppSelect('.tooltip');
         tool.css('display', 'block');
       });
 
-      listener(iconSearch, 'mouseout', () => {
+      listener('.btn-wrapper-icon', 'mouseout', () => {
         const tool = cypressAppSelect('.tooltip');
         tool.css('display', 'none');
       });

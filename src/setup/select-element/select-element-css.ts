@@ -36,7 +36,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   border-radius: 4px;
   padding: 5px;
 }
-.btn-wrapper-2{
+.btn-wrapper-icon {
   height: ${controlsHeight - 2}px;
 }
 ${iconContainerSearch} {
@@ -181,7 +181,7 @@ ${testsCountSelector} {
 .btn-wrapper::after {
   content: attr(data-tooltip);
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   padding: 4px 8px 4px 8px;
   border-radius: 4px;
   border: 1px solid #2e3247;
@@ -196,7 +196,7 @@ ${testsCountSelector} {
 
 ${testsCountSelector}::after {
   content: attr(data-tooltip);
-  z-index: 1;
+  z-index: 2;
   position: absolute;
   padding: 4px 8px 4px 8px;
   border-radius: 4px;
