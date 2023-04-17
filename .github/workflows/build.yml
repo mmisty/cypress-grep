@@ -29,8 +29,5 @@ jobs:
       run: npm run pre
 
     - name: Monitor coverage
-      uses: slavcodev/coverage-monitor-action@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        coverage_path: "reports/coverage-full/clover.xml"
+      run: npm run cov:check
 
