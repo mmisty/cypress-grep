@@ -31,3 +31,6 @@ jobs:
     - name: Monitor coverage
       run: npm run cov:check
 
+    - name: Show coverage
+      run: npm run cov:show
+
