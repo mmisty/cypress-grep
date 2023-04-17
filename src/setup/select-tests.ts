@@ -138,16 +138,6 @@ function filterTests(
 ): number {
   let filteredCount = 0;
 
-  // Remove empty suites
-  suiteoInint.suites.forEach((suite: Mocha.Suite) => {
-    if (suite.tests.length === 0 && suite.suites.length === 0) {
-      if (suite.parent) {
-        const suiteTitle = suite.fullTitle();
-        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
-      }
-    }
-  });
-
   // Remove filtered tests and their parent suites
   suiteoInint.eachTest((test: Mocha.Test): void => {
     const testSuiteTags = getSuiteTagsForTest(test);
