@@ -15,7 +15,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
   if (!envVar('GREP')) {
     console.warn('To prefilter spec specify env var GREP, will select all tests');
-    envVar('GREP', '.*');
+    envVar('GREP', '');
   }
 
   const filteredSpecs = envVar('GREP_TEMP_PATH') ?? `${config.projectRoot}/filtered_test_paths.json`;
