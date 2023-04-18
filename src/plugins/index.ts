@@ -48,7 +48,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
 const changeSpecPattern = (config: Cypress.PluginConfigOptions, newValue: string | string[]) => {
   config.specPattern = newValue;
-  console.log(`SPEC PATTERN IS NOW: ${newValue}`);
+  console.log(`SPEC PATTERN IS NOW: ${JSON.stringify(newValue)}`);
 };
 
 const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
@@ -75,6 +75,7 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
 
   const testParsed = parsePrefilteredSpecs(filteredSpecs);
 
+  // todo setting
   const uniqPaths: string[] = uniq(
     testParsed.tests.map(f => (f.filePath.startsWith(parentTestsFolder) ? f.filePath : parentTestsFolder + f.filePath)),
   );

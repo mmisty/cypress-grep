@@ -11,10 +11,11 @@ ${tests}
 
 const testCode = (relativePath: string) => {
   return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/')}\`, () => {
-    require('.${relativePath.replace(/.[tj]s$/, '')}');
+    require('.${relativePath}');
   });`;
 };
 
+//.replace(/.[tj]s$/, '')
 /**
  * Will create file with all tests imported with require
  * @param outFilePath
