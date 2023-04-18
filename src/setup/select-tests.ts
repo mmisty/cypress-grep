@@ -259,7 +259,7 @@ export const setupSelectTests = (
   if (isPrerun) {
     after(() => {
       if (filteredTests.length > 0) {
-        const result = { total, grep, tests: filteredTests };
+        const result = { total, filtered: filteredTests.length, grep, tests: filteredTests };
         cy.task('writeTempFileWithSelectedTests', JSON.stringify(result, null, '  '));
       }
     });
