@@ -15,8 +15,6 @@ export const isInteractive = () => {
 
 const getGrepExpression = (parentId: string) => {
   const uiValue = cypressAppSelect(`#${wrapperId(parentId)} .grep`).val();
-  console.log(parentId);
-  console.log(uiValue);
 
   // use UI input value only when interactive mode
   if (!envVar('TEST_GREP') && isInteractive() && uiValue != null) {
