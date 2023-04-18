@@ -11,11 +11,11 @@ ${tests}
 
 const testCode = (relativePath: string) => {
   return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/')}\`, () => {
+    // eslint-disable-next-line import/extensions
     require('.${relativePath}');
   });`;
 };
 
-//.replace(/.[tj]s$/, '')
 /**
  * Will create file with all tests imported with require
  * @param outFilePath
