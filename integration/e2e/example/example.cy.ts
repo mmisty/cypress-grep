@@ -63,3 +63,9 @@ describe('second parent suite', () => {
     expect(tagsArr(this.test?.tags)).to.deep.eq([]);
   });
 });
+
+describe('another parent suite with tag @parent', { tags: ['@parent2'] }, () => {
+  it('check tags', function () {
+    expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
+  });
+});
