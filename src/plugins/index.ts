@@ -5,6 +5,7 @@ import { uniq } from '../utils/functions';
 import { taskWrite } from './tasks';
 import { envVarPlugin, isEnvTruePlugin } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
+import path from 'path';
 
 /**
  * This will add prefiltering capabilities and speed up the execution
@@ -14,14 +15,16 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const envVar = envVarPlugin(config);
 
   if (!envVar('GREP')) {
-    console.warn('To prefilter spec specify env var GREP, will select all tests');
+    console.warn('[ cypress-grep ] to prefilter spec specify env var GREP, will select all tests');
     envVar('GREP', '');
   }
 
   const filteredSpecs = envVar('GREP_TEMP_PATH') ?? `${config.projectRoot}/filtered_test_paths.json`;
-  const parentTestsFolder = getRootFolder(config.specPattern, config.projectRoot);
 
-  on('task', taskWrite(filteredSpecs));
+  const parentTestsFolder = getRootFolder(config.specPattern, config.projectRoot);
+  console.log(`[ cypress-grep ] parent tests tolder: ${parentTestsFolder}`);
+
+  on('task', taskWrite(parentTestsFolder, filteredSpecs));
 
   // using isTextTerminal since isInteractive always true in plugins
   // https://github.com/cypress-io/cypress/issues/20789
@@ -48,7 +51,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
 const changeSpecPattern = (config: Cypress.PluginConfigOptions, newValue: string | string[]) => {
   config.specPattern = newValue;
-  console.log(`SPEC PATTERN IS NOW: ${JSON.stringify(newValue)}`);
+  console.log(`[ cypress-grep ] SPEC PATTERN IS NOW: ${JSON.stringify(newValue)}`);
 };
 
 const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
@@ -57,7 +60,7 @@ const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
   try {
     return JSON.parse(testsJson.toString()) as ParsedSpecs;
   } catch (e) {
-    throw new Error(`Could not parse '${filteredSpecs}'`);
+    throw new Error(`[ cypress-grep ] could not parse '${filteredSpecs}'`);
   }
 };
 
@@ -66,7 +69,7 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
 
   if (!existsSync(filteredSpecs)) {
     console.warn(
-      'To run prefiltered tests run with env var CYPRESS_FILTER_RUN=true\nThis time will filter tests one by one.',
+      '[ cypress-grep ] to run prefiltered tests run with env var CYPRESS_FILTER_RUN=true\nThis time will filter tests one by one.',
     );
 
     // todo make option to exist early here when not found
@@ -77,7 +80,17 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
 
   // todo setting
   const uniqPaths: string[] = uniq(
-    testParsed.tests.map(f => (f.filePath.startsWith(parentTestsFolder) ? f.filePath : parentTestsFolder + f.filePath)),
+    testParsed.tests.map(f => {
+      if (existsSync(path.resolve(f.filePath))) {
+        return f.filePath;
+      }
+
+      if (existsSync(path.resolve(testParsed.parentFolder + f.filePath))) {
+        return testParsed.parentFolder + f.filePath;
+      }
+
+      throw new Error(`[ cypress-grep ] could not find '${f.filePath}' or '${testParsed.parentFolder + f.filePath}' `);
+    }),
   );
 
   if (uniqPaths.length === 0) {

@@ -1,7 +1,7 @@
 import type { Suite } from 'mocha';
 import { parseInlineTags, removeTagsFromTitle, uniqTags } from '../utils/tags';
-import { GrepConfig } from './config.types';
-import { TransportTest } from '../common/types';
+import type { GrepConfig } from './config.types';
+import type { ParsedSpecs, TransportTest } from '../common/types';
 import GrepTag = Mocha.GrepTag;
 import { uniq } from '../utils/functions';
 
@@ -259,8 +259,8 @@ export const setupSelectTests = (
   if (isPrerun) {
     after(() => {
       if (filteredTests.length > 0) {
-        const result = { total, filtered: filteredTests.length, grep, tests: filteredTests };
-        cy.task('writeTempFileWithSelectedTests', JSON.stringify(result, null, '  '));
+        const result: ParsedSpecs = { total, filtered: filteredTests.length, grep, tests: filteredTests };
+        cy.task('writeTempFileWithSelectedTests', result);
       }
     });
   }

@@ -12,7 +12,11 @@ export default defineConfig({
   },
   watchForFileChanges: false,
   e2e: {
-    specPattern: `${cypressFolder}/e2e/**/*.(cy|test|spec).ts`,
+    specPattern: [
+      `${cypressFolder}/e2e/example/**/*.(cy|test|spec).ts`,
+      `${cypressFolder}/e2e/tech/**/*.(cy|test|spec).ts`,
+      `${cypressFolder}/e2e/*.(cy|test|spec).ts`,
+    ],
     supportFile: `${cypressFolder}/support/index.ts`,
     downloadsFolder: `${cypressFolder}/downloads`,
     videosFolder: `${cypressFolder}/videos`,
