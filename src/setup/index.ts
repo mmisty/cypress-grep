@@ -5,13 +5,18 @@ import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
 import { envVar, isEnvTrue } from '../common/envVars';
 
+// this controlWrapper- is hardcoded in controls package
+const wrapperId = (id: string) => `controlWrapper-${id}`;
+
 export const isInteractive = () => {
   // INTER env var for testing
   return Cypress.config('isInteractive') || Cypress.env('INTER') === 'true' || Cypress.env('INTER') === true;
 };
 
-const getGrepExpression = () => {
-  const uiValue = cypressAppSelect('.grep').val();
+const getGrepExpression = (parentId: string) => {
+  const uiValue = cypressAppSelect(`#${wrapperId(parentId)} .grep`).val();
+  console.log(parentId);
+  console.log(uiValue);
 
   // use UI input value only when interactive mode
   if (!envVar('TEST_GREP') && isInteractive() && uiValue != null) {
@@ -21,8 +26,8 @@ const getGrepExpression = () => {
   return envVar('GREP') ?? '';
 };
 
-const selectTests = () => {
-  const grepSelected = getGrepExpression();
+const selectTests = (parentId: string) => () => {
+  const grepSelected = getGrepExpression(parentId);
 
   return selectionTestGrep(grepSelected);
 };
@@ -56,16 +61,25 @@ export const registerCypressGrep = (config?: GrepConfig) => {
   let showTagsInTitle: boolean = initShowTagsInTitle;
   let showExcludedTests: boolean = initShowExcludedTests;
 
-  if (isInteractive()) {
-    showTagsInTitle = elVal('.show-tags', 'data-show-tags', initShowTagsInTitle);
-    showExcludedTests = elVal('.show-pending', 'data-show-pending', initShowExcludedTests);
-  }
+  let idSelector = '';
 
   if (config?.addControlToUI) {
-    addSearchInput(showTagsInTitle, showExcludedTests);
+    idSelector = addSearchInput(showTagsInTitle, showExcludedTests);
   }
+
+  if (isInteractive()) {
+    showTagsInTitle = elVal(`#${wrapperId(idSelector)} .show-tags`, 'data-show-tags', initShowTagsInTitle);
+    showExcludedTests = elVal(`#${wrapperId(idSelector)} .show-pending`, 'data-show-pending', initShowExcludedTests);
+  }
+
   const configEvaluated = { ...config, showTagsInTitle, showExcludedTests };
 
   log(configEvaluated);
-  setupSelectTests(selectTests, configEvaluated, updateCount, isEnvTrue('GREP_PRE_FILTER'));
+
+  setupSelectTests(
+    selectTests(idSelector),
+    configEvaluated,
+    updateCount(wrapperId(idSelector)),
+    isEnvTrue('GREP_PRE_FILTER'),
+  );
 };

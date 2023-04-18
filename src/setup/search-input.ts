@@ -7,8 +7,12 @@ const testsCountSelector = '.number-input';
 const inputGrep = '.grep';
 const iconSearch = '.icon-container';
 
-export const updateCount = (count: number) => {
-  const testCountElement = cypressAppSelect(testsCountSelector);
+const withParent = (parentId: string) => (sel: string) => {
+  return `#${parentId} ${sel}`;
+};
+
+export const updateCount = (parentId: string) => (count: number) => {
+  const testCountElement = cypressAppSelect(withParent(parentId)(testsCountSelector));
 
   if (testCountElement.length > 0) {
     testCountElement.text(count);
@@ -23,75 +27,76 @@ const setZIndex = (val: number) => {
   cyHeader.css('z-index', `${val}`);
 };
 
-const tooltipCorrect = (selector: string, eq: number, listener: ListenerSetting) => {
-  listener(`${selector}:eq(${eq})`, 'mouseover', () => {
+const tooltipCorrect = (selector: string, listener: ListenerSetting) => {
+  listener(`${selector}`, 'mouseover', () => {
     setZIndex(0);
   });
 
-  listener(`${selector}:eq(${eq})`, 'mouseout', () => {
+  listener(`${selector}`, 'mouseout', () => {
     setZIndex(1);
   });
 };
 
-export const addSearchInput = (showTags: boolean, showPending: boolean) => {
+export const addSearchInput = (showTags: boolean, showPending: boolean): string => {
+  const id = 'searchInput';
   setupControlsExtension({
+    id,
     mode: { open: true, run: isInteractive() },
     inject: 'insertAfter',
     selectorToInject: '.reporter header .toggle-specs-wrapper',
-    id: 'searchInput',
     style: style(testsCountSelector, iconSearch),
     control: () => html(testsCountSelector, inputGrep, iconSearch, showTags, showPending),
     addEventListener: (parentId, listener, cyStop, cyRestart) => {
-      listener(inputGrep, 'change', () => {
+      const selector = withParent(parentId);
+      listener(selector(inputGrep), 'change', () => {
         cyStop();
         cyRestart();
       });
 
-      listener(inputGrep, 'keypress', event => {
+      listener(selector(inputGrep), 'keypress', event => {
         if ((event as any).key === 'Enter') {
           cyStop();
           cyRestart();
         }
       });
 
-      listener('.clear-input', 'click', () => {
-        const searchField = cypressAppSelect(inputGrep);
+      listener(selector('.clear-input'), 'click', () => {
+        const searchField = cypressAppSelect(selector(inputGrep));
         searchField.val('');
       });
 
-      listener('.show-tags', 'click', () => {
+      listener(selector('.show-tags'), 'click', () => {
         const tagsDataSel = 'data-show-tags';
-        const tags = cypressAppSelect('.show-tags');
+        const tags = cypressAppSelect(selector('.show-tags'));
         const val = tags.attr(tagsDataSel);
 
         tags.attr(tagsDataSel, val === 'true' ? 'false' : 'true');
       });
 
-      listener('.show-pending', 'click', () => {
+      listener(selector('.show-pending'), 'click', () => {
         const pendingDataSel = 'data-show-pending';
-        const tags = cypressAppSelect('.show-pending');
+        const tags = cypressAppSelect(selector('.show-pending'));
         const val = tags.attr(pendingDataSel);
 
         tags.attr(pendingDataSel, val === 'true' ? 'false' : 'true');
       });
 
-      tooltipCorrect('.btn-wrapper', 0, listener);
-      tooltipCorrect('.btn-wrapper', 1, listener);
-      tooltipCorrect('.btn-wrapper', 2, listener);
-      tooltipCorrect('.btn-wrapper', 3, listener);
-      tooltipCorrect(iconSearch, 0, listener);
-      tooltipCorrect(testsCountSelector, 0, listener);
-      tooltipCorrect('.btn-wrapper-icon', 0, listener);
+      tooltipCorrect(selector('.btn-wrapper'), listener);
+      tooltipCorrect(selector(iconSearch), listener);
+      tooltipCorrect(selector(testsCountSelector), listener);
+      tooltipCorrect(selector('.btn-wrapper-icon'), listener);
 
-      listener('.btn-wrapper-icon', 'mouseover', () => {
-        const tool = cypressAppSelect('.tooltip');
+      listener(selector('.btn-wrapper-icon'), 'mouseover', () => {
+        const tool = cypressAppSelect(selector('.tooltip'));
         tool.css('display', 'block');
       });
 
-      listener('.btn-wrapper-icon', 'mouseout', () => {
-        const tool = cypressAppSelect('.tooltip');
+      listener(selector('.btn-wrapper-icon'), 'mouseout', () => {
+        const tool = cypressAppSelect(selector('.tooltip'));
         tool.css('display', 'none');
       });
     },
   });
+
+  return id;
 };

@@ -19,7 +19,7 @@ export const html = (
   iconContainerSearch: string,
   showTags: boolean,
   showPending: boolean,
-) => `<hr/>
+) => `
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-X7L1bhgb36bF1iFvaqvhgpaGpayKM+vXNNYRlF89BFA5s3vi1qZ8EX9086RlZjy1" crossorigin="anonymous">
 <div class="input-container controls">
   <div class="input-wrapper">
