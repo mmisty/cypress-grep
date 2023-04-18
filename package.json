@@ -1,6 +1,6 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
@@ -83,7 +83,7 @@
     "webpack": "^5.75.0"
   },
   "dependencies": {
-    "cypress-controls-ext": "^0.1.4",
+    "cypress-controls-ext": "^0.1.5",
     "fast-glob": "^3.2.12"
   }
 }
