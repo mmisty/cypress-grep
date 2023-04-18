@@ -67,20 +67,22 @@ const tagsSuite = (st: Mocha.Suite): Mocha.GrepTagObject[] => {
  * @param setting
  */
 const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
+  if (!rootSuite) {
+    return;
+  }
+
+  const suiteTags = tagsSuite(rootSuite);
+
+  rootSuite.title = removeTagsFromTitle(rootSuite.title);
+
+  if (setting.showTagsInTitle && suiteTags.length > 0) {
+    const tagsLine = tagsLineForTitle(suiteTags);
+    const add = tagsLine ? ` ${tagsLine}` : '';
+
+    rootSuite.title = `${rootSuite.title}${add}`;
+  }
+
   for (const suite of rootSuite.suites) {
-    const suiteTags = tagsSuite(suite);
-
-    if (setting.showTagsInTitle && suiteTags.length > 0) {
-      const tagsLine = tagsLineForTitle(suiteTags);
-      removeSuiteInlineTags(suite);
-      const add = tagsLine ? ` ${tagsLine}` : '';
-      suite.title = `${suite.title}${add}`;
-    }
-
-    if (!setting.showTagsInTitle) {
-      removeSuiteInlineTags(suite);
-    }
-
     suiteTitleChange(suite, setting);
   }
 };
@@ -104,15 +106,6 @@ const getSuiteTagsForTest = (test: Mocha.Test | undefined): Mocha.GrepTagObject[
   return tags;
 };
 
-const removeSuiteInlineTags = (st: Mocha.Suite | undefined) => {
-  if (st) {
-    st.title = removeTagsFromTitle(st.title);
-    st.suites.forEach(s => {
-      removeSuiteInlineTags(s);
-    });
-  }
-};
-
 // search only by tag name, not by tag info
 const tagsSearchLine = (allTags: GrepTag[]): string => {
   const tagsLine = (tags: Mocha.GrepTag[]): string => tags.map(t => tagStr(t)).join(' ');
@@ -122,7 +115,7 @@ const tagsSearchLine = (allTags: GrepTag[]): string => {
 
 const prepareTestTitle = (test: Mocha.Test, suiteTags: Mocha.GrepTagObject[], settings: GrepConfig): string => {
   const testTagsAll = getTestTags(test, suiteTags);
-  const line = test.fullTitle() + testTagsAll.join(' ');
+  const line = test.fullTitle();
 
   const tags = tagsLineForTitle(getCurrentTestTags(test));
   test.title = removeTagsFromTitle(test.title);
