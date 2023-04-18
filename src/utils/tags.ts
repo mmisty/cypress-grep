@@ -2,6 +2,14 @@ const regexTagsNoReasons = '(@[^@ ()"\']+)';
 const regexDiffQuotes = ['"', "'"].map(t => `(@[^@ ]+\\(${t}[^@${t}]+${t}(?:,\\s*${t}[^@${t}]+${t})*\\))`);
 const tagsRegex = new RegExp(`${regexDiffQuotes.join('|')}|${regexTagsNoReasons}`, 'g');
 
+export const uniqTags = (arr: Mocha.GrepTagObject[]): Mocha.GrepTagObject[] => {
+  return arr.filter((obj, index, self) => self.map(s => s.tag).indexOf(obj.tag) === index);
+};
+
+export const parseInlineTags = (title: string): Mocha.GrepTagObject[] => {
+  return parseTags(title).map(t => ({ ...t, tag: t.tag.startsWith('@') ? t.tag : `@${t.tag}` }));
+};
+
 export const removeTagsFromTitle = (str: string): string => {
   let resultStr = str;
   const found = str?.match(tagsRegex);
@@ -13,8 +21,6 @@ export const removeTagsFromTitle = (str: string): string => {
 
   return resultStr.replace(/\s\s*/g, ' ').trim();
 };
-
-type Tag = { tag: string; failReasons: string[] };
 
 const searchParams = [
   {
@@ -34,10 +40,10 @@ const encodeDecode = (str: string, isEncode: boolean) => {
   return newStr;
 };
 
-// const encodeFailReason = (str: string) => encodeDecode(encodeURIComponent(str), true);
+const encodeFailReason = (str: string) => encodeDecode(encodeURIComponent(str), true);
 const decodeFailReason = (str: string) => encodeDecode(decodeURIComponent(str), false);
 
-export const parseOneTag = (tg: string): Tag => {
+export const parseOneTag = (tg: string): Mocha.GrepTagObject => {
   const reasons: string[] = [];
   let tagResult = '';
   const regexpReasons = /\((.*)\)$/;
@@ -62,12 +68,12 @@ export const parseOneTag = (tg: string): Tag => {
 
   return {
     tag: tagResult,
-    failReasons: reasons,
+    info: reasons,
   };
 };
 
-export const parseTags = (str: string): Tag[] => {
-  const tags: Tag[] = [];
+export const parseTags = (str: string): Mocha.GrepTagObject[] => {
+  const tags: Mocha.GrepTagObject[] = [];
   const found = str?.match(tagsRegex);
 
   if (found != null) {
@@ -75,4 +81,12 @@ export const parseTags = (str: string): Tag[] => {
   }
 
   return tags;
+};
+
+export const tag = (name: string, ...reasons: string[]): string => {
+  const encodedReasons = reasons.map(reason => encodeFailReason(reason));
+  const reasonsSeparatedByComma = encodedReasons.map(r => `"${r}"`).join(',');
+  const reasonsStr = encodedReasons.length > 0 ? `(${reasonsSeparatedByComma})` : '';
+
+  return `@${name}${reasonsStr}`;
 };

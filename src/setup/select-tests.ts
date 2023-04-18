@@ -1,19 +1,10 @@
 import type { Suite } from 'mocha';
-import { parseTags, removeTagsFromTitle } from './tags';
+import { parseInlineTags, removeTagsFromTitle, uniqTags } from '../utils/tags';
 import { GrepConfig } from './config.types';
 import { TransportTest } from '../common/types';
+import GrepTag = Mocha.GrepTag;
+import { uniq } from '../utils/functions';
 
-export const uniq = <T>(arr: T[]): T[] => {
-  const res: T[] = [];
-
-  arr.forEach(a => {
-    if (res.indexOf(a) === -1) {
-      res.push(a);
-    }
-  });
-
-  return res;
-};
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const origins = () => ({
@@ -26,22 +17,30 @@ type TestConfig = {
   _testConfig: Cypress.TestConfigOverrides;
 };
 
-const getCurrentTestTags = (test: Mocha.Test): string[] => {
+const getCurrentTestTags = (test: Mocha.Test): Mocha.GrepTagObject[] => {
   const testTags = (test as unknown as TestConfig)._testConfig?.tags;
-  const inlineTagsTest = parseTags(test.title).map(t => `@${t.tag}`);
-  const tagsArr = testTags && typeof testTags === 'string' ? [testTags] : testTags ?? [];
+  const inlineTagsTest = parseInlineTags(test.title);
+  const tagsArr: string[] = testTags ? (typeof testTags === 'string' ? [testTags] : testTags ?? []) : [];
 
-  return uniq([...tagsArr, ...inlineTagsTest]);
+  const tagsArrParsed: Mocha.GrepTagObject[] = tagsArr.map(t => ({ tag: t }));
+
+  return uniqTags([...tagsArrParsed, ...inlineTagsTest]);
 };
 
-const getTestTags = (test: Mocha.Test, suiteTags: string[]): string[] => {
-  return uniq([...suiteTags, ...getCurrentTestTags(test)]);
+const getTestTags = (test: Mocha.Test, suiteTags: Mocha.GrepTagObject[]): Mocha.GrepTagObject[] => {
+  return uniqTags([...suiteTags, ...getCurrentTestTags(test)]);
 };
 
-const tagsLineForTitle = (tags: string[]) => {
-  return tags.join(' ');
+const tagStr = (t: Mocha.GrepTag): string => {
+  if (typeof t === 'string') {
+    return t;
+  }
 
-  //return tags && tags.length > 0 ? JSON.stringify(tags).replace(/"/g, '') : '';
+  return `${t.tag}`;
+};
+
+const tagsLineForTitle = (tags: Mocha.GrepTag[]): string => {
+  return tags.map(t => tagStr(t)).join(' ');
 };
 
 const tagsFormConfig = (tags?: string | string[]): string[] => {
@@ -52,11 +51,14 @@ const tagsFormConfig = (tags?: string | string[]): string[] => {
  * Get all tags for suite - inline and from config
  * @param st - suite
  */
-const tagsSuite = (st: Mocha.Suite): string[] => {
+const tagsSuite = (st: Mocha.Suite): Mocha.GrepTagObject[] => {
   const tagsFromConfig = tagsFormConfig((st as unknown as TestConfig)._testConfig?.tags);
-  const inlineTagsFromTitle = parseTags(st.title).map(tag => `@${tag.tag}`);
 
-  return uniq([...tagsFromConfig, ...inlineTagsFromTitle]);
+  // here
+  const tagsArrParsed: Mocha.GrepTagObject[] = tagsFromConfig.map(t => ({ tag: t }));
+  const inlineTagsSuite = parseInlineTags(st.title);
+
+  return uniqTags([...tagsArrParsed, ...inlineTagsSuite]);
 };
 
 /**
@@ -87,8 +89,8 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
  * Get all suite tags for test
  * @param test
  */
-const getSuiteTagsForTest = (test: Mocha.Test | undefined): string[] => {
-  const tags: string[] = [];
+const getSuiteTagsForTest = (test: Mocha.Test | undefined): Mocha.GrepTagObject[] => {
+  const tags: Mocha.GrepTagObject[] = [];
 
   let suite: Mocha.Suite | undefined = test?.parent;
 
@@ -111,7 +113,14 @@ const removeSuiteInlineTags = (st: Mocha.Suite | undefined) => {
   }
 };
 
-const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepConfig): string => {
+// search only by tag name, not by tag info
+const tagsSearchLine = (allTags: GrepTag[]): string => {
+  const tagsLine = (tags: Mocha.GrepTag[]): string => tags.map(t => tagStr(t)).join(' ');
+
+  return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
+};
+
+const prepareTestTitle = (test: Mocha.Test, suiteTags: Mocha.GrepTagObject[], settings: GrepConfig): string => {
   const testTagsAll = getTestTags(test, suiteTags);
   const line = test.fullTitle() + testTagsAll.join(' ');
 
@@ -122,8 +131,7 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: string[], settings: GrepC
     const add = tags ? ` ${tags}` : '';
     test.title = `${test.title}${add}`;
   }
-  const tagsAllStr = testTagsAll.length > 0 ? ` ${testTagsAll.join(' ')}` : '';
-  const fullTitleWithTags = `${removeTagsFromTitle(line)}${tagsAllStr}`.replace(/\s\s*/g, ' ');
+  const fullTitleWithTags = `${removeTagsFromTitle(line)}${tagsSearchLine(testTagsAll)}`.replace(/\s\s*/g, ' ');
   test.tags = testTagsAll;
   test.fullTitleWithTags = fullTitleWithTags;
 

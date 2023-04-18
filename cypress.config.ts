@@ -10,6 +10,7 @@ export default defineConfig({
     GREP_SHOW_TAGS_IN_TITLE: true,
     GREP_SHOW_EXCLUDED_TESTS: true,
   },
+  watchForFileChanges: false,
   e2e: {
     specPattern: `${cypressFolder}/e2e/**/*.(cy|test|spec).ts`,
     supportFile: `${cypressFolder}/support/index.ts`,

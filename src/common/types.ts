@@ -1,4 +1,4 @@
-export type TransportTest = { filePath: string; title?: string; tags?: string[] };
+export type TransportTest = { filePath: string; title?: string; tags?: Mocha.GrepTag[] };
 
 export type ParsedSpecs = {
   grep: string;

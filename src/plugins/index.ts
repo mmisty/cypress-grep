@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, rmSync } from 'fs';
 import { createAllTestsFile } from './all-tests-combine';
 import { getRootFolder } from './utils';
-import { uniq } from '../setup/select-tests';
+import { uniq } from '../utils/functions';
 import { taskWrite } from './tasks';
 import { envVarPlugin, isEnvTruePlugin } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
