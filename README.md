@@ -189,15 +189,15 @@ Controls has settings:
  - to show/hide tags in title
  - to show/hide excluded tests
   
-![tags_search_0.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_0.jpg)
+![tags_search.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search.jpg)
 
 ##### Show tags in title
 ![tags_search_1.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_1.jpg)
 
 
 ##### Show excluded tests
-![tags_search_3.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_3.jpg)
+![tags_search_2.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_2.jpg)
 
 
 ##### Do not show excluded tests
-![tags_search_4.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_4.jpg)
+![tags_search_3.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_3.jpg)
