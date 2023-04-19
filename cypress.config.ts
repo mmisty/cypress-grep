@@ -12,9 +12,10 @@ export default defineConfig({
   },
   watchForFileChanges: false,
   e2e: {
+    // experimentalRunAllSpecs: true,
     specPattern: [
+      `${cypressFolder}/e2e/example/*.(cy|test|spec).ts`,
       `${cypressFolder}/e2e/example/**/*.(cy|test|spec).ts`,
-      `${cypressFolder}/e2e/tech/**/*.(cy|test|spec).ts`,
       `${cypressFolder}/e2e/*.(cy|test|spec).ts`,
     ],
     supportFile: `${cypressFolder}/support/index.ts`,

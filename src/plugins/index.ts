@@ -33,7 +33,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   }*/
 
   if (!isEnvTruePlugin(config, 'GREP_PRE_FILTER')) {
-    updateSpecPattern(config, filteredSpecs, parentTestsFolder);
+    updateSpecPattern(config, filteredSpecs);
 
     return;
   }
@@ -64,7 +64,7 @@ const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
   }
 };
 
-const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: string, parentTestsFolder: string) => {
+const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: string) => {
   const envVar = envVarPlugin(config);
 
   if (!existsSync(filteredSpecs)) {

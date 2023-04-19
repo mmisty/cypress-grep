@@ -8,6 +8,9 @@ import { uniq } from '../utils/functions';
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const origins = () => ({
+  originIt: it,
+  originItOnly: it.only,
+  originItSkip: it.skip,
   originDescribe: describe,
   originOnly: describe.only,
   originSkip: describe.skip,
@@ -175,6 +178,51 @@ function filterTests(
     }
   });
 }
+type FilterTest = TransportTest & { match: boolean; filteredTitle: string };
+
+const createOnExcluded = (isPrerun: boolean, list: Partial<FilterTest>[]) => (test: Mocha.Test) => {
+  list.push({ match: false, filteredTitle: test.fullTitleWithTags ?? '' });
+};
+
+const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (test: Mocha.Test) => {
+  if (!isPrerun) {
+    list.push({ match: true, filteredTitle: test.fullTitleWithTags ?? '' });
+
+    return;
+  }
+
+  const filePath = test.titlePath()[1]?.replace(/\/\/+/g, '/');
+  list.push({
+    match: true,
+    filteredTitle: test.fullTitleWithTags ?? '',
+    filePath,
+    tags: test.tags,
+    title: test.title,
+  });
+
+  test.pending = true;
+};
+
+const createFilterSuiteTests =
+  (settings: GrepConfig, isPrerun: boolean, onCount: (num: number) => void) =>
+  (regexp: RegExp, filtered: FilterTest[], suite: Mocha.Suite) => {
+    filterTests(suite, regexp, settings, createOnFiltered(isPrerun, filtered), createOnExcluded(isPrerun, filtered));
+
+    const count = uniq(filtered.filter(t => t.match).map(t => t.filteredTitle)).length;
+
+    onCount(count);
+    suiteTitleChange(suite, settings);
+
+    if (settings.debugLog) {
+      console.log(count);
+      // eslint-disable-next-line no-console
+      console.log(
+        `\nFiltered tests (${count}): \n\n${uniq(
+          filtered.map(t => ` ${t.match ? ' + ' : ' - '}${t.filteredTitle}`),
+        ).join('\n')}\n`,
+      );
+    }
+  };
 
 const turnOffBeforeHook = () => {
   // some tests uses visit in before
@@ -190,8 +238,6 @@ export const setupSelectTests = (
   isPrerun: boolean,
 ): void => {
   const grep = Cypress.env('GREP') ?? '';
-  let total = 0;
-  let filteredCount = 0;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -202,71 +248,60 @@ export const setupSelectTests = (
     settings.showExcludedTests = false;
     turnOffBeforeHook();
   }
-
-  const filteredTests: TransportTest[] = [];
   const originalSuites = origins();
+  const filteredSuites: FilterTest[] = [];
+  const filteredTests: FilterTest[] = [];
+  const filterSuite = createFilterSuiteTests(settings, isPrerun, onCount);
 
-  // eslint-disable-next-line func-names
-  const selectedSuitesConstruct = function () {
-    function descWithTags(...args: unknown[]): Suite {
-      const regexp = selector();
-      const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
+  function itWithTags(...args: unknown[]): Mocha.Test {
+    const regexp = selector();
+    const test = (originalSuites.originIt as (...a: unknown[]) => Mocha.Test)(...args);
 
-      // the end, root suite, filter recursively
-      if (suite && !suite.parent?.parent) {
-        const filtered: string[] = [];
-
-        filterTests(
-          suite,
-          regexp,
-          settings,
-          test => {
-            total++;
-            filteredCount++;
-            filtered.push(` + ${test.fullTitleWithTags}`);
-
-            if (isPrerun) {
-              const filePath = test.titlePath()[1]?.replace(/\/\/+/g, '/');
-              filteredTests.push({
-                filePath,
-                tags: test.tags,
-                title: test.title,
-              });
-              test.pending = true;
-            }
-          },
-          excludedTest => {
-            total++;
-            filtered.push(` - ${excludedTest.fullTitleWithTags}`);
-          },
-        );
-
-        onCount(filteredCount);
-        suiteTitleChange(suite, settings);
-
-        if (settings.debugLog) {
-          // eslint-disable-next-line no-console
-          console.log(`\nFiltered tests: \n\n${uniq(filtered).join('\n')}\n`);
-        }
-      }
-
-      return suite;
+    // for tests in root
+    if (test.parent && test.parent.title === '' && !test.parent?.parent) {
+      console.log('Filter test');
+      filterSuite(regexp, filteredTests, test.parent);
     }
 
-    return descWithTags;
-  };
+    return test;
+  }
+
+  function descWithTags(...args: unknown[]): Suite {
+    const regexp = selector();
+    const suite = (originalSuites.originDescribe as (...a: unknown[]) => Suite)(...args);
+
+    if (suite && suite.parent && suite.parent.title === '' && !suite.parent.parent) {
+      // this will run for every parent suite in file
+      // current suite does not contain infor about all suites before execution
+      filterSuite(regexp, filteredSuites, suite.parent);
+    }
+
+    return suite;
+  }
 
   if (isPrerun) {
     after(() => {
-      if (filteredTests.length > 0) {
-        const result: ParsedSpecs = { total, filtered: filteredTests.length, grep, tests: filteredTests };
+      const all = [...filteredSuites, ...filteredTests];
+      const match = all.filter(t => t.match);
+      const total = uniq(all.map(t => t.filteredTitle)).length;
+      const filteredCount = uniq(match.map(t => t.filteredTitle)).length;
+
+      if (match.length > 0) {
+        const result: ParsedSpecs = { total, filtered: filteredCount, grep, tests: match };
         cy.task('writeTempFileWithSelectedTests', result);
       }
     });
   }
-  (global as { describe: unknown }).describe = selectedSuitesConstruct();
+
+  (global as { describe: unknown }).describe = descWithTags;
 
   (global as { describe: { only: unknown; skip: unknown } }).describe.only = originalSuites.originOnly;
 
   (global as { describe: { only: unknown; skip: unknown } }).describe.skip = originalSuites.originSkip;
+
+  (global as { it: unknown }).it = itWithTags;
+
+  (global as { it: { only: unknown; skip: unknown } }).it.only = originalSuites.originItOnly;
+
+  (global as { it: { only: unknown; skip: unknown } }).it.skip = originalSuites.originItSkip;
 };

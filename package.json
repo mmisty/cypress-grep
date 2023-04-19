@@ -28,6 +28,7 @@
     "cy:open": "npm run cy -- open --browser chrome --e2e",
     "cy:filter": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run",
     "cy:open:grep": "npm run cy:filter && npm run cy -- open --browser chrome --e2e",
+    "cy:open:all": "npm run cy:filter && npm run cy -- open --browser chrome --config specPattern='integration/e2e/all-tests.ts'",
     "cy:run": "npm run cy -- run --browser chrome --headless",
     "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/example/**/*.cy.ts'",
     "cy:run:grep": "npm run cy:filter -- --config specPattern='integration/e2e/example/**/*.cy.ts' && npm run cy:run:ex",
