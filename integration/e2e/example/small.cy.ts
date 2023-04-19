@@ -4,8 +4,18 @@ describe('suite', () => {
       cy.log('1');
     });
 
-    it('banana @p2', () => {
+    describe('sub suite with inline tag @candy', { tags: '@fruit' }, () => {
+      it('test in suite with inline tag @R3', function () {
+        expect(this.test?.tags?.map(t => t.tag)).to.deep.eq(['@fruit', '@candy', '@smoke', '@R3']);
+      });
+    });
+
+    it('banana @p2', { tags: ['@R1', '@R1'] }, function () {
       cy.log('2');
+    });
+
+    it('orange @p2("some info")', function () {
+      cy.log(JSON.stringify(this.test?.tags?.map(t => t.tag)));
     });
   });
 

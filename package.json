@@ -1,7 +1,7 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.1.7",
-  "description": "Filters tests by tags or by title using substring or regular expressions",
+  "version": "1.3.10",
+  "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
   "homepage": "https://github.com/mmisty/cypress-grep#readme",
@@ -26,8 +26,12 @@
     "test:cov": "jest --coverage --coverageDirectory reports/coverage-jest",
     "cy": "cypress",
     "cy:open": "npm run cy -- open --browser chrome --e2e",
+    "cy:filter": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run",
+    "cy:open:grep": "npm run cy:filter && npm run cy -- open --browser chrome --e2e",
+    "cy:open:all": "npm run cy:filter && npm run cy -- open --browser chrome --config specPattern='integration/e2e/all-tests.ts'",
     "cy:run": "npm run cy -- run --browser chrome --headless",
-    "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/example/**/small.cy.ts'",
+    "cy:run:ex": "npm run cy -- run --browser chrome --headless --config specPattern='integration/e2e/example/**/*.cy.ts'",
+    "cy:run:grep": "npm run cy:filter -- --config specPattern='integration/e2e/example/**/*.cy.ts' && npm run cy:run:ex",
     "cy:run:inter": "COVERAGE_REPORT_DIR=reports/coverage-cypress-int COVERAGE=true CYPRESS_INTER=true npm run cy -- run --browser chrome --headless",
     "cy:run:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy -- run",
     "cy:open:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy -- open",
@@ -37,8 +41,6 @@
     "build:all": "npm run build && npm run build:cy && npm run build:tests",
     "test:all": "npm run test:cov && npm run cy:run:cov && npm run cy:run:inter",
     "cov:merge": "node ./.scripts/merge.js --cypress reports/coverage-cypress --cypress reports/coverage-cypress-int --jest reports/coverage-jest --out reports/coverage-temp --report reports/coverage-full",
-    "cov:merge:2": "node ./.scripts/merge.js --cypress reports/coverage-cypress --cypress reports/coverage-cypress-int --out reports/coverage-temp --report reports/coverage-full",
-    "cov:merge:3": "node ./.scripts/merge.js --cypress reports/coverage-full --jest reports/coverage-jest  --out reports/coverage-temp --report reports/coverage-full-2",
     "cov": "http-server reports/coverage-full/lcov-report",
     "cov:jest": "http-server reports/coverage-jest/lcov-report",
     "cov:cy": "http-server reports/coverage-cypress/lcov-report",
@@ -48,7 +50,7 @@
     "pre": "rm -rf ./node_modules/.cache lib reports coverage-nyc .nyc_output && npm run lint && npm run build:all && npm run test:all && npm run cov:merge",
     "extract": "node .scripts/extract.js  --source lib --target . --package package.json",
     "extract:undo": "npm run extract -- --undo",
-    "prepublishOnly": "npm run extract",
+    "prepublishOnly": "rm -rf ./node_modules/.cache lib && npm run build && npm run extract",
     "postpublish": "npm run extract:undo",
     "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish"
   },
@@ -57,8 +59,8 @@
     "@ephesoft/webpack.istanbul.loader": "^2.2.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/jest": "^29.2.3",
-    "@types/node": "^18.11.9",
     "@types/mocha": "^9.0.0",
+    "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "cypress": "^12.9.0",
@@ -83,6 +85,7 @@
     "webpack": "^5.75.0"
   },
   "dependencies": {
-    "cypress-controls-ext": "^0.1.4"
+    "cypress-controls-ext": "^0.2.0",
+    "fast-glob": "^3.2.12"
   }
 }

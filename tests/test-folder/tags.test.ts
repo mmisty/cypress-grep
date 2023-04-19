@@ -1,7 +1,35 @@
 import expect from 'expect';
 import { selectionTestGrep } from '../../src/setup/regexp';
+import { uniqTags } from '../../src/utils/tags';
 
 describe('utils', () => {
+  describe('uniqTags', () => {
+    its()
+      .each([
+        {
+          tags: [{ tag: '@ff' }, { tag: '@ff' }],
+          exp: [{ tag: '@ff' }],
+        },
+        {
+          tags: [{ tag: '@f2' }, { tag: '@f1' }],
+          exp: [{ tag: '@f2' }, { tag: '@f1' }],
+        },
+        {
+          tags: [{ tag: '@f2' }, { tag: '@f2' }, { tag: '@f1' }],
+          exp: [{ tag: '@f2' }, { tag: '@f1' }],
+        },
+        {
+          tags: [],
+          exp: [],
+        },
+      ])
+      .run(t => {
+        const reg = uniqTags(t.tags);
+
+        expect(reg).toEqual(t.exp);
+      });
+  });
+
   describe('should grep', () => {
     its()
       .each([

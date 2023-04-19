@@ -27,7 +27,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   margin:0px;
 }
 
-.input-container {
+#${parentId} .input-container {
   height: ${controlsHeight}px;
   box-sizing: border-box;
   min-width: 150px;
@@ -36,10 +36,12 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   border-radius: 4px;
   padding: 5px;
 }
-.btn-wrapper-icon {
-  height: ${controlsHeight - 2}px;
+
+#${parentId} .btn-wrapper-icon {
+  height: ${controlsHeight}px;
 }
-${iconContainerSearch} {
+
+#${parentId} ${iconContainerSearch} {
   height: ${controlsHeight}px;
   width: ${iconHeight + 5}px;
   box-sizing: border-box;
@@ -52,24 +54,24 @@ ${iconContainerSearch} {
   text-align: center;
 }
 
-.flex-center {
+#${parentId} .flex-center {
   display: flex;
   align-items: center;
   flex-direction: row;
   justify-content: center;
 }
 
-${iconContainerSearch} i {
+#${parentId} ${iconContainerSearch} i {
   color: #5a5f7a;
 }
 
-${iconContainerSearch}:hover {
+#${parentId} ${iconContainerSearch}:hover {
   cursor:pointer;
   background-color: #292e40;
   color: #848799;
 }
 
-.tooltip {
+#${parentId} .tooltip {
   display: none;
   position: absolute;
   padding: 10px;
@@ -90,22 +92,22 @@ ${iconContainerSearch}:hover {
   white-space: initial;
 }
 
-.tooltip:hover {
+#${parentId} .tooltip:hover {
   cursor:initial;
 }
 
-${iconContainerSearch}:hover .tooltip {
+#${parentId} ${iconContainerSearch}:hover .tooltip {
   display: block;
 }
 
-.input-wrapper {
+#${parentId} .input-wrapper {
   display: flex;
   align-items: center;
   flex-grow: 1;
   margin-top: -7px;
 }
 
-input[type="text"] {
+#${parentId} input[type="text"] {
   height: ${controlsHeight}px;
   max-width: ${inputWidth}px;
   border: none;
@@ -114,8 +116,8 @@ input[type="text"] {
   background-color:#00000000;
 }
 
-${testsCountSelector} {
-  height: ${controlsHeight - 2}px;
+#${parentId} ${testsCountSelector} {
+  height: ${controlsHeight}px;
   color: #5a5f7a;
   font-weight: bold;
   border: none;
@@ -127,12 +129,12 @@ ${testsCountSelector} {
   border-left: 1px solid #2e3247;**/
 }
 
-.btn {
+#${parentId} .btn {
   box-sizing: border-box;
   border: 1px solid #00000000;
  
   width: ${iconHeight + 4}px;
-  height: ${controlsHeight - 1}px;
+  height: ${controlsHeight}px;
   margin-top: 1px;
   opacity: 1;
   cursor: pointer;
@@ -140,45 +142,44 @@ ${testsCountSelector} {
   align-items: center;
 }
 
-.btn.show-pending {
+#${parentId} .btn.show-pending {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
-.btn.clear-input{
+#${parentId} .btn.clear-input{
   border-right: 1px solid #2e3247;
   width: ${iconHeight}px;
 }
-.btn i {
+#${parentId} .btn i {
   color: #5a5f7a;
 }
 
-.btn:hover i {
+#${parentId} .btn:hover i {
   color: #8298e1;
 }
 
-.btn:hover {
+#${parentId} .btn:hover {
   background-color: #292e40;
 }
 
-.btn[data-show-tags="true"] {
+#${parentId} .btn[data-show-tags="true"] {
   border-left: 1px solid #2e3247;
   background-color: #363c52;
 }
-.btn[data-show-pending="true"] {
+#${parentId} .btn[data-show-pending="true"] {
   border-left: 1px solid #2e3247;
   background-color: #363c52;
 }
 
-
-.btn[data-show-tags="true"] i {
-  color: #8298e1;
-}
-.btn[data-show-pending="true"] i {
+#${parentId} .btn[data-show-tags="true"] i {
   color: #8298e1;
 }
 
+#${parentId} .btn[data-show-pending="true"] i {
+  color: #8298e1;
+}
 
-.btn-wrapper::after {
+#${parentId} .btn-wrapper::after {
   content: attr(data-tooltip);
   position: absolute;
   z-index: 2;
@@ -194,7 +195,7 @@ ${testsCountSelector} {
   white-space: nowrap;
 }
 
-${testsCountSelector}::after {
+#${parentId} ${testsCountSelector}::after {
   content: attr(data-tooltip);
   z-index: 2;
   position: absolute;
@@ -208,11 +209,11 @@ ${testsCountSelector}::after {
   display: none;
 }
 
-[data-tooltip]:hover::after {
+#${parentId} [data-tooltip]:hover::after {
   display: block;
 }
 
-.end {
+#${parentId} .end {
   height: ${controlsHeight}px;
   margin-left: -5px;
 }

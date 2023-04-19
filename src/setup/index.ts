@@ -1,31 +1,31 @@
 import { setupSelectTests } from './select-tests';
 import { selectionTestGrep } from './regexp';
-import { addSearchInput, getItemValueForUI, updateCount } from './search-input';
+import { addSearchInput, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
+import { envVar, isEnvTrue } from '../common/envVars';
+
+// this controlWrapper- is hardcoded in controls package
+const wrapperId = (id: string) => `controlWrapper-${id}`;
 
 export const isInteractive = () => {
   // INTER env var for testing
   return Cypress.config('isInteractive') || Cypress.env('INTER') === 'true' || Cypress.env('INTER') === true;
 };
 
-const getGrepExpression = () => {
-  const uiValue = getItemValueForUI('.grep');
+const getGrepExpression = (parentId: string) => {
+  const uiValue = cypressAppSelect(`#${wrapperId(parentId)} .grep`).val();
 
   // use UI input value only when interactive mode
-  if (!Cypress.env('TEST_GREP') && isInteractive() && uiValue != null) {
+  if (!envVar('TEST_GREP') && isInteractive() && uiValue != null) {
     return uiValue;
   }
 
-  if (Cypress.env('GREP') != null && Cypress.env('GREP') !== '') {
-    return Cypress.env('GREP');
-  }
-
-  return '';
+  return envVar('GREP') ?? '';
 };
 
-const selectTests = () => {
-  const grepSelected = getGrepExpression();
+const selectTests = (parentId: string) => () => {
+  const grepSelected = getGrepExpression(parentId);
 
   return selectionTestGrep(grepSelected);
 };
@@ -42,31 +42,42 @@ const elVal = (selector: string, dataSelector: string, initial: boolean): boolea
   return el.attr(dataSelector) === 'true';
 };
 
+const logCreate = (config?: GrepConfig) => (message: unknown) => {
+  if (config?.debugLog) {
+    console.log(message);
+  }
+};
+
 export const registerCypressGrep = (config?: GrepConfig) => {
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
 
   // here you can do setup for each test file in browser
-  const log = (message: unknown) => {
-    if (config?.debugLog) {
-      console.log(message);
-    }
-  };
+  const log = logCreate(config);
   log('REGISTER CYPRESS GREP: ');
 
   let showTagsInTitle: boolean = initShowTagsInTitle;
   let showExcludedTests: boolean = initShowExcludedTests;
 
-  if (isInteractive()) {
-    showTagsInTitle = elVal('.show-tags', 'data-show-tags', initShowTagsInTitle);
-    showExcludedTests = elVal('.show-pending', 'data-show-pending', initShowExcludedTests);
-  }
+  let idSelector = '';
 
   if (config?.addControlToUI) {
-    addSearchInput(showTagsInTitle, showExcludedTests);
+    idSelector = addSearchInput(showTagsInTitle, showExcludedTests);
   }
+
+  if (isInteractive()) {
+    showTagsInTitle = elVal(`#${wrapperId(idSelector)} .show-tags`, 'data-show-tags', initShowTagsInTitle);
+    showExcludedTests = elVal(`#${wrapperId(idSelector)} .show-pending`, 'data-show-pending', initShowExcludedTests);
+  }
+
   const configEvaluated = { ...config, showTagsInTitle, showExcludedTests };
 
   log(configEvaluated);
-  setupSelectTests(selectTests, configEvaluated, updateCount);
+
+  setupSelectTests(
+    selectTests(idSelector),
+    configEvaluated,
+    updateCount(wrapperId(idSelector)),
+    isEnvTrue('GREP_PRE_FILTER'),
+  );
 };

@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { parseOneTag, parseTags, removeTagsFromTitle } from '../../src/setup/tags';
+import { parseOneTag, parseTags, removeTagsFromTitle } from '../../src/utils/tags';
 
 describe('tags', () => {
   its('should parse tags')
