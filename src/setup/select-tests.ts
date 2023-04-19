@@ -214,7 +214,6 @@ const createFilterSuiteTests =
     suiteTitleChange(suite, settings);
 
     if (settings.debugLog) {
-      console.log(count);
       // eslint-disable-next-line no-console
       console.log(
         `\nFiltered tests (${count}): \n\n${uniq(
@@ -259,7 +258,6 @@ export const setupSelectTests = (
 
     // for tests in root
     if (test.parent && test.parent.title === '' && !test.parent?.parent) {
-      console.log('Filter test');
       filterSuite(regexp, filteredTests, test.parent);
     }
 
@@ -281,13 +279,14 @@ export const setupSelectTests = (
 
   if (isPrerun) {
     after(() => {
-      const all = [...filteredSuites, ...filteredTests];
+      const uniqTests = (arr: FilterTest[]) =>
+        arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
+
+      const all = uniqTests([...filteredSuites, ...filteredTests]);
       const match = all.filter(t => t.match);
-      const total = uniq(all.map(t => t.filteredTitle)).length;
-      const filteredCount = uniq(match.map(t => t.filteredTitle)).length;
 
       if (match.length > 0) {
-        const result: ParsedSpecs = { total, filtered: filteredCount, grep, tests: match };
+        const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
         cy.task('writeTempFileWithSelectedTests', result);
       }
     });
