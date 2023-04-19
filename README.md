@@ -1,5 +1,5 @@
 # @mmisty/cypress-grep
-The package enables filtering of tests based on tags or title, 
+The package enables filtering of cypress tests based on tags or title, 
 by utilizing substring or regular expressions.
 
 Here are key features:
@@ -8,11 +8,10 @@ cypress configuration for test or suite)
  - filter tests by tags / title using regular expressions and pseudo regular expressions
    (will be filtered any dynamic tags / or title )
  -  UI control to filter tests within a selected spec file in Cypress interactive mode.
+    
+    It eliminates the need of using `.only`
 
-   It eliminates the need of using `.only`
-
-
-![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/demo.gif)
+    ![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/demo.gif)
 
 ## Installation
 
@@ -21,7 +20,8 @@ npm i @mmisty/cypress-grep
 ```
 
 ### Setup
-To set up @mmisty/cypress-grep in your project, you need to add `registerCypressGrep` to
+#### Support
+To set up package in your project, you need to add `registerCypressGrep` to
 your `support/index.ts` file (or `support/e2e.ts` file, 
 depending on how you have set up your project).
 
@@ -35,10 +35,12 @@ registerCypressGrep({
   // This setting will only affect Interactive mode
   addControlToUI: true,
 
-  // This setting will be controllable in Interactive mode 
+  // This setting will be controllable in Interactive mode
+  // Default value for it would be taken from here
   showTagsInTitle: true,
   
   // This setting will be controllable in Interactive mode 
+  // Default value for it would be taken from here
   showExcludedTests: true, 
   
 });
@@ -48,6 +50,27 @@ the title, and whether excluded tests should be or not be displayed (as pending)
 
 The `addControlToUI` parameter adds the UI control feature to Cypress Interactive mode,
 allowing you to filter tests easily.
+
+#### Plugins
+Add plugin `pluginGrep` to you plugins to have ability to prefilter tests.
+
+```
+// cypress.config.ts
+
+import { pluginGrep } from '@mmisty/cypress-grep/plugins';
+import { defineConfig } from 'cypress';
+
+export default defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      pluginGrep(on, config);
+
+      return config;
+    },
+    baseUrl: 'https://example.cypress.io',
+    ....
+```
+
 
 ### Specify tags
 You can specify tags in different ways while using the package:
@@ -126,47 +149,55 @@ Under the hood:
 - on next run will read the file and run only filtered files
 
 #### Pseudo regexp
-To filter tests you can use pseudo regexp:
+`GREP` env variable accepts pseudo regexps to filter tests:
 
  - Symbol `!` = not  
  - Symbol `&` = and
- - Symbol `|` = or
+ - Symbol `|` or `/` = or
 
 Other parts are being interpreted as regexp with caseinsensitive flag. 
-So `GREP='1.2'` will be understood as /1.2/i and `.` will mach any symbol.
+So `GREP='1.2'` will be understood as `/1.2/i` and `.` will mach any symbol.
 
-To have '.' symbol in grep you need to encode symbols `GREP='1\.2'` - will be understood as /1\.2/i
+To have `.` symbol in grep you need to encode symbols `GREP='1\.2'` - will be understood as `/1\.2/i`
 
 Here are some examples of pseudo regexp: 
- - `!` - at the beginging of expression will invert result
-- `!@` - run all tests without tags
-- `@e2e|@regression` or `@e2e/@regression` - runs all tests with `@e2e` or `@regression`
-- `@P2&@smoke` - runs all tests with `@P2` AND `@smoke`
-- `@smoke&!@P2&!@P1` - runs all tests with `smoke` and without `@P2` and without `@P1`
-- `(@P1|@P2)&!@smoke` or `(@P[12])&!@smoke` - runs all tests with `@P2` or `@P1` and without `@smoke`
+ - `GREP='!'` - at the beginging of expression will invert result
+- `GREP='!@'` - run all tests without tags
+- `GREP='@e2e|@regression'` or `GREP='@e2e/@regression'` - runs all tests with `@e2e` or `@regression`
+- `GREP='@P2&@smoke'` - runs all tests with `@P2` AND `@smoke`
+- `GREP='@smoke&!@P2&!@P1'` - runs all tests with `smoke` and without `@P2` and without `@P1`
+- `GREP='(@P1|@P2)&!@smoke'` or `GREP='(@P[12])&!@smoke'` - runs all tests with `@P2` or `@P1` and without `@smoke`
 
 #### Regexp
 There is also possibility to input pure regexp.
 To do that you need to write regexp in the following form `GREP='=/.*/i'`
 
 Examples:
-- `=/(?=.*@smoke)(?=.*@p1).*/i` - runs all tests that have `@smoke` AND `@p1` tags
-- `=/^(?!.*@smoke)(?!.*@p1).*$/i` - runs all tests WITHOUT `@smoke` and WITHOUT `@p1`
-- `=/(?=.*@smoke)(?=.*@p1).*/i` - runs all tests WITH `@smoke` and WITH `@p1`
-- `=/(?!.*@smoke)(?=.*@p1)/i` - runs all tests WITH `@smoke` and with `@tags`
-- `=/@P[12]/` - runs all tests with `@P1` or `@P2`
+- `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests that have `@smoke` AND `@p1` tags
+- `GREP='=/^(?!.*@smoke)(?!.*@p1).*$/i'` - runs all tests WITHOUT `@smoke` and WITHOUT `@p1`
+- `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests WITH `@smoke` and WITH `@p1`
+- `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITH `@smoke` and with `@tags`
+- `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
 ### UI Control
 
 #### Interactive mode
-Run by @P1
+
+Seach input will be injected into Cypress UI to filter tests. this is controlled by `addControlToUI` setting
+Controls has settings:
+ - filter tests by title/tags
+ - to show/hide tags in title
+ - to show/hide excluded tests
+  
 ![tags_search_0.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_0.jpg)
 
-Show tags in title
-![tags_search_2.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_2.jpg)
+##### Show tags in title
+![tags_search_1.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_1.jpg)
 
-Show tags in title and show excluded tests
+
+##### Show excluded tests
+![tags_search_3.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_3.jpg)
+
+
+##### Do not show excluded tests
 ![tags_search_4.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_4.jpg)
-
-run tests by combination:
-![tags_search_5.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_5.jpg)
