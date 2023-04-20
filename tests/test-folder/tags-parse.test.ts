@@ -186,8 +186,8 @@ describe('tags', () => {
 
     it('should parse one tag when quotes', () => {
       expect(parseOneTag('@defe:desc("Some%22test%22%30%20%40hello","Some %22test%22 2%30%20%40hello")')).toEqual({
+        info: ['Some"test"0 @hello', 'Some "test" 20 @hello'],
         tag: 'defe:desc',
-        failReasons: ['Some"test"0 @hello', 'Some "test" 20 @hello'],
       });
     });
   });
