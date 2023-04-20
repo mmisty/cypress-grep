@@ -8,6 +8,7 @@ enum envVars {
 
 type EnvVars = keyof typeof envVars;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function envVar(varName: EnvVars, newValue?: any) {
   if (!newValue) {
     return Cypress.env(varName);
@@ -17,6 +18,7 @@ export function envVar(varName: EnvVars, newValue?: any) {
 }
 
 export const envVarPlugin = (config: Cypress.PluginConfigOptions) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function (varName: EnvVars, newValue?: any) {
     if (!newValue) {
       return config.env[varName];

@@ -1,5 +1,5 @@
 import { setupSelectTests } from './select-tests';
-import { selectionTestGrep } from './regexp';
+import { selectionTestGrep } from '../utils/regexp';
 import { addSearchInput, updateCount } from './search-input';
 import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';

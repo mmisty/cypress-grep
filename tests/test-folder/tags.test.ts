@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { selectionTestGrep } from '../../src/setup/regexp';
+import { selectionTestGrep } from '../../src/utils/regexp';
 import { uniqTags } from '../../src/utils/tags';
 
 describe('utils', () => {

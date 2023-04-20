@@ -1,4 +1,4 @@
-import { selectionTestGrep } from '../../src/setup/regexp';
+import { selectionTestGrep } from '../../src/utils/regexp';
 import expect from 'expect';
 
 describe('suite', () => {

@@ -13,12 +13,12 @@ const toTest = (grep: string, expected: string[]) => {
 
   describe('suite @regressionInline', { tags: ['@smoke'] }, () => {
     it('test inside1 apple @P0Inline', { tags: ['@R1', '@R2'] }, function () {
-      tests.push((this.test as any)?.fullTitleWithTags ?? '');
+      tests.push(this.test?.fullTitleWithTags ?? '');
       cy.log('1');
     });
 
     it('test inside2 banana @P1Inline', { tags: '@R3' }, function () {
-      tests.push((this.test as any)?.fullTitleWithTags ?? '');
+      tests.push(this.test?.fullTitleWithTags ?? '');
       cy.log('2');
     });
   });

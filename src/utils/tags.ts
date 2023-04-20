@@ -1,12 +1,14 @@
+import { GrepTagObject } from '../common/types';
+
 const regexTagsNoReasons = '(@[^@ ()"\']+)';
 const regexDiffQuotes = ['"', "'"].map(t => `(@[^@ ]+\\(${t}[^@${t}]+${t}(?:,\\s*${t}[^@${t}]+${t})*\\))`);
 const tagsRegex = new RegExp(`${regexDiffQuotes.join('|')}|${regexTagsNoReasons}`, 'g');
 
-export const uniqTags = (arr: Mocha.GrepTagObject[]): Mocha.GrepTagObject[] => {
+export const uniqTags = (arr: GrepTagObject[]): GrepTagObject[] => {
   return arr.filter((obj, index, self) => self.map(s => s.tag).indexOf(obj.tag) === index);
 };
 
-export const parseInlineTags = (title: string): Mocha.GrepTagObject[] => {
+export const parseInlineTags = (title: string): GrepTagObject[] => {
   return parseTags(title).map(t => ({ ...t, tag: t.tag.startsWith('@') ? t.tag : `@${t.tag}` }));
 };
 
@@ -43,7 +45,7 @@ const encodeDecode = (str: string, isEncode: boolean) => {
 const encodeFailReason = (str: string) => encodeDecode(encodeURIComponent(str), true);
 const decodeFailReason = (str: string) => encodeDecode(decodeURIComponent(str), false);
 
-export const parseOneTag = (tg: string): Mocha.GrepTagObject => {
+export const parseOneTag = (tg: string): GrepTagObject => {
   const reasons: string[] = [];
   let tagResult = '';
   const regexpReasons = /\((.*)\)$/;
@@ -72,8 +74,8 @@ export const parseOneTag = (tg: string): Mocha.GrepTagObject => {
   };
 };
 
-export const parseTags = (str: string): Mocha.GrepTagObject[] => {
-  const tags: Mocha.GrepTagObject[] = [];
+export const parseTags = (str: string): GrepTagObject[] => {
+  const tags: GrepTagObject[] = [];
   const found = str?.match(tagsRegex);
 
   if (found != null) {
