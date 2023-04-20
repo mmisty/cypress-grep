@@ -128,6 +128,10 @@ dirsOrFileList.forEach(d => {
 
 console.log(`Package path: ${path.resolve(packagePath)}`);
 console.log('new package.json files:', pack.files);
+
+// do not allow these to be imported from lib
+pack.files = pack.files.filter(f => ['common', 'utils'].every(x => x!== f));
+
 fs.writeFileSync(packagePath, JSON.stringify(pack, null, '  '));
 console.log(chalk.bold('Written package json with files'));
 
