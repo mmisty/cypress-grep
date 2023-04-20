@@ -259,7 +259,7 @@ describe('suite', () => {
       });
   });
 
-  describe.only('select regexp', () => {
+  describe('select regexp', () => {
     its()
       .each([
         { desc: 'Check Match', checkReg: false },
