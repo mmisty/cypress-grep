@@ -1,4 +1,4 @@
-import fs, { PathOrFileDescriptor } from 'fs';
+import fs from 'fs';
 
 export const cyMock = () => {
   (global as any).cy = {
@@ -12,7 +12,6 @@ export const cyMock = () => {
 
 export const fsMock = () => {
   const write = jest.spyOn(fs, 'writeFileSync');
-  const read = jest.spyOn(fs, 'readFileSync');
 
   return {
     write: (impl: (path: string, contents: string) => void) => {
