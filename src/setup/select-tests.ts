@@ -140,6 +140,7 @@ const prepareTestTitle = (test: Mocha.Test, suiteTags: GrepTagObject[], settings
 };
 
 function filterTests(
+  testRoot: Mocha.Test | undefined,
   suiteRoot: Mocha.Suite,
   regexp: RegExp,
   settings: GrepConfig,
@@ -148,6 +149,10 @@ function filterTests(
 ): void {
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
+    // when root test we filter suites again, so we don't need to filter other tests than the root
+    if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
+      return;
+    }
     const testSuiteTags = getSuiteTagsForTest(test);
     const fullTitleWithTags = prepareTestTitle(test, testSuiteTags, settings);
 
@@ -214,8 +219,22 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
 
 const createFilterSuiteTests =
   (settings: GrepConfig, isPrerun: boolean, onCount: (num: number) => void) =>
-  (regexp: RegExp, filtered: FilterTest[], suite: Mocha.Suite) => {
-    filterTests(suite, regexp, settings, createOnFiltered(isPrerun, filtered), createOnExcluded(isPrerun, filtered));
+  /**
+   *
+   * @param regexp
+   * @param filtered
+   * @param suite
+   * @param test - test when it is root
+   */
+  (regexp: RegExp, filtered: FilterTest[], suite: Mocha.Suite, test?: Mocha.Test) => {
+    filterTests(
+      test,
+      suite,
+      regexp,
+      settings,
+      createOnFiltered(isPrerun, filtered),
+      createOnExcluded(isPrerun, filtered),
+    );
 
     const count = uniq(filtered.filter(t => t.match).map(t => t.filteredTitle)).length;
 
@@ -268,7 +287,7 @@ export const setupSelectTests = (
 
     // for tests that doesn't have parent suite
     if (test.parent && test.parent.title === '' && !test.parent?.parent) {
-      filterSuite(regexp, filteredTests, test.parent);
+      filterSuite(regexp, filteredTests, test.parent, test);
     }
 
     return test;
@@ -281,7 +300,7 @@ export const setupSelectTests = (
     if (suite && suite.parent && suite.parent.title === '' && !suite.parent.parent) {
       // this will run for every parent suite in file
       // current suite does not contain info about all suites before execution
-      filterSuite(regexp, filteredSuites, suite.parent);
+      filterSuite(regexp, filteredSuites, suite);
     }
 
     return suite;
