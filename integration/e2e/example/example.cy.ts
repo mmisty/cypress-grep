@@ -88,6 +88,12 @@ describe('another parent suite with tag @parent', { tags: ['@parent2'] }, () => 
       expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
     });
   });
+
+  describe('suite with skipped test', { tags: '@skip' }, () => {
+    it.skip('skipped', { tags: '@skip2' }, function () {
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
+    });
+  });
 });
 
 it('Test in the root @inlineTestRoot', { tags: ['@testRoot'] }, function () {

@@ -25,12 +25,6 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
   on('task', taskWrite(parentTestsFolder, filteredSpecs));
 
-  // using isTextTerminal since isInteractive always true in plugins
-  // https://github.com/cypress-io/cypress/issues/20789
-  /* if (!config.env.GREP && !config.isTextTerminal) {
-    return;
-  }*/
-
   if (!isTrue(config.env[grepEnvVars.GREP_PRE_FILTER])) {
     updateSpecPattern(config, filteredSpecs);
 

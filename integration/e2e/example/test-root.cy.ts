@@ -5,6 +5,7 @@ it('test no root @P1', () => {
 });
 
 it('test', { tags: [tag('issue', 'example of info')] }, function () {
-  const infoForIssue = this.test?.tags?.find(t => t?.tag === 'issue')?.info ?? '';
+  const infoForIssue = this.test?.tags;
   cy.log(`${infoForIssue}`);
+  expect(infoForIssue).to.deep.eq('');
 });
