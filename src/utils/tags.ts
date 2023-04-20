@@ -85,8 +85,22 @@ export const parseTags = (str: string): GrepTagObject[] => {
   return tags;
 };
 
-export const tag = (name: string, ...reasons: string[]): string => {
-  const encodedReasons = reasons.map(reason => encodeFailReason(reason));
+/**
+ * Helper function to create tag with info, returns string
+ * @param name tag name ex 'my'
+ * @param info params array  ex
+ * tag('@my', 'Issue1'); // creates '@my("Issue1")'
+ *
+ * info then can be used in scope of test
+ * @example
+ *
+ * it('test', { tags: [ tag('issue', 'example of info') ] }, function () {
+ *   const infoForIssue = this.test?.tags?.find(t => t?.tag === 'issue')?.info ?? '';
+ *   cy.log(`${infoForIssue}`);
+ * });
+ */
+export const tag = (name: string, ...info: string[]): string => {
+  const encodedReasons = info.map(inf => encodeFailReason(inf));
   const reasonsSeparatedByComma = encodedReasons.map(r => `"${r}"`).join(',');
   const reasonsStr = encodedReasons.length > 0 ? `(${reasonsSeparatedByComma})` : '';
 

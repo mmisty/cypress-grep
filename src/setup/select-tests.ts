@@ -70,19 +70,14 @@ const tagsSuite = (st: Mocha.Suite): Mocha.GrepTagObject[] => {
  * @param setting
  */
 const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
-  if (!rootSuite) {
-    return;
-  }
-
   const suiteTags = tagsSuite(rootSuite);
 
   rootSuite.title = removeTagsFromTitle(rootSuite.title);
 
   if (setting.showTagsInTitle && suiteTags.length > 0) {
     const tagsLine = tagsLineForTitle(suiteTags);
-    const add = tagsLine ? ` ${tagsLine}` : '';
 
-    rootSuite.title = `${rootSuite.title}${add}`;
+    rootSuite.title = `${rootSuite.title} ${tagsLine}`;
   }
 
   for (const suite of rootSuite.suites) {
@@ -94,10 +89,10 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
  * Get all suite tags for test
  * @param test
  */
-const getSuiteTagsForTest = (test: Mocha.Test | undefined): Mocha.GrepTagObject[] => {
+const getSuiteTagsForTest = (test: Mocha.Test): Mocha.GrepTagObject[] => {
   const tags: Mocha.GrepTagObject[] = [];
 
-  let suite: Mocha.Suite | undefined = test?.parent;
+  let suite: Mocha.Suite | undefined = test.parent;
 
   while (suite) {
     const suiteTags = tagsSuite(suite);
@@ -285,10 +280,12 @@ export const setupSelectTests = (
       const all = uniqTests([...filteredSuites, ...filteredTests]);
       const match = all.filter(t => t.match);
 
-      if (match.length > 0) {
-        const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
-        cy.task('writeTempFileWithSelectedTests', result);
+      if (settings.failOnNotFound && match.length === 0) {
+        throw new Error(`Not found any tests matching GREP '${grep}' `);
       }
+
+      const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
+      cy.task('writeTempFileWithSelectedTests', result);
     });
   }
 

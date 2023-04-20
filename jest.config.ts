@@ -18,9 +18,10 @@ export default {
     'src/*.{ts,tsx}',
     '!**/integration/**',
     '!**/lib/**',
+    '!src/mocha/**',
+    '!src/**/*.types.ts',
     '!src/cypress/**',
     '!**/node_modules/**',
-    '!**/__tests__/**',
     '!**/mocks.ts',
   ],
 
@@ -28,7 +29,7 @@ export default {
   // coverageDirectory: "jest-coverage",
 
   // Indicates which provider should be used to instrument code for coverage
-  // coverageProvider: 'v8',
+  coverageProvider: 'v8',
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: ['json', 'text', 'lcov', 'cobertura', 'clover'],
@@ -37,7 +38,11 @@ export default {
   testEnvironment: 'node',
 
   // The glob patterns Jest uses to detect test files
-  testMatch: ['**/tests/**/?(*.)+(spec|test).[tj]s?(x)', '!**/lib/**/*.*'],
+  testMatch: [
+    '**/tests/test-folder/**/?(*.)+(spec|test).[tj]s?(x)',
+    '**/tests/test-folder/?(*.)+(spec|test).[tj]s?(x)',
+    '!**/lib/**/*.*',
+  ],
 
   // A map from regular expressions to paths to transformers
   transform: {

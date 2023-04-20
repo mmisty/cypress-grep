@@ -51,6 +51,8 @@ const logCreate = (config?: GrepConfig) => (message: unknown) => {
 export const registerCypressGrep = (config?: GrepConfig) => {
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
+  const failOnNotFound = config?.failOnNotFound ?? true;
+  const isPreFilter = isEnvTrue('GREP_PRE_FILTER');
 
   // here you can do setup for each test file in browser
   const log = logCreate(config);
@@ -70,14 +72,9 @@ export const registerCypressGrep = (config?: GrepConfig) => {
     showExcludedTests = elVal(`#${wrapperId(idSelector)} .show-pending`, 'data-show-pending', initShowExcludedTests);
   }
 
-  const configEvaluated = { ...config, showTagsInTitle, showExcludedTests };
+  const configEvaluated = { ...config, showTagsInTitle, showExcludedTests, failOnNotFound };
 
   log(configEvaluated);
 
-  setupSelectTests(
-    selectTests(idSelector),
-    configEvaluated,
-    updateCount(wrapperId(idSelector)),
-    isEnvTrue('GREP_PRE_FILTER'),
-  );
+  setupSelectTests(selectTests(idSelector), configEvaluated, updateCount(wrapperId(idSelector)), isPreFilter);
 };

@@ -15,6 +15,11 @@ export type GrepConfig = {
   showExcludedTests?: boolean;
 
   /**
+   * Whether to fail run when no tests are found, default true
+   */
+  failOnNotFound?: boolean;
+
+  /**
    * show logs in console (filtered tests with tags)
    */
   debugLog?: boolean;
