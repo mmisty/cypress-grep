@@ -1,6 +1,7 @@
 import glob from 'fast-glob';
 import fs from 'fs';
 import path from 'path';
+import { pkgName } from '../common/logs';
 
 const parentSuite = (tests: string) => {
   return `describe('', () => {
@@ -41,7 +42,7 @@ export const createAllTestsFile = (outFilePath: string, testsDir: string, specPa
   fs.writeFileSync(outFilePath, parentSuite(code.join('\n\n')));
 
   // eslint-disable-next-line no-console
-  console.log(`Created file with all tests '${outFilePath}'`);
+  console.log(`${pkgName} Created file with all tests '${outFilePath}'`);
 
   return outFilePath;
 };
