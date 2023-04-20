@@ -23,13 +23,16 @@ export default {
     '!src/cypress/**',
     '!**/node_modules/**',
     '!**/mocks.ts',
+    '!*.types.ts',
+    '!**/types.ts',
+    '!types.ts',
   ],
 
   // The directory where Jest should output its coverage files
   // coverageDirectory: "jest-coverage",
 
   // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: 'v8',
+  // coverageProvider: 'v8',
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: ['json', 'text', 'lcov', 'cobertura', 'clover'],

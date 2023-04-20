@@ -27,7 +27,7 @@ export const globMock = () => {
   const globMock = jest.spyOn(glob, 'sync');
 
   return {
-    sync: (impl: (pattern: string | string[]) => void) => {
+    sync: (impl: (pattern: string | string[]) => string[]) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       globMock.mockImplementation((...pattern: any[]) => {

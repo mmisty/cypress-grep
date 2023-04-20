@@ -1,49 +1,15 @@
-enum envVars {
-  'GREP',
-  'GREP_PRE_FILTER',
-  'GREP_ALL_TESTS_NAME',
-  'GREP_TEMP_PATH',
-  'TEST_GREP',
+export enum grepEnvVars {
+  'GREP' = 'GREP',
+  'GREP_PRE_FILTER' = 'GREP_PRE_FILTER',
+  'GREP_ALL_TESTS_NAME' = 'GREP_ALL_TESTS_NAME',
+  'GREP_TEMP_PATH' = 'GREP_TEMP_PATH',
+  'TEST_GREP' = 'TEST_GREP',
 }
 
-type EnvVars = keyof typeof envVars;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function envVar(varName: EnvVars, newValue?: any) {
-  if (!newValue) {
-    return Cypress.env(varName);
-  }
-
-  Cypress.env(varName, newValue);
-}
-
-export const envVarPlugin = (config: Cypress.PluginConfigOptions) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function (varName: EnvVars, newValue?: any) {
-    if (!newValue) {
-      return config.env[varName];
-    }
-
-    config.env[varName] = newValue;
-  };
-
 /**
- * Check value of env var equals true in Browser
- * @param name
+ * Check value equals true or 'true'
+ * @param val
  */
-export const isEnvTrue = (name: EnvVars) => {
-  const val = Cypress.env(name);
-
-  return val === 'true' || val === true;
-};
-
-/**
- * Check value of env var equals true in [lugins
- * @param config
- * @param name
- */
-export const isEnvTruePlugin = (config: Cypress.PluginConfigOptions, name: EnvVars) => {
-  const val = config.env[name];
-
+export const isTrue = (val: string | boolean) => {
   return val === 'true' || val === true;
 };
