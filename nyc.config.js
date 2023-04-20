@@ -19,6 +19,7 @@ module.exports = {
     'src/cypress',
     'src/mocha',
     '*.types.ts',
+    '**/types.ts',
     'types.ts',
   ],
   sourceMap: false,

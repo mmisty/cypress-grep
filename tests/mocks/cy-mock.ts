@@ -1,4 +1,5 @@
 import fs from 'fs';
+import glob from 'fast-glob';
 
 export const cyMock = () => {
   (global as any).cy = {
@@ -17,6 +18,20 @@ export const fsMock = () => {
     write: (impl: (path: string, contents: string) => void) => {
       write.mockImplementation((a: any, b: any) => {
         impl(a, b);
+      });
+    },
+  };
+};
+
+export const globMock = () => {
+  const globMock = jest.spyOn(glob, 'sync');
+
+  return {
+    sync: (impl: (pattern: string | string[]) => void) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      globMock.mockImplementation((...pattern: any[]) => {
+        return impl(pattern);
       });
     },
   };
