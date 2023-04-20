@@ -50,13 +50,14 @@ const logCreate = (config?: GrepConfig) => (message: unknown) => {
 };
 
 export const registerCypressGrep = (config?: GrepConfig) => {
+  const debug = logCreate(config);
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
   const failOnNotFound = config?.failOnNotFound ?? true;
-  const isPreFilter = isTrue(grepEnvVars.GREP_PRE_FILTER);
+  const isPreFilter = isTrue(Cypress.env(grepEnvVars.GREP_PRE_FILTER));
 
+  console.log(`${pkgName} ${grepEnvVars.GREP_PRE_FILTER}: ${isPreFilter}`);
   // here you can do setup for each test file in browser
-  const debug = logCreate(config);
   debug('REGISTER CYPRESS GREP: ');
 
   let showTagsInTitle: boolean = initShowTagsInTitle;

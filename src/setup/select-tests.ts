@@ -1,9 +1,10 @@
 import type { Suite } from 'mocha';
 import { parseInlineTags, removeTagsFromTitle, uniqTags } from '../utils/tags';
 import type { GrepConfig } from './config.types';
-import type { GrepTag, GrepTagObject, ParsedSpecs, TransportTest } from '../common/types';
+import type { GrepTagObject, ParsedSpecs, TransportTest } from '../common/types';
 import { uniq } from '../utils/functions';
 import { grepEnvVars } from '../common/envVars';
+import { pkgName } from '../common/logs';
 
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -21,29 +22,23 @@ type TestConfig = {
 };
 
 const getCurrentTestTags = (test: Mocha.Test): GrepTagObject[] => {
+  // config tags only for test
   const testTags = (test as unknown as TestConfig)._testConfig?.tags;
   const inlineTagsTest = parseInlineTags(test.title);
   const tagsArr: string[] = testTags ? (typeof testTags === 'string' ? [testTags] : testTags ?? []) : [];
+  const fromConfig: GrepTagObject[] = tagsArr.flatMap(t => parseInlineTags(t));
 
-  const tagsArrParsed: GrepTagObject[] = tagsArr.map(t => ({ tag: t }));
-
-  return uniqTags([...tagsArrParsed, ...inlineTagsTest]);
+  return uniqTags([...fromConfig, ...inlineTagsTest]);
 };
 
 const getTestTags = (test: Mocha.Test, suiteTags: GrepTagObject[]): GrepTagObject[] => {
-  return uniqTags([...suiteTags, ...getCurrentTestTags(test)]);
+  const testTags = getCurrentTestTags(test);
+
+  return uniqTags([...suiteTags, ...testTags]);
 };
 
-const tagStr = (t: GrepTag): string => {
-  if (typeof t === 'string') {
-    return t;
-  }
-
-  return `${t.tag}`;
-};
-
-const tagsLineForTitle = (tags: GrepTag[]): string => {
-  return tags.map(t => tagStr(t)).join(' ');
+const tagsLineForTitle = (tags: GrepTagObject[]): string => {
+  return tags.map(t => t.tag).join(' ');
 };
 
 const tagsFormConfig = (tags?: string | string[]): string[] => {
@@ -56,15 +51,10 @@ const tagsFormConfig = (tags?: string | string[]): string[] => {
  */
 const tagsSuite = (st: Mocha.Suite): GrepTagObject[] => {
   const tagsFromConfig = tagsFormConfig((st as unknown as TestConfig)._testConfig?.tags);
-  //console.log(tagsFromConfig);
-  // here
-  const tagsArrParsed: GrepTagObject[] = tagsFromConfig.map(t => ({ tag: t }));
+  const tagsArrParsed: GrepTagObject[] = tagsFromConfig.flatMap(t => parseInlineTags(t));
   const inlineTagsSuite = parseInlineTags(st.title);
-  const result = uniqTags([...tagsArrParsed, ...inlineTagsSuite]);
-  //console.log('result');
-  //console.log(result);
 
-  return result;
+  return uniqTags([...tagsArrParsed, ...inlineTagsSuite]);
 };
 
 /**
@@ -73,18 +63,13 @@ const tagsSuite = (st: Mocha.Suite): GrepTagObject[] => {
  * @param setting
  */
 const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
-  if (!rootSuite) {
-    return;
-  }
   const suiteTags = tagsSuite(rootSuite);
 
   rootSuite.title = removeTagsFromTitle(rootSuite.title);
 
   if (setting.showTagsInTitle && suiteTags.length > 0) {
     const tagsLine = tagsLineForTitle(suiteTags);
-    const add = tagsLine ? ` ${tagsLine}` : '';
-
-    rootSuite.title = `${rootSuite.title}${add}`;
+    rootSuite.title = `${rootSuite.title} ${tagsLine}`;
   }
 
   for (const suite of rootSuite.suites) {
@@ -93,8 +78,8 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
 };
 
 // search only by tag name, not by tag info
-const tagsSearchLine = (allTags: GrepTag[]): string => {
-  const tagsLine = (tags: GrepTag[]): string => tags.map(t => tagStr(t)).join(' ');
+const tagsSearchLine = (allTags: GrepTagObject[]): string => {
+  const tagsLine = (tags: GrepTagObject[]): string => tags.map(t => t.tag).join(' ');
 
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
@@ -114,15 +99,12 @@ const getSuiteTagsForTest = (test: Mocha.Test): GrepTagObject[] => {
 
     suite = suite.parent;
   }
-  console.log(`${test.title} ALL SUITE`);
-  console.log(tags);
 
   return tags;
 };
 
 const prepareTestTitle = (test: Mocha.Test, suiteTags: GrepTagObject[], settings: GrepConfig): string => {
   const testTagsAll = getTestTags(test, suiteTags);
-  console.log(testTagsAll);
   const line = test.fullTitle();
 
   const tags = tagsLineForTitle(getCurrentTestTags(test));
@@ -266,7 +248,7 @@ export const setupSelectTests = (
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
-    console.log(` ----- Setup SELECT Tests --- ${selector().toString()} `);
+    console.log(`${pkgName} ----- Setup SELECT Tests --- ${selector().toString()} `);
   }
 
   if (isPrerun) {
