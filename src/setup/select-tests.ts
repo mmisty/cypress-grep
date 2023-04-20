@@ -94,7 +94,7 @@ const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
 
 // search only by tag name, not by tag info
 const tagsSearchLine = (allTags: GrepTag[]): string => {
-  const tagsLine = (tags: Mocha.GrepTag[]): string => tags.map(t => tagStr(t)).join(' ');
+  const tagsLine = (tags: GrepTag[]): string => tags.map(t => tagStr(t)).join(' ');
 
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
