@@ -244,7 +244,7 @@ export const setupSelectTests = (
   onCount: (num: number) => void,
   isPrerun: boolean,
 ): void => {
-  const grep = Cypress.env('GREP') ?? '';
+  const grep = Cypress.env(grepEnvVars.GREP) ?? '';
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console

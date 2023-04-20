@@ -8,6 +8,15 @@ import { ParsedSpecs } from '../common/types';
 import path from 'path';
 import { pkgName } from '../common/logs';
 
+const parentFolder = (config: Cypress.PluginConfigOptions) => {
+  if (config.env[grepEnvVars.GREP_TESTS_FOLDER]) {
+    return config.env[grepEnvVars.GREP_TESTS_FOLDER];
+  }
+  console.log(`${pkgName} parent tests folder will be detected automatically`);
+
+  return getRootFolder(config.specPattern, config.projectRoot);
+};
+
 /**
  * This will add prefiltering capabilities and speed up the execution
  * of tests when utilizing grep
@@ -20,8 +29,8 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
   const filteredSpecs = config.env[grepEnvVars.GREP_TEMP_PATH] ?? `${config.projectRoot}/filtered_test_paths.json`;
 
-  const parentTestsFolder = getRootFolder(config.specPattern, config.projectRoot);
-  console.log(`${pkgName} parent tests tolder: ${parentTestsFolder}`);
+  const parentTestsFolder = parentFolder(config);
+  console.log(`${pkgName} parent tests folder: ${parentTestsFolder}`);
 
   on('task', taskWrite(parentTestsFolder, filteredSpecs));
 
