@@ -69,12 +69,12 @@ const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
 const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: string) => {
   if (!existsSync(filteredSpecs)) {
     // grepEnvVars.GREP_TEMP_PATH
-    if (Cypress.env(grepEnvVars.GREP)) {
+    if (config.env[grepEnvVars.GREP]) {
       console.warn(
         `${pkgName} to run prefiltered tests use env var ${grepEnvVars.GREP_PRE_FILTER}=true` +
-          `\n${pkgName} This time will filter tests one by one by ${grepEnvVars.GREP}='${Cypress.env(
-            grepEnvVars.GREP,
-          )}'.`,
+          `\n${pkgName} This time will filter tests one by one by ${grepEnvVars.GREP}='${
+            config.env[grepEnvVars.GREP]
+          }'.`,
       );
     }
 
