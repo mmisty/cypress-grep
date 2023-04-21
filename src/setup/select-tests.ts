@@ -290,17 +290,22 @@ export const setupSelectTests = (
   }
 
   if (isPrerun) {
+    const uniqTests = (arr: FilterTest[]) =>
+      arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
+
+    const all = uniqTests([...filteredSuites, ...filteredTests]);
+    const match = all.filter(t => t.match);
+
+    if (settings.failOnNotFound && match.length === 0) {
+      const msg = [
+        `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
+        'To disable this error set `failOnNotFound` to `false` in registerCypressGrep',
+      ];
+      throw new Error(msg.join('\n'));
+    }
+
+    // after is not called when no tests
     after(() => {
-      const uniqTests = (arr: FilterTest[]) =>
-        arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
-
-      const all = uniqTests([...filteredSuites, ...filteredTests]);
-      const match = all.filter(t => t.match);
-
-      if (settings.failOnNotFound && match.length === 0) {
-        throw new Error(`Not found any tests matching ${grepEnvVars.GREP} '${grep}' `);
-      }
-
       const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
       cy.task('writeTempFileWithSelectedTests', result);
     });
