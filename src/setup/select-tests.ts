@@ -295,8 +295,9 @@ export const setupSelectTests = (
 
     const all = uniqTests([...filteredSuites, ...filteredTests]);
     const match = all.filter(t => t.match);
+    const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
 
-    if (settings.failOnNotFound && match.length === 0) {
+    if (match.length === 0 && settings.failOnNotFound) {
       const msg = [
         `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
         'To disable this error set `failOnNotFound` to `false` in registerCypressGrep',
@@ -304,9 +305,10 @@ export const setupSelectTests = (
       throw new Error(msg.join('\n'));
     }
 
-    // after is not called when no tests
+    // note: after hook is not being called when there are no tests
+    // when no tests filtered and failOnNotFound is false - after
+    // prerun all tests would be executed since no file is created
     after(() => {
-      const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
       cy.task('writeTempFileWithSelectedTests', result);
     });
   }
