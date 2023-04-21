@@ -20,6 +20,7 @@ module.exports = {
     'src/mocha',
     '*.types.ts',
     '**/types.ts',
+    '**/*.types.ts',
     'types.ts',
   ],
   sourceMap: false,
