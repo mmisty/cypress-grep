@@ -138,9 +138,11 @@ You can create script in package.json to simplify this:
 
 and run it by `GREP="@P1" npm run cy:run:grep`
 
-To conigure result file you can specify paths:
+To configure result file you can specify paths:
 - set `GREP_RESULTS_FILE` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
-- set `GREP_ALL_TESTS_NAME` = test file name, default `all_tests.ts`
+- set `GREP_ALL_TESTS_NAME` = test file name, default `all-tests.ts`
+- set `GREP_TESTS_FOLDER` = folder where all tests are stored (all file will be created here)
+- set `GREP_DELETE_ALL_FILE` = delete or not `all-tests.ts` after run, default `true`
 
 Do not forget to add these files into `.gitignore`
 
