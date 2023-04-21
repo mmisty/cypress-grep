@@ -117,10 +117,10 @@ dirsOrFileList.forEach(d => {
     pack.files.push(d.path);
   }
 
-  if (isUndo && pack.files.includes(d.path)) {
+  if (isUndo && pack.files?.includes(d.path)) {
       pack.files.splice(pack.files.indexOf(d.path), 1);
       
-   if(pack.files.length === 0){
+   if(pack.files?.length === 0){
      delete pack.files;
    }
   }
@@ -130,9 +130,9 @@ console.log(`Package path: ${path.resolve(packagePath)}`);
 console.log('new package.json files:', pack.files);
 
 // do not allow these to be imported from lib
-pack.files = pack.files?.filter(f => ['common/**', 'utils/**'].every(x => x!== f));
+const newPack= { ...pack, files: pack.files?.filter(f => ['common/**', 'utils/**'].every(x => x!== f))};
 
-fs.writeFileSync(packagePath, JSON.stringify(pack, null, '  '));
+fs.writeFileSync(packagePath, JSON.stringify(newPack, null, '  '));
 console.log(chalk.bold('Written package json with files'));
 
 if (!isUndo) {
