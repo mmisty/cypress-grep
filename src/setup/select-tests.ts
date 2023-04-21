@@ -290,25 +290,25 @@ export const setupSelectTests = (
   }
 
   if (isPrerun) {
-    const uniqTests = (arr: FilterTest[]) =>
-      arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
+    it(`${pkgName} auto-generated test`, () => {
+      const uniqTests = (arr: FilterTest[]) =>
+        arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
 
-    const all = uniqTests([...filteredSuites, ...filteredTests]);
-    const match = all.filter(t => t.match);
-    const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
+      const all = uniqTests([...filteredSuites, ...filteredTests]);
+      const match = all.filter(t => t.match);
+      const result: ParsedSpecs = { total: all.length, filtered: match.length, grep, tests: match };
 
-    if (match.length === 0 && settings.failOnNotFound) {
-      const msg = [
-        `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
-        'To disable this error set `failOnNotFound` to `false` in registerCypressGrep',
-      ];
-      throw new Error(msg.join('\n'));
-    }
+      if (match.length === 0 && settings.failOnNotFound) {
+        const msg = [
+          `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
+          'To disable this error set `failOnNotFound` to `false` in registerCypressGrep',
+        ];
+        throw new Error(msg.join('\n'));
+      }
 
-    // note: after hook is not being called when there are no tests
-    // when no tests filtered and failOnNotFound is false - after
-    // prerun all tests would be executed since no file is created
-    after(() => {
+      // note: after hook is not being called when there are no tests
+      // when no tests filtered and failOnNotFound is false - after
+      // prerun all tests would be executed since no file is created
       cy.task('writeTempFileWithSelectedTests', result);
     });
   }
