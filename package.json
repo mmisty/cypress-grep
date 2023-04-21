@@ -1,6 +1,6 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.4.0-alpha-1",
+  "version": "1.4.0-alpha-2",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
@@ -54,7 +54,7 @@
     "cov:show": "COVERAGE_TEMP=reports/coverage-temp nyc report --reporter=text",
     "all": "npm run pre && npm run cov:check && npm run cov",
     "pre": "rm -rf ./node_modules/.cache lib reports coverage-nyc .nyc_output  && npm run lint && npm run build:all && npm run test:all && npm run cov:merge",
-    "extract": "node .scripts/extract.js  --source lib --target . --package package.json --exclude 'common/**' --exclude 'utils/**' --exclude 'setup/**'",
+    "extract": "node .scripts/extract.js  --source lib --target . --package package.json",
     "extract:undo": "npm run extract -- --undo",
     "prepublishOnly": "rm -rf ./node_modules/.cache lib && npm run build && npm run extract",
     "postpublish": "npm run extract:undo",
