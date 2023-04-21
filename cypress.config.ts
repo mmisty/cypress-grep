@@ -7,7 +7,6 @@ const cypressFolder = 'integration';
 export default defineConfig({
   env: {
     GREP_SHOW_UI_CONTROL: true,
-    GREP_SHOW_EXCLUDED_TESTS: true,
   },
   watchForFileChanges: false,
   e2e: {
