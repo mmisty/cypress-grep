@@ -22,15 +22,17 @@ const parentFolder = (config: Cypress.PluginConfigOptions) => {
  * of tests when utilizing grep
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
+  const parentTestsFolder = '';
+
   if (!config.env[grepEnvVars.GREP]) {
     console.warn(`${pkgName} to prefilter spec specify env var GREP, will select all tests`);
     config.env[grepEnvVars.GREP] = '';
+  } else {
+    const parentTestsFolder = parentFolder(config);
+    console.log(`${pkgName} parent tests folder: ${parentTestsFolder}`);
   }
 
   const filteredSpecs = config.env[grepEnvVars.GREP_TEMP_PATH] ?? `${config.projectRoot}/filtered_test_paths.json`;
-
-  const parentTestsFolder = parentFolder(config);
-  console.log(`${pkgName} parent tests folder: ${parentTestsFolder}`);
 
   on('task', taskWrite(parentTestsFolder, filteredSpecs));
 

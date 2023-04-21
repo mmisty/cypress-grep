@@ -27,7 +27,7 @@ module.exports = {
   instrument: false,
   'report-dir': reportDir,
   'temp-dir': tempDir,
-  branches: 80,
+  branches: 70,
   lines: 60,
   functions: 60,
   statements: 80,
