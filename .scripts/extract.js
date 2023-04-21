@@ -22,6 +22,11 @@ const argv = yargs(process.argv.slice(2))
       demandOption: true,
       describe: `destination folder where extract`,
     },
+    exclude: {
+      type: 'string',
+      demandOption: false,
+      describe: `exclude path in package.json`,
+    },
     package: {
       type: 'string',
       demandOption: true,
@@ -41,6 +46,7 @@ const argv = yargs(process.argv.slice(2))
 
 const srcDir = argv.source;
 const destDir = argv.target;
+const exclude = argv.exclude;
 const packagePath = argv.package;
 const isUndo = argv.undo;
 
@@ -126,11 +132,13 @@ dirsOrFileList.forEach(d => {
   }
 });
 
-console.log(`Package path: ${path.resolve(packagePath)}`);
-console.log('new package.json files:', pack.files);
-
+const excl = typeof exclude ==='string' ? [exclude] : exclude;
 // do not allow these to be imported from lib
-const newPack= { ...pack, files: pack.files?.filter(f => ['common/**', 'utils/**'].every(x => x!== f))};
+const newPack = excl ? { ...pack, files: pack.files?.filter(f => excl.every(x => x!== f))} : {...pack};
+
+console.log(`Package path: ${path.resolve(packagePath)}`);
+console.log('new package.json files:', newPack.files);
+
 
 fs.writeFileSync(packagePath, JSON.stringify(newPack, null, '  '));
 console.log(chalk.bold('Written package json with files'));
