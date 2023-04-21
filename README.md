@@ -139,7 +139,7 @@ You can create script in package.json to simplify this:
 and run it by `GREP="@P1" npm run cy:run:grep`
 
 To conigure result file you can specify paths:
-- set `GREP_TEMP_PATH` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
+- set `GREP_RESULTS_FILE` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
 - set `GREP_ALL_TESTS_NAME` = test file name, default `all_tests.ts`
 
 Do not forget to add these files into `.gitignore`
@@ -201,3 +201,13 @@ Controls has settings:
 
 ##### Do not show excluded tests
 ![tags_search_3.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_3.jpg)
+
+
+### Thoubleshooting 
+
+#### Cypress runs prefiltered tests every time 
+Even when `GREP_PRE_FILTER` is not set. 
+
+To avoid that you can run test all the time by command with prefiltering
+
+Or to delete  `<root of the project>/filtered_test_paths.json` or file specified by `GREP_RESULTS_FILE`

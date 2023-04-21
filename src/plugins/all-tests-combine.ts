@@ -10,10 +10,16 @@ ${tests}
 `;
 };
 
-const testCode = (relativePath: string) => {
+const testCode = (relativePath: string): string => {
   return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/')}\`, () => {
     // eslint-disable-next-line import/extensions
     require('.${relativePath}');
+  });`;
+};
+
+const testAutoGrenerateCode = (): string => {
+  return `it('auto generated test when no GREP set', () => {
+      // ignore
   });`;
 };
 
@@ -43,6 +49,15 @@ export const createAllTestsFile = (outFilePath: string, testsDir: string, specPa
 
   // eslint-disable-next-line no-console
   console.log(`${pkgName} Created file with all tests '${outFilePath}'`);
+
+  return outFilePath;
+};
+
+export const createOneTestsFile = (outFilePath: string): string => {
+  fs.writeFileSync(outFilePath, parentSuite(testAutoGrenerateCode()));
+
+  // eslint-disable-next-line no-console
+  console.log(`${pkgName} Created file with one test '${outFilePath}'`);
 
   return outFilePath;
 };

@@ -289,7 +289,7 @@ export const setupSelectTests = (
     return suite;
   }
 
-  if (isPrerun) {
+  if (isPrerun && grep) {
     it(`${pkgName} auto-generated test`, () => {
       const uniqTests = (arr: FilterTest[]) =>
         arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
