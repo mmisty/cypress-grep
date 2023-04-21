@@ -252,6 +252,7 @@ export const setupSelectTests = (
   }
 
   if (isPrerun) {
+    settings.showTagsInTitle = true;
     settings.showExcludedTests = false;
 
     // some tests uses visit in before
