@@ -1,4 +1,4 @@
-## 1.4.2
+## 1.4.3
 
 - **[Breaking change]** renamed env var `GREP_TEMP_PATH` to `GREP_RESULTS_FILE`
 - added env var `GREP_TESTS_FOLDER` - folder with all tests, can be specified once for all tests
