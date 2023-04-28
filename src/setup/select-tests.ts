@@ -290,7 +290,7 @@ export const setupSelectTests = (
   }
 
   if (isPrerun && grep) {
-    it(`${pkgName} auto-generated test`, () => {
+    it(`${pkgName} auto-generated test to write results`, () => {
       const uniqTests = (arr: FilterTest[]) =>
         arr.filter((obj, index, self) => self.map(s => s.filteredTitle).indexOf(obj.filteredTitle) === index);
 
@@ -306,9 +306,9 @@ export const setupSelectTests = (
         throw new Error(msg.join('\n'));
       }
 
-      // note: after hook is not being called when there are no tests
-      // when no tests filtered and failOnNotFound is false - after
-      // prerun all tests would be executed since no file is created
+      // note: 'after' hook is not being called when there are no tests
+      // when no tests filtered and failOnNotFound is false -
+      // all tests would be executed after prerun since no file is created
       cy.task('writeTempFileWithSelectedTests', result);
     });
   }

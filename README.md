@@ -210,6 +210,29 @@ Controls has settings:
 #### Cypress runs prefiltered tests every time 
 Even when `GREP_PRE_FILTER` is not set. 
 
-To avoid that you can run test all the time by command with prefiltering
+To avoid that:
+1. option: to delete  `<root of the project>/filtered_test_paths.json` or file specified by `GREP_RESULTS_FILE`
+2. option: you can run test every time (tags or not) by command with pre-filtering
 
-Or to delete  `<root of the project>/filtered_test_paths.json` or file specified by `GREP_RESULTS_FILE`
+   Example:
+
+   package.json:
+
+    ```json
+    {
+      ...
+      "scripts": {
+        "cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && npm run cy:filter && npm run cy:run",
+      },
+      ...
+    }
+    
+    ```
+
+    ```shell
+    # run without filtering
+    npm run cy:run:grep
+   
+    # run with tags filtering
+    CYPRESS_GREP='@tag' npm run cy:run:grep
+    ```
