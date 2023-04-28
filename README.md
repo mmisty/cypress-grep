@@ -41,7 +41,11 @@ registerCypressGrep({
   
   // This setting will be controllable in Interactive mode 
   // Default value for it would be taken from here
-  showExcludedTests: true, 
+  showExcludedTests: true,
+  
+  // Fail prefiltering when no tests found that satisfy serch term
+  // Default is true
+  failOnNotFound: false
   
 });
 ```
@@ -79,7 +83,7 @@ You can specify tags in different ways while using the package:
  
    For example, `describe('Login @smoke', () => {...})` will add a `@smoke` tag to the suite.
    
-   When `showTagsInTitle` is false inline tags will be removed
+   When `showTagsInTitle` is false inline tags will be removed, but GREP would still find them.
 
 2. Config Tags: You can add tags to suites or tests by using the `tags` key in the Cypress configuration object
 
@@ -197,12 +201,16 @@ So `GREP='1.2'` will be understood as `/1.2/i` and `.` will mach any symbol.
 To have `.` symbol in grep you need to encode symbols `GREP='1\.2'` - will be understood as `/1\.2/i`
 
 Here are some examples of pseudo regexp: 
- - `GREP='!'` - at the beginging of expression will invert result
+ - `GREP='!(@e2e|@regression)'` - `!` at the beginning of expression with parenthesis will invert the result
 - `GREP='!@'` - run all tests without tags
 - `GREP='@e2e|@regression'` or `GREP='@e2e/@regression'` - runs all tests with `@e2e` or `@regression`
 - `GREP='@P2&@smoke'` - runs all tests with `@P2` AND `@smoke`
 - `GREP='@smoke&!@P2&!@P1'` - runs all tests with `smoke` and without `@P2` and without `@P1`
 - `GREP='(@P1|@P2)&!@smoke'` or `GREP='(@P[12])&!@smoke'` - runs all tests with `@P2` or `@P1` and without `@smoke`
+
+**Minor known issue with pseudo regexp**:
+ - line `@suite @test` will NOT match this expression: `GREP='(@test&@suite)|@tag'`(for `@test @suite` matches), as a workaround rewrite to `GREP='(@test|@tag)&(@suite|@tag)'`
+ - all other cases pass - you can check tested cases here if you are interested [tests/test-folder/regexp.test.ts](https://github.com/mmisty/cypress-grep/blob/main/tests/test-folder/regexp.test.ts#L5)
 
 #### Regexp
 There is also possibility to input pure regexp.
