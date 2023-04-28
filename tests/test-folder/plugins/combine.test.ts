@@ -18,24 +18,40 @@ describe('combine all tests', () => {
 
     fs.write((s, contents) => {
       expect(s).toEqual('outFilePath.tst');
-      expect(contents).toEqual(
-        "describe('', () => {\n" +
-          '  describe(`${__dirname}/test1.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./test1.tsMock');\n" +
-          '  });\n' +
-          '\n' +
-          '  describe(`${__dirname}/test0.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./test0.tsMock');\n" +
-          '  });\n' +
-          '\n' +
-          '  describe(`${__dirname}/sub/test2.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./sub/test2.tsMock');\n" +
-          '  });\n' +
-          '});\n',
-      );
+      expect(contents).toEqual(`describe('', () => {
+    let error = [];
+  describe(\`\$\{__dirname\}/test1.tsMock\`, () => {
+    try {
+      require('./test1.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\$\{__dirname\}/test1.tsMock\\', error when executing file: \\n      > \$\{e.message\}\`;
+      error.push(e);
+    }
+  });
+
+  describe(\`\$\{__dirname\}/test0.tsMock\`, () => {
+    try {
+      require('./test0.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\$\{__dirname\}/test0.tsMock\\', error when executing file: \\n      > \$\{e.message\}\`;
+      error.push(e);
+    }
+  });
+
+  describe(\`\$\{__dirname\}/sub/test2.tsMock\`, () => {
+    try {
+      require('./sub/test2.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\$\{__dirname\}/sub/test2.tsMock\\', error when executing file: \\n      > \$\{e.message\}\`;
+      error.push(e);
+    }
+  });
+
+    if(error.length > 0) {
+        throw new Error('[cypress-grep] Prefiltering failed as some of your test files crashed outside of test:\\n     ' + error.map((t,i)=>(i + 1) + ') ' + t.message).join('\\n\\n     '));
+    }
+});
+`);
       checked = true;
     });
     const res = createAllTestsFile('outFilePath.tst', 'integration/e2e', 'integration/**/*.tsMock');
@@ -58,24 +74,40 @@ describe('combine all tests', () => {
 
     fs.write((s, contents) => {
       expect(s).toEqual('outFilePath.tst');
-      expect(contents).toEqual(
-        "describe('', () => {\n" +
-          '  describe(`${__dirname}/test1.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./test1.tsMock');\n" +
-          '  });\n' +
-          '\n' +
-          '  describe(`${__dirname}/test0.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./test0.tsMock');\n" +
-          '  });\n' +
-          '\n' +
-          '  describe(`${__dirname}/sub/test2.tsMock`, () => {\n' +
-          '    // eslint-disable-next-line import/extensions\n' +
-          "    require('./sub/test2.tsMock');\n" +
-          '  });\n' +
-          '});\n',
-      );
+      expect(contents).toEqual(`describe('', () => {
+    let error = [];
+  describe(\`\${__dirname}/test1.tsMock\`, () => {
+    try {
+      require('./test1.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\${__dirname}/test1.tsMock\\', error when executing file: \\n      > \${e.message}\`;
+      error.push(e);
+    }
+  });
+
+  describe(\`\${__dirname}/test0.tsMock\`, () => {
+    try {
+      require('./test0.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\${__dirname}/test0.tsMock\\', error when executing file: \\n      > \${e.message}\`;
+      error.push(e);
+    }
+  });
+
+  describe(\`\${__dirname}/sub/test2.tsMock\`, () => {
+    try {
+      require('./sub/test2.tsMock');
+    } catch(e){
+      e.message = \`[cypress-grep] Prefiltering cannot be done for \\'\${__dirname}/sub/test2.tsMock\\', error when executing file: \\n      > \${e.message}\`;
+      error.push(e);
+    }
+  });
+
+    if(error.length > 0) {
+        throw new Error('[cypress-grep] Prefiltering failed as some of your test files crashed outside of test:\\n     ' + error.map((t,i)=>(i + 1) + ') ' + t.message).join('\\n\\n     '));
+    }
+});
+`);
       checked = true;
     });
 
