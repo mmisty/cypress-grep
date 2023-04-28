@@ -41,7 +41,11 @@ registerCypressGrep({
   
   // This setting will be controllable in Interactive mode 
   // Default value for it would be taken from here
-  showExcludedTests: true, 
+  showExcludedTests: true,
+  
+  // Fail prefiltering when no tests found that satisfy serch term
+  // Default is true
+  failOnNotFound: false
   
 });
 ```
@@ -79,7 +83,7 @@ You can specify tags in different ways while using the package:
  
    For example, `describe('Login @smoke', () => {...})` will add a `@smoke` tag to the suite.
    
-   When `showTagsInTitle` is false inline tags will be removed
+   When `showTagsInTitle` is false inline tags will be removed, but GREP would still find them.
 
 2. Config Tags: You can add tags to suites or tests by using the `tags` key in the Cypress configuration object
 
