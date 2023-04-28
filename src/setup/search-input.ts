@@ -54,6 +54,7 @@ export const addSearchInput = (showTags: boolean, showPending: boolean): string 
       });
 
       listener(selector(inputGrep), 'keypress', event => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((event as any).key === 'Enter') {
           cyStop();
           cyRestart();

@@ -1,4 +1,5 @@
 import glob from 'fast-glob';
+import { pkgName } from '../common/logs';
 
 export const compareStr = (pathSeparator: string, str1: string, str2: string): string => {
   const arr1 = str1.split(pathSeparator);
@@ -58,7 +59,7 @@ export const getRootFolder = (pattern: string | string[] | undefined, fallbackRo
     return commonPathPartList(list);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.warn(`Could not get root tests folder: \n   ${err}`);
+    console.warn(`${pkgName} Could not get root tests folder: \n   ${err}`);
 
     return fallbackRoot;
   }

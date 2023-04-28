@@ -2,3 +2,4 @@
 /lib
 /js-files-cypress
 /node_modules
+all-tests.ts

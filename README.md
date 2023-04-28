@@ -124,7 +124,7 @@ can be time-consuming.
 
 So here is prefilter functionality  - it boosts the speed of test execution with `GREP` and allows to
  filter tests by dynamically created tags or test titles.
-It will run cypress in pre-filtering mode and output file with results,
+It will run cypress in pre-filtering mode and output file with paths to found spec filed,
 which then will be used to filter test in run mode.
 
 To run tests with prefilter you need to run cypress twice:
@@ -136,17 +136,53 @@ You can create script in package.json to simplify this:
 "cy:run:grep": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run",
 ```
 
-and run it by `GREP="@P1" npm run cy:run:grep`
+To specify custom path with results (default is `<root of the project>/filtered_test_paths.json`): 
 
-To conigure result file you can specify paths:
-- set `GREP_TEMP_PATH` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
-- set `GREP_ALL_TESTS_NAME` = test file name, default `all_tests.ts`
+```json
+"cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run",
+```
+
+After that you can run it by `GREP="@P1" npm run cy:run:grep`
+
+To configure result file you can specify paths:
+- set `GREP_RESULTS_FILE` = path where result file will be stored, default `<root of the project>/filtered_test_paths.json`
+- set `GREP_ALL_TESTS_NAME` = test file name, default `all-tests.ts`
+- set `GREP_TESTS_FOLDER` = folder where all tests are stored (all file will be created here)
+- set `GREP_DELETE_ALL_FILE` = delete or not `all-tests.ts` after run, default `true`
 
 Do not forget to add these files into `.gitignore`
 
 Under the hood:
 - this will create file with all tests, quickly filters all tests inside it and write file with result
 - on next run will read the file and run only filtered files
+
+#### Note
+There is some cypress misbehavior when there are **several spec patterns in config** (array of patterns),
+you (actually we, as developers of this plugin) cannot totally change spec pattern from the inside
+of cypress plugin, it still will have several items from initial spec pattern. 
+
+In this case after prefiltering mode you'll need to run cypress with `--config specPattern='*.*'` to override spec pattern from config.
+
+Example:
+// cypress.config.ts / js
+```javascript
+ e2e: {
+    // experimentalRunAllSpecs: true,
+    specPattern: [
+      `cypress/e2e/example/*.(cy|test|spec).ts`,
+      `cypress/e2e/regression/**/*.(cy|test|spec).ts`,
+    ],
+```
+In this case grep script will be: 
+```json
+"cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run -- --config specPattern='*.*'",
+```
+Let's say we run `CYPRESS_GREP='@smoke' cy:run:grep` and prefiltering found only tests from `example` folder.
+If not overriding config spec pattern it will go through 
+specs from `regression`(in addition to `example`) folder as well in run mode. 
+
+It will not find any matches there but will slow down the execution.
+So just add `--config specPattern='*.*'` to your run script  after prefiltering is done.
 
 #### Pseudo regexp
 `GREP` env variable accepts pseudo regexps to filter tests:
@@ -201,3 +237,36 @@ Controls has settings:
 
 ##### Do not show excluded tests
 ![tags_search_3.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search_3.jpg)
+
+
+### Thoubleshooting 
+
+#### Cypress runs prefiltered tests every time 
+Even when `GREP_PRE_FILTER` is not set. 
+
+To avoid that:
+1. option: to delete  `<root of the project>/filtered_test_paths.json` or file specified by `GREP_RESULTS_FILE`
+2. option: you can run test every time (tags or not) by command with pre-filtering
+
+   Example:
+
+   package.json:
+
+    ```json
+    {
+      ...
+      "scripts": {
+        "cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && npm run cy:filter && npm run cy:run",
+      },
+      ...
+    }
+    
+    ```
+
+    ```shell
+    # run without filtering
+    npm run cy:run:grep
+   
+    # run with tags filtering
+    CYPRESS_GREP='@tag' npm run cy:run:grep
+    ```

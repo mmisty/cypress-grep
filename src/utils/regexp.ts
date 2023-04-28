@@ -1,3 +1,11 @@
+// when experession !(<expression>)
+const transformReversed = (isInversed: boolean, s: string) => {
+  s = isInversed ? s.slice(2) : s;
+  s = isInversed ? s.slice(0, s.length - 2) : s;
+
+  return s;
+};
+
 export const selectionTestGrep = (str: string): RegExp => {
   if (str.startsWith('=')) {
     // expressions like '=/hello$/i'
@@ -9,18 +17,21 @@ export const selectionTestGrep = (str: string): RegExp => {
     return new RegExp(expr, flags);
   }
 
-  const reg = str
+  const isInverse = str.startsWith('!(');
+  const transformed = transformReversed(isInverse, str);
+
+  const reg = transformed
     .split('/')
-    .map(t => (t.startsWith('!') ? t.replace(/^!(.*)/, '^(?!.*$1)') : t))
+    .map(t => (t.startsWith('!') ? t.replace(/^!(.*)/, '^(?!.*$1.*)') : t))
     .map(t =>
       t.indexOf('&') !== -1
-        ? t
+        ? `${t
             .split('&')
             .map(nd => (nd.startsWith('!') ? nd.replace(/^!(.*)/, '^(?!.*$1)') : nd.replace(/^(.*)/, '(?=.*$1)')))
-            .join('+')
+            .join('+')}+`
         : t,
     )
     .join('|');
 
-  return new RegExp(`${reg}.*`, 'i');
+  return new RegExp(isInverse ? `^(?!.*${reg}).*` : `${reg}.*`, 'i');
 };

@@ -134,6 +134,7 @@ const reportDir = path.resolve(report);
 removeDir(reportDir);
 clearDir(outDir);
 
+combineCoverage(outDir, `${jest}/coverage-final.json`);
 if(typeof cypress ==='string') {
   combineCoverage(outDir, `${cypress}/coverage-final.json`);
 } else {
@@ -141,5 +142,4 @@ if(typeof cypress ==='string') {
     combineCoverage(outDir, `${c}/coverage-final.json`);
   })
 }
-combineCoverage(outDir, `${jest}/coverage-final.json`);
 createReport(outDir, reportDir, ['json', 'lcov', 'text', 'cobertura', 'clover']);

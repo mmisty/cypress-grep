@@ -7,8 +7,6 @@ const cypressFolder = 'integration';
 export default defineConfig({
   env: {
     GREP_SHOW_UI_CONTROL: true,
-    GREP_SHOW_TAGS_IN_TITLE: true,
-    GREP_SHOW_EXCLUDED_TESTS: true,
   },
   watchForFileChanges: false,
   e2e: {
@@ -16,6 +14,7 @@ export default defineConfig({
     specPattern: [
       `${cypressFolder}/e2e/example/*.(cy|test|spec).ts`,
       `${cypressFolder}/e2e/example/**/*.(cy|test|spec).ts`,
+      `${cypressFolder}/e2e/regression/**/*.(cy|test|spec).ts`,
       `${cypressFolder}/e2e/*.(cy|test|spec).ts`,
     ],
     supportFile: `${cypressFolder}/support/index.ts`,

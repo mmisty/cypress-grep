@@ -1,47 +1,46 @@
-enum envVars {
-  'GREP',
-  'GREP_PRE_FILTER',
-  'GREP_ALL_TESTS_NAME',
-  'GREP_TEMP_PATH',
-  'TEST_GREP',
+export enum grepEnvVars {
+  /**
+   * Expression for filtering tests
+   * Will search trough tags / test title and all suite titles for the test
+   */
+  'GREP' = 'GREP',
+
+  /**
+   * Whether to run tests in prefilter mode,default false
+   */
+  'GREP_PRE_FILTER' = 'GREP_PRE_FILTER',
+
+  /**
+   * Will be used to create file with all tests
+   * When not set will be determined automatically depending on spec pattern
+   */
+  'GREP_TESTS_FOLDER' = 'GREP_TESTS_FOLDER',
+
+  /**
+   * Will be used for filename with all tests
+   * Should be file name that doesn't match regular spec pattern (ex. doesn't have '*.cy.ts'/'*.test.ts' extensions)
+   * Default 'all-tests.ts'
+   */
+  'GREP_ALL_TESTS_NAME' = 'GREP_ALL_TESTS_NAME',
+
+  /**
+   * Will be used to write result when prefilter mode
+   * When prefiter is false will use tests from this file to run
+   * Default `${config.projectRoot}/filtered_test_paths.json`
+   */
+  'GREP_RESULTS_FILE' = 'GREP_RESULTS_FILE',
+
+  /**
+   * Whether to delete all tests file after prefilter
+   * default true
+   */
+  'GREP_DELETE_ALL_FILE' = 'GREP_DELETE_ALL_FILE',
 }
 
-type EnvVars = keyof typeof envVars;
-
-export function envVar(varName: EnvVars, newValue?: any) {
-  if (!newValue) {
-    return Cypress.env(varName);
-  }
-
-  Cypress.env(varName, newValue);
-}
-
-export const envVarPlugin = (config: Cypress.PluginConfigOptions) =>
-  function (varName: EnvVars, newValue?: any) {
-    if (!newValue) {
-      return config.env[varName];
-    }
-
-    config.env[varName] = newValue;
-  };
-
 /**
- * Check value of env var equals true in Browser
- * @param name
+ * Check value equals true or 'true'
+ * @param val
  */
-export const isEnvTrue = (name: EnvVars) => {
-  const val = Cypress.env(name);
-
-  return val === 'true' || val === true;
-};
-
-/**
- * Check value of env var equals true in [lugins
- * @param config
- * @param name
- */
-export const isEnvTruePlugin = (config: Cypress.PluginConfigOptions, name: EnvVars) => {
-  const val = config.env[name];
-
+export const isTrue = (val: string | boolean) => {
   return val === 'true' || val === true;
 };

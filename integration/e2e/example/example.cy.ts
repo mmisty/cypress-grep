@@ -3,6 +3,20 @@ const tagsArr = (t?: Mocha.GrepTagObject[]): string[] => {
 };
 
 describe('authentication', () => {
+  before(() => {
+    // this should not run on prrefilter
+    cy.intercept('mytest.com', {
+      body: `<html>
+    <head></head>
+    Test APP
+    <body>
+        <div>Testing text</div>
+    </body>
+    </html>`,
+    });
+    cy.visit('mytest.com');
+  });
+
   const tags = (t?: Mocha.Runnable): string => {
     return t?.tags?.join('') ?? '';
   };
@@ -67,6 +81,18 @@ describe('second parent suite', () => {
 describe('another parent suite with tag @parent', { tags: ['@parent2'] }, () => {
   it('check tags', function () {
     expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
+  });
+
+  describe.skip('skip suite', { tags: '@skip' }, () => {
+    it('skipped', function () {
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
+    });
+  });
+
+  describe('suite with skipped test', { tags: '@skip' }, () => {
+    it.skip('skipped', { tags: '@skip2' }, function () {
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@parent2', '@parent']);
+    });
   });
 });
 

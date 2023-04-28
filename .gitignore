@@ -16,6 +16,7 @@
 # prefilter
 all-tests.ts
 filtered_test_paths.json
+filtered.json
 
 # coverage and test reports
 /reports
