@@ -5,19 +5,28 @@ import { pkgName } from '../common/logs';
 
 const parentSuite = (tests: string) => {
   return `describe('', () => {
+    let error = [];
 ${tests}
+
+    if(error.length > 0) {
+        throw new Error('${pkgName} Prefiltering failed as some of your test files crashed outside of test:\\n     ' + error.map((t,i)=>(i + 1) + ') ' + t.message).join('\\n\\n     '));
+    }
 });
 `;
 };
 
 const testCode = (relativePath: string): string => {
   return `  describe(\`\$\{__dirname\}${relativePath.replace(/\/\/+/g, '/')}\`, () => {
-    // eslint-disable-next-line import/extensions
-    require('.${relativePath}');
+    try {
+      require('.${relativePath}');
+    } catch(e){
+      e.message = \`${pkgName} Prefiltering cannot be done for \\'\$\{__dirname\}${relativePath}\\', error when executing file: \\n      > \$\{e.message\}\`;
+      error.push(e);
+    }
   });`;
 };
 
-const testAutoGrenerateCode = (): string => {
+const testAutoGreneratedCode = (): string => {
   return `it('auto generated test when no GREP set', () => {
       // ignore
   });`;
@@ -54,7 +63,7 @@ export const createAllTestsFile = (outFilePath: string, testsDir: string, specPa
 };
 
 export const createOneTestsFile = (outFilePath: string): string => {
-  fs.writeFileSync(outFilePath, parentSuite(testAutoGrenerateCode()));
+  fs.writeFileSync(outFilePath, parentSuite(testAutoGreneratedCode()));
 
   // eslint-disable-next-line no-console
   console.log(`${pkgName} Created file with one test '${outFilePath}'`);
