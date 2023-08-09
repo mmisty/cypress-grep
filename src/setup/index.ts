@@ -14,15 +14,15 @@ export const isInteractive = () => {
   return Cypress.config('isInteractive') || isTrue(Cypress.env('INTER'));
 };
 
-const getGrepExpression = (parentId: string) => {
+const getGrepExpression = (parentId: string): string => {
   const uiValue = cypressAppSelect(`#${wrapperId(parentId)} .grep`).val();
 
   // use UI input value only when interactive mode
   if (!Cypress.env('TEST_GREP') && isInteractive() && uiValue != null) {
-    return uiValue;
+    return `${uiValue}`;
   }
 
-  return Cypress.env(grepEnvVars.GREP) ?? '';
+  return Cypress.env(grepEnvVars.GREP) ? `${Cypress.env(grepEnvVars.GREP)}` : '';
 };
 
 const selectTests = (parentId: string) => () => {
@@ -54,12 +54,18 @@ export const registerCypressGrep = (config?: GrepConfig) => {
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
 
-  const envFailNotFound = Cypress.env('failOnNotFound')
-    ? Cypress.env('failOnNotFound') === 'true' || Cypress.env('failOnNotFound') === true
-    : undefined;
+  const envFailNotFound =
+    Cypress.env(grepEnvVars.failOnNotFound) != null
+      ? Cypress.env(grepEnvVars.failOnNotFound) === 'true' || Cypress.env(grepEnvVars.failOnNotFound) === true
+      : undefined;
   const failOnNotFound = envFailNotFound ?? config?.failOnNotFound ?? true;
   const isPreFilter = isTrue(Cypress.env(grepEnvVars.GREP_PRE_FILTER));
 
+  console.log(
+    `${pkgName} ${
+      failOnNotFound ? 'will fail when no tests found ' : 'will not fail when no tests found'
+    } (to change this set ${grepEnvVars.failOnNotFound} env var to ${!failOnNotFound} )`,
+  );
   console.log(`${pkgName} ${grepEnvVars.GREP_PRE_FILTER}: ${isPreFilter}`);
   // here you can do setup for each test file in browser
   debug('REGISTER CYPRESS GREP: ');
