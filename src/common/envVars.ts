@@ -35,6 +35,11 @@ export enum grepEnvVars {
    * default true
    */
   'GREP_DELETE_ALL_FILE' = 'GREP_DELETE_ALL_FILE',
+
+  /**
+   * Whether to fail run when no tests are found, default true
+   */
+  'failOnNotFound' = 'GREP_failOnNotFound',
 }
 
 /**

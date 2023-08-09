@@ -4,6 +4,8 @@ import { preprocessor } from './ts-preprocessor';
 import { existsSync, rmdirSync } from 'fs';
 import { resolve } from 'path';
 import { COVERAGE } from '../common/constants';
+import { redirectLog } from 'cypress-redirect-browser-log/plugins';
+import { configureAllureAdapterPlugins } from '@mmisty/cypress-allure-adapter/plugins';
 
 /**
  * Clear compiled js files from previous runs, otherwise coverage will be messed up
@@ -32,6 +34,9 @@ export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
   }
 
   on('file:preprocessor', preprocessor(isCov));
+
+  redirectLog(on, config, ['exception', 'test:log', 'log', 'warn']);
+  configureAllureAdapterPlugins(on, config);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables

@@ -22,6 +22,8 @@ filtered.json
 /reports
 /.nyc_output
 /coverage-nyc
+/allure-results
+/allure-report
 
 # emitted
 /js-files-cypress

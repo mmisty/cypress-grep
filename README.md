@@ -220,7 +220,7 @@ Examples:
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests that have `@smoke` AND `@p1` tags
 - `GREP='=/^(?!.*@smoke)(?!.*@p1).*$/i'` - runs all tests WITHOUT `@smoke` and WITHOUT `@p1`
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests WITH `@smoke` and WITH `@p1`
-- `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITH `@smoke` and with `@tags`
+- `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and with `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
 ### UI Control

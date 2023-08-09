@@ -1,5 +1,7 @@
 import { registerCypressGrep } from 'cy-local';
 import { COVERAGE } from '../common/constants';
+import { redirectTestLogs } from 'cypress-redirect-browser-log';
+import { allureAdapterSetup } from '@mmisty/cypress-allure-adapter';
 
 const setupCoverage = () => {
   if (Cypress.env(COVERAGE) === 'true' || Cypress.env(COVERAGE) === true) {
@@ -15,10 +17,14 @@ const valBoolEq = (name: string, value: boolean): boolean => {
 };
 
 setupCoverage();
-
+redirectTestLogs({
+  isLogCommandDetails: false,
+});
 registerCypressGrep({
   addControlToUI: valBoolEq('GREP_SHOW_UI_CONTROL', true),
   showTagsInTitle: valBoolEq('GREP_SHOW_TAGS_IN_TITLE', true),
   showExcludedTests: valBoolEq('GREP_SHOW_EXCLUDED_TESTS', true),
   debugLog: true,
 });
+
+allureAdapterSetup();
