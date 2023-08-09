@@ -301,7 +301,7 @@ export const setupSelectTests = (
       if (match.length === 0 && settings.failOnNotFound) {
         const msg = [
           `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
-          'To disable this error set `failOnNotFound` to `false` in registerCypressGrep',
+          'To disable this error set `failOnNotFound` to `false` in registerCypressGrep or set environment variable failOnNotFound to false',
         ];
         throw new Error(msg.join('\n'));
       }

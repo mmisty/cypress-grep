@@ -53,7 +53,11 @@ export const registerCypressGrep = (config?: GrepConfig) => {
   const debug = logCreate(config);
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
-  const failOnNotFound = config?.failOnNotFound ?? true;
+
+  const envFailNotFound = Cypress.env('failOnNotFound')
+    ? Cypress.env('failOnNotFound') === 'true' || Cypress.env('failOnNotFound') === true
+    : undefined;
+  const failOnNotFound = envFailNotFound ?? config?.failOnNotFound ?? true;
   const isPreFilter = isTrue(Cypress.env(grepEnvVars.GREP_PRE_FILTER));
 
   console.log(`${pkgName} ${grepEnvVars.GREP_PRE_FILTER}: ${isPreFilter}`);
