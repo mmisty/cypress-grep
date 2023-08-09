@@ -3,3 +3,5 @@
 /js-files-cypress
 /node_modules
 all-tests.ts
+/allure-results
+/allure-report

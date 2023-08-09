@@ -8,6 +8,7 @@ export default defineConfig({
   env: {
     GREP_SHOW_UI_CONTROL: true,
     REDIRECT_BROWSER_LOG: true,
+    allure: true,
   },
   watchForFileChanges: false,
   e2e: {

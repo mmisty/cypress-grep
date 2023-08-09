@@ -1,6 +1,7 @@
 import { registerCypressGrep } from 'cy-local';
 import { COVERAGE } from '../common/constants';
 import { redirectTestLogs } from 'cypress-redirect-browser-log';
+import { allureAdapterSetup } from '@mmisty/cypress-allure-adapter';
 
 const setupCoverage = () => {
   if (Cypress.env(COVERAGE) === 'true' || Cypress.env(COVERAGE) === true) {
@@ -25,3 +26,5 @@ registerCypressGrep({
   showExcludedTests: valBoolEq('GREP_SHOW_EXCLUDED_TESTS', true),
   debugLog: true,
 });
+
+allureAdapterSetup();
