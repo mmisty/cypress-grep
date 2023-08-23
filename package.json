@@ -73,7 +73,7 @@
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
-    "cypress": "^12.17.3",
+    "cypress": "^12.17.4",
     "cypress-redirect-browser-log": "^1.1.1",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",

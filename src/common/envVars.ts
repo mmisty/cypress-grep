@@ -6,6 +6,26 @@ export enum grepEnvVars {
   'GREP' = 'GREP',
 
   /**
+   * Whether to fail run when no tests are found, default true
+   */
+  'failOnNotFound' = 'GREP_failOnNotFound',
+
+  /**
+   * Add UI control to filter test (only for interactive mode), default true
+   */
+  'addControlToUI' = 'GREP_addControlToUI',
+
+  /**
+   * Show tags in test title, default true
+   */
+  'showTagsInTitle' = 'GREP_showTagsInTitle',
+
+  /**
+   * Show excluded tests as pending, default true
+   */
+  'showExcludedTests' = 'GREP_showExcludedTests',
+
+  /**
    * Whether to run tests in prefilter mode,default false
    */
   'GREP_PRE_FILTER' = 'GREP_PRE_FILTER',
@@ -35,11 +55,6 @@ export enum grepEnvVars {
    * default true
    */
   'GREP_DELETE_ALL_FILE' = 'GREP_DELETE_ALL_FILE',
-
-  /**
-   * Whether to fail run when no tests are found, default true
-   */
-  'failOnNotFound' = 'GREP_failOnNotFound',
 }
 
 /**
