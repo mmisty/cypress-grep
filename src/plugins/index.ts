@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync, statSync } from 'fs';
+import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { createAllTestsFile, createOneTestsFile } from './all-tests-combine';
 import { getRootFolder } from './utils';
 import { uniq } from '../utils/functions';
@@ -103,7 +103,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
     return;
   }
-
+  writeFileSync('spec_pattern.json', JSON.stringify({ specPattern: specPattern }));
   config.reporter = 'spec';
 
   if (existsSync(filteredSpecs)) {
