@@ -1,12 +1,12 @@
 # @mmisty/cypress-grep
-The package enables filtering of cypress tests based on tags or title, 
+The package enables filtering of cypress tests based on tags or test / suite title, 
 by utilizing substring or regular expressions.
 
 Here are key features:
+ - quickly filter tests by tags / title using regular expressions and pseudo regular expressions
+  (will be filtered any dynamic tags / or title )
  - ability to add tags to test (inline or with
 cypress configuration for test or suite)
- - filter tests by tags / title using regular expressions and pseudo regular expressions
-   (will be filtered any dynamic tags / or title )
  -  UI control to filter tests within a selected spec file in Cypress interactive mode.
     
     It eliminates the need of using `.only`
@@ -21,11 +21,41 @@ npm i @mmisty/cypress-grep
 
 ### Setup
 #### Support
+
+
+To set up package in your project, you need to import package within your `support/index.ts` file (or `support/e2e.ts` file,
+depending on how you have set up your cypress project).
+
+```javascript
+import '@mmisty/cypress-grep/register';
+```
+
+Once this is done, types will be added automatically.
+
+<details><summary>Override default environment variables for UI control</summary>
+
+Override environment variables if needed to control UI feature (within cypress.config.ts or other way):
+ - `GREP_addControlToUI` - add UI control to filter tests (only for interactive mode), default is `true`
+ - `GREP_showTagsInTitle` - show tags in test title, default is `true`
+ - `GREP_showExcludedTests` - show excluded tests as pending, default is `true`,
+
+With this configuration, you will be able to control how tags are displayed in
+the title, and whether excluded tests should be displayed as pending or not be displayed at all.
+
+The `addControlToUI` parameter adds the UI control feature to Cypress Interactive mode,
+allowing you to filter tests easily.
+
+</details>
+
+
+<details><summary>Advanced - if you don't want to use ECMA2015 syntax for importing</summary>
+
+To import registering function you can use this configuration.
+
 To set up package in your project, you need to add `registerCypressGrep` to
-your `support/index.ts` file (or `support/e2e.ts` file, 
+your `support/index.ts` file (or `support/e2e.ts` file,
 depending on how you have set up your project).
 
-Once this is done, types will be added automatically. 
 Here's an example of the code you would need to add to `support/index.ts` (or `support/e2e.ts`):
 
 ```javascript
@@ -49,15 +79,13 @@ registerCypressGrep({
   
 });
 ```
-With this configuration, you will be able to control how tags are displayed in 
-the title, and whether excluded tests should be or not be displayed (as pending). 
+</details>
 
-The `addControlToUI` parameter adds the UI control feature to Cypress Interactive mode,
-allowing you to filter tests easily.
 
 #### Plugins
 Add plugin `pluginGrep` to you plugins to have ability to prefilter tests.
 
+Do not forget to return config from setupNodeEvents function.
 ```
 // cypress.config.ts
 
@@ -69,6 +97,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       pluginGrep(on, config);
 
+      // important, do not forget to return config
       return config;
     },
     baseUrl: 'https://example.cypress.io',
@@ -136,13 +165,13 @@ To run tests with prefilter you need to run cypress twice:
 2. second time with the same grep expression
 
 You can create script in package.json to simplify this:
-```json
+```
 "cy:run:grep": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run",
 ```
 
 To specify custom path with results (default is `<root of the project>/filtered_test_paths.json`): 
 
-```json
+```
 "cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run",
 ```
 
@@ -168,17 +197,18 @@ of cypress plugin, it still will have several items from initial spec pattern.
 In this case after prefiltering mode you'll need to run cypress with `--config specPattern='*.*'` to override spec pattern from config.
 
 Example:
-// cypress.config.ts / js
+
 ```javascript
+// cypress.config.ts / js
  e2e: {
-    // experimentalRunAllSpecs: true,
-    specPattern: [
-      `cypress/e2e/example/*.(cy|test|spec).ts`,
-      `cypress/e2e/regression/**/*.(cy|test|spec).ts`,
-    ],
+  specPattern: [
+    `cypress/e2e/example/*.(cy|test|spec).ts`,
+    `cypress/e2e/regression/**/*.(cy|test|spec).ts`,
+  ]
+}
 ```
 In this case grep script will be: 
-```json
+```
 "cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run -- --config specPattern='*.*'",
 ```
 Let's say we run `CYPRESS_GREP='@smoke' cy:run:grep` and prefiltering found only tests from `example` folder.
@@ -220,14 +250,16 @@ Examples:
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests that have `@smoke` AND `@p1` tags
 - `GREP='=/^(?!.*@smoke)(?!.*@p1).*$/i'` - runs all tests WITHOUT `@smoke` and WITHOUT `@p1`
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests WITH `@smoke` and WITH `@p1`
-- `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and with `@p1`
+- `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and WITH `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
 ### UI Control
 
 #### Interactive mode
 
-Seach input will be injected into Cypress UI to filter tests. this is controlled by `addControlToUI` setting
+Search input will be injected into Cypress UI to filter tests. this is controlled by `addControlToUI` setting or `GREP_addControlToUI` 
+environment variable
+
 Controls has settings:
  - filter tests by title/tags
  - to show/hide tags in title
@@ -260,12 +292,12 @@ To avoid that:
 
    package.json:
 
-    ```json
+    ```
     {
       ...
       "scripts": {
         "cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && npm run cy:filter && npm run cy:run",
-      },
+      }
       ...
     }
     

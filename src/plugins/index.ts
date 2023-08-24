@@ -10,7 +10,9 @@ import { pkgName } from '../common/logs';
 import Spec = Cypress.Spec;
 import PluginEvents = Cypress.PluginEvents;
 
-const parentFolder = (config: Cypress.PluginConfigOptions) => {
+const defaultSpecPattern = 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}';
+
+const parentFolder = (specPattern: string[] | string, config: Cypress.PluginConfigOptions) => {
   if (config.parentTestsFolder) {
     return config.parentTestsFolder;
   }
@@ -27,7 +29,7 @@ const parentFolder = (config: Cypress.PluginConfigOptions) => {
       `You can set '${grepEnvVars.GREP_TESTS_FOLDER}' env var with relative path to project root `,
   );
 
-  return getRootFolder(config.specPattern, config.projectRoot);
+  return getRootFolder(specPattern, config.projectRoot);
 };
 
 const onAfterRunDelete = (on: PluginEvents, filePath: string) => {
@@ -75,12 +77,13 @@ const warningNoResultsFileNoGrep = (grep: string | undefined) => {
  * of tests when utilizing grep
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
-  const parentTestsFolder = parentFolder(config);
+  const specPattern = config.specPattern || defaultSpecPattern;
+  const parentTestsFolder = parentFolder(specPattern, config);
   const isPreFilter = isTrue(config.env[grepEnvVars.GREP_PRE_FILTER] ?? false);
   const isDeleteAllFile = isTrue(config.env[grepEnvVars.GREP_DELETE_ALL_FILE] ?? true);
   const grep = config.env[grepEnvVars.GREP];
   const filteredSpecs = config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths.json`;
-  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? 'all-tests.ts';
+  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? 'all-tests.js';
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
   on('task', taskWrite(parentTestsFolder, filteredSpecs));
 
@@ -96,7 +99,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
     }
 
     warningWhenFilteredResultExistMore(1, filteredSpecs);
-    updateSpecPattern(config, filteredSpecs);
+    updateSpecPattern(specPattern, config, filteredSpecs);
 
     return;
   }
@@ -121,7 +124,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   }
 
   // create all tests file
-  const file = createAllTestsFile(allTestsFile, parentTestsFolder, config.specPattern);
+  const file = createAllTestsFile(allTestsFile, parentTestsFolder, specPattern);
   changeSpecPatternOneFile(config, file);
 
   if (isDeleteAllFile) {
@@ -129,7 +132,11 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   }
 };
 
-const changeSpecsForRun = (config: Cypress.PluginConfigOptions, newValue: string | string[]) => {
+const changeSpecsForRun = (
+  specPattern: string[] | string,
+  config: Cypress.PluginConfigOptions,
+  newValue: string | string[],
+) => {
   const specs = typeof newValue === 'string' ? [newValue] : newValue.map(t => t);
 
   const specsNew: Spec[] = specs.map(s => ({
@@ -138,9 +145,9 @@ const changeSpecsForRun = (config: Cypress.PluginConfigOptions, newValue: string
     absolute: path.resolve(config.projectRoot, s),
   }));
 
-  if (Array.isArray(config.specPattern)) {
+  if (Array.isArray(specPattern)) {
     // need to remove everything from existing
-    config.specPattern?.splice(0, -1);
+    config.specPattern = specPattern?.splice(0, specPattern.length);
   }
 
   config.specPattern = specsNew.map(t => t.relative);
@@ -163,7 +170,11 @@ const parsePrefilteredSpecs = (filteredSpecs: string): ParsedSpecs => {
   }
 };
 
-const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: string) => {
+const updateSpecPattern = (
+  specPattern: string[] | string,
+  config: Cypress.PluginConfigOptions,
+  filteredSpecs: string,
+) => {
   const testParsed = parsePrefilteredSpecs(filteredSpecs);
 
   // todo setting parent test folder
@@ -186,7 +197,7 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
   if (uniqPaths.length === 0) {
     console.warn(
       `${pkgName} Not found any tests with ` +
-        `grep='${config.env[grepEnvVars.GREP]}' and specPattern='${JSON.stringify(config.specPattern)}'`,
+        `grep='${config.env[grepEnvVars.GREP]}' and specPattern='${JSON.stringify(specPattern)}'`,
     );
   } else {
     const specsCount = `specs files: ${uniqPaths.length} with total tests: ${testParsed.tests.length}`;
@@ -194,5 +205,5 @@ const updateSpecPattern = (config: Cypress.PluginConfigOptions, filteredSpecs: s
     console.info(message.join('\n'));
   }
 
-  changeSpecsForRun(config, uniqPaths);
+  changeSpecsForRun(specPattern, config, uniqPaths);
 };

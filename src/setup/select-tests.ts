@@ -329,4 +329,25 @@ export const setupSelectTests = (
   (global as GlobalMochaFunc).it = itWithTags;
   (global as GlobalMochaExtensions).it.only = originalSuites.originItOnly;
   (global as GlobalMochaExtensions).it.skip = originalSuites.originItSkip;
+
+  const handleRetries = () => {
+    const runner = (Cypress as any).mocha.getRunner() as Mocha.Runner;
+
+    let prevTest: Mocha.Test | undefined;
+
+    runner
+      .on('retry', test => {
+        prevTest = test;
+      })
+      .on('test', (test: Mocha.Test) => {
+        if ((test as any)._currentRetry > 0 && prevTest) {
+          test.tags = prevTest.tags;
+          test.fullTitleWithTags = prevTest.fullTitleWithTags;
+        } else {
+          prevTest = undefined;
+        }
+      });
+  };
+
+  handleRetries();
 };
