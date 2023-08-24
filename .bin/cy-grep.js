@@ -24,11 +24,17 @@ const argv = yargs(process.argv.slice(2))
       describe: `grep`,
       alias: 'p',
     },
-    prefilter: {
+    'only-prefilter': {
       type: 'boolean',
       default: false,
       describe: `only prefilter, no run`,
       alias: 'f',
+    },
+    'only-run-prefiltered': {
+      type: 'boolean',
+      default: false,
+      describe: `only run prefilter, no run`,
+      alias: 'r',
     },
     'delete-prefilter': {
       type: 'boolean',
@@ -40,23 +46,26 @@ const argv = yargs(process.argv.slice(2))
   .help('help')
   .parseSync();
 
-const { script, grep, prefilterFile, deletePrefilter, prefilter } = argv;
+const { script, grep, prefilterFile, deletePrefilter, onlyPrefilter, onlyRunPrefiltered } = argv;
 
 try {
-  console.log(`=== GREP: PRE-FILTERING MODE ${prefilter ? 'only prefilter' : ''}=== `);
   let grepExpression = ``;
 
   if (grep) {
     grepExpression = `CYPRESS_GREP='${grep}'`;
   }
-  execSync(`${grepExpression} CYPRESS_GREP_PRE_FILTER=true CYPRESS_GREP_RESULTS_FILE='${prefilterFile}' ${script}`, {
-    stdio: 'inherit',
-  });
-
-  if (prefilter) {
-    console.log(`=== GREP: FINISHED prefiltring only, results in ${prefilterFile} === `);
-    return;
+  if(!onlyRunPrefiltered){
+    console.log(`=== GREP: PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
+    execSync(`${grepExpression} CYPRESS_GREP_PRE_FILTER=true CYPRESS_GREP_RESULTS_FILE='${prefilterFile}' ${script}`, {
+      stdio: 'inherit',
+    });
+  
+    if (onlyPrefilter) {
+      console.log(`=== GREP: FINISHED prefiltring only, results in ${prefilterFile} === `);
+      return;
+    }
   }
+  
   console.log('=== GREP: RUNNING TESTS === ');
   let specP;
   const fileSpecPatternOriginal = 'spec_pattern.json';
@@ -67,7 +76,7 @@ try {
       // ign
     }
   }
-  let specString = specP && !grep ? `CYPRESS_SPEC_PATTERN="[${specP}]"` : 'CYPRESS_SPEC_PATTERN="*.*no"';
+  let specString = specP && !grep ? `CYPRESS_SPEC_PATTERN="[${specP}]"` : !onlyRunPrefiltered ? 'CYPRESS_SPEC_PATTERN="*.*no"' : '';
   
   if (existsSync(fileSpecPatternOriginal)) {
     rmSync(fileSpecPatternOriginal);
@@ -78,7 +87,7 @@ try {
     { stdio: 'inherit' },
   );
 
-  if (deletePrefilter && existsSync(prefilterFile)) {
+  if (!onlyRunPrefiltered && deletePrefilter && existsSync(prefilterFile)) {
     rmSync(prefilterFile);
   }
 
