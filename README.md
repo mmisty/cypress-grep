@@ -85,6 +85,7 @@ registerCypressGrep({
 #### Plugins
 Add plugin `pluginGrep` to you plugins to have ability to prefilter tests.
 
+Do not forget to return config from setupNodeEvents function.
 ```
 // cypress.config.ts
 
@@ -96,6 +97,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       pluginGrep(on, config);
 
+      // important, do not forget to return config
       return config;
     },
     baseUrl: 'https://example.cypress.io',
