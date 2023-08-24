@@ -105,6 +105,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   }
   writeFileSync('spec_pattern.json', JSON.stringify({ specPattern: specPattern }));
   config.reporter = 'spec';
+  config.video = false;
 
   if (existsSync(filteredSpecs)) {
     rmSync(filteredSpecs);
