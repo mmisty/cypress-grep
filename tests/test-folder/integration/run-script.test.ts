@@ -1,6 +1,5 @@
 import expect from 'expect';
 import { createTests, deleteResults, resSorted, runTests } from '../../utils/helper';
-import { readFileSync } from 'fs';
 
 describe('cy-grep script', () => {
   beforeEach(() => {
