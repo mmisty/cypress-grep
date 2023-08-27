@@ -8,7 +8,6 @@ export default defineConfig({
   env: {
     GREP_addControlToUI: true,
     GREP_showTagsInTitle: true,
-    GREP_showExcludedTests: true,
     REDIRECT_BROWSER_LOG: true,
     allure: true,
   },

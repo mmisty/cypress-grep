@@ -27,7 +27,15 @@ describe('plugin/tasks', () => {
       checked = true;
     });
 
-    const task = taskWrite('parentFolderPath', 'filteredSpecsPath');
+    const task = taskWrite(
+      {
+        env: {
+          originalSpecPattern: 'orign',
+        },
+      },
+      'parentFolderPath',
+      'filteredSpecsPath',
+    );
     task.writeTempFileWithSelectedTests({
       filtered: 1,
       grep: 'ssa',

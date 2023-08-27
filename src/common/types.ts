@@ -6,7 +6,7 @@ export interface GrepTagObject {
 export type GrepTagSimple = string;
 export type GrepTag = GrepTagObject | GrepTagSimple;
 
-export type TransportTest = { filePath: string; title?: string; tags?: GrepTag[] };
+export type TransportTest = { filePath: string; title?: string; tags?: GrepTag[]; filteredTitle?: string };
 
 export type ParsedSpecs = {
   parentFolder?: string;
