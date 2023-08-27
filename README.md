@@ -398,6 +398,9 @@ To avoid that:
    ```
 
 ## Change log
+### 1.6.0
+- speedup filtering (filtering from 1000 files for less than 30 seconds)
+- added helper script
 
 ### 1.4.6
 
