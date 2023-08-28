@@ -1,4 +1,3 @@
-import '../mocha';
 import { setupSelectTests } from './select-tests';
 import { selectionTestGrep } from '../utils/regexp';
 import { addSearchInput, updateCount } from './search-input';
