@@ -10,7 +10,7 @@ const argv = yargs(process.argv.slice(2))
     script: {
       type: 'string',
       demandOption: true,
-      describe: `npm script to run`,
+      describe: `script that runs tests. ex. 'npm run cy:run' or 'npx cypress run'`,
       alias: 's',
     },
     grep: {
@@ -41,7 +41,7 @@ const argv = yargs(process.argv.slice(2))
     'delete-prefiltered': {
       type: 'boolean',
       default: true,
-      describe: `grep`,
+      describe: `whether to delete pre-filtered results file or keep`,
       alias: 'd',
     },
     'show-excluded-tests': {
@@ -49,14 +49,14 @@ const argv = yargs(process.argv.slice(2))
       type: 'boolean',
       default: true,
       describe: `show excluded tests as skipped or not show them at all`,
-      alias: 'se',
+      alias: 'e',
     },
     'show-tags-title': {
       // sets GREP_showTagsInTitle
       type: 'boolean',
       default: false,
-      describe: `show tags in title`,
-      alias: 'st',
+      describe: `show tags in test title`,
+      alias: 't',
     },
   })
   .help('help')
@@ -126,19 +126,22 @@ try {
   const started = Date.now();
   let grepExpression = getGrepEnvVariableStr(grep);
   const resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
-  const execVars = [grepExpression, resultsFileEnvVariableStr];
 
-  if (onlyRun && !existsSync(prefilterFile)) {
-    console.log(
-      `${packagename} Cannot run prefiltered since file ${prefilterFile} doesnt exist\n` +
-        `${packagename}     Prefilter tests first by adding --f (or removing --r) options`,
-    );
-    throw new Error('Cannot run prefiltered');
-  }
+  if (onlyRun || !grep) {
+    if (!existsSync(prefilterFile)) {
+      console.log(
+        `${packagename} Will run without prefiltering tests since file ${prefilterFile} doesnt exist\n` +
+          `${packagename}     Prefilter tests for faster filtering first by adding --f (or removing --r) options`,
+      );
+    }
+    if (!grep) {
+      console.log(`${packagename} Prefilter tests by adding \`--grep '@myTag'\` for faster filtering`);
+    }
 
-  if (!onlyRun) {
+    // throw new Error('Cannot run prefiltered');
+  } else {
     console.log(`${packagename}: PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
-    execute([...execVars, 'CYPRESS_GREP_PRE_FILTER=true'], script);
+    execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true'], script);
     const prefilteringDuration = `${(Date.now() - started) / 1000}s`;
     if (onlyPrefilter) {
       console.log(
@@ -157,7 +160,8 @@ try {
 
   execute(
     [
-      ...execVars,
+      grepExpression,
+      resultsFileEnvVariableStr,
       'CYPRESS_GREP_PRE_FILTER=false',
       specString,
       `CYPRESS_GREP_showExcludedTests=${showExcludedTests === true}`,
