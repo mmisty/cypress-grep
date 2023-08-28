@@ -166,7 +166,7 @@ describe('login', { tags: '@smoke' }, () => {
 
 Test `01. should login` will have tags [`@smoke`, `@P1`]
 
-Test `02. should have error on login` will have tags [`@smoke`, `@errors`, `@P1`]
+Test `02. should have error on login` will have tags [`@smoke`, `@errors`, `@P2`]
 
 Test `03. should do smth on err` will have tags [`@smoke`, `@errors`]
 
