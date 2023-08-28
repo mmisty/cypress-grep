@@ -298,6 +298,12 @@ Examples:
 - `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and WITH `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
+## Environment variables
+ - `GREP_addControlToUI` - Add UI control to filter test (only for interactive mode), default true
+ - `GREP_showTagsInTitle` - Show tags in test title, default true
+ - `GREP_showExcludedTests` - Show excluded tests as pending or not show at all, default true
+ - `GREP_failOnNotFound` - Whether to fail run when no tests are found, default true
+
 ## Examples
 - example [JS project](https://github.com/mmisty/cypress-grep-example)
 - example [TS project](https://github.com/mmisty/cypress-grep-example-ts)
