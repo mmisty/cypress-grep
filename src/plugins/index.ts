@@ -148,15 +148,7 @@ const changeSpecsForRun = (
     absolute: path.resolve(config.projectRoot, s),
   }));
 
-  /*if (Array.isArray(specPattern)) {
-    // need to remove everything from existing
-    config.specPattern = specPattern?.splice(0, specPattern.length);
-  }*/
-
   config.specPattern = specsNew.map(t => t.relative);
-  /*
-  config.specPattern = specsPatterns.length > 0 ? specsPatterns : specPattern;
- ;*/
   console.log(`${pkgName} Spec Pattern: ${config.specPattern}`);
 };
 

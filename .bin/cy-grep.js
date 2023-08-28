@@ -149,8 +149,6 @@ try {
     if (!grep) {
       console.log(`${packagename} Prefilter tests by adding \`--grep '@myTag'\` for faster filtering`);
     }
-
-    // throw new Error('Cannot run prefiltered');
   } else {
     console.log(`${packagename}: PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
     execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true'], script);
