@@ -300,6 +300,7 @@ Examples:
 
 ## Examples
 - example [JS project](https://github.com/mmisty/cypress-grep-example)
+- example [TS project](https://github.com/mmisty/cypress-grep-example-ts)
 
 ## UI Control
 
