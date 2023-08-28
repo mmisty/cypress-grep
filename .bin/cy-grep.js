@@ -74,13 +74,6 @@ const {
   showTagsTitle,
 } = argv;
 
-let grep;
-if (!grepInput && process.env.CYPRESS_GREP) {
-  grep = process.env.CYPRESS_GREP;
-} else {
-  grep = grepInput;
-}
-
 const getGrepEnvVariableStr = grepInputT => {
   if (grepInputT) {
     return `CYPRESS_GREP='${grepInputT}'`;
@@ -139,10 +132,17 @@ const getSpecPatternVar = (origSpecPattern, grepInputT, onlyRunInput) => {
 const execute = (vars, scriptInput) => {
   const args = [...vars, scriptInput].filter(t => t !== '').join(' ');
   console.log(packagename + ' execute: "' + args + '"');
-  execSync(`${vars.filter(t => t !== '').join(' ')} ${scriptInput}`, { stdio: 'inherit' });
+  execSync(`${vars.filter(t => t !== '').join(' ')} ${scriptInput}`, { stdio: 'inherit', env: process.env });
 };
 
 try {
+  let grep;
+  if (!grepInput && process.env.CYPRESS_GREP) {
+    grep = process.env.CYPRESS_GREP;
+  } else {
+    grep = grepInput;
+  }
+  
   const started = Date.now();
   let grepExpression = getGrepEnvVariableStr(grep);
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
