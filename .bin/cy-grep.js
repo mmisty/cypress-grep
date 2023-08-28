@@ -73,9 +73,9 @@ if(!grepInput && process.env.CYPRESS_GREP){
   grep = grepInput;
 }
 
-const getGrepEnvVariableStr = grepInput => {
-  if (grepInput) {
-    return `CYPRESS_GREP='${grepInput}'`;
+const getGrepEnvVariableStr = grepInputT => {
+  if (grepInputT) {
+    return `CYPRESS_GREP='${grepInputT}'`;
   }
   return '';
 };
@@ -111,14 +111,18 @@ const getSpecPattern = file => {
 /**
  * Get spec pattern env variable
  */
-const getSpecPatternVar = (origSpecPattern, grepInput, onlyRunInput) => {
-  if (origSpecPattern && !grepInput) {
+const getSpecPatternVar = (origSpecPattern, grepInputT, onlyRunInput) => {
+  if (origSpecPattern && !grepInputT) {
     // when no grep need to run original spec pattern
     return `CYPRESS_SPEC_PATTERN="[${origSpecPattern}]"`;
   }
 
   if (origSpecPattern && onlyRunInput) {
     return `CYPRESS_SPEC_PATTERN="[${origSpecPattern}]"`;
+  }
+  
+  if(!grepInputT){
+    return  ''
   }
 
   return `CYPRESS_SPEC_PATTERN="[]"`;

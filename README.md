@@ -359,10 +359,4 @@ To avoid that:
    ```
 
 ## Change log
-### 1.6.1
-- speedup filtering (filtering from 1000 files for less than 30 seconds)
-- added helper script
-
-### 1.4.6
-
-- fixed test object to have tags for retried tests
+[see change log](./CHANGELOG.md)

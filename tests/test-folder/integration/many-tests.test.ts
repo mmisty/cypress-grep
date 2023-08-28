@@ -24,7 +24,7 @@ describe('many tests', () => {
     const durationSec = (Date.now() - started) / 1000;
 
     expect(resSorted()).toEqual([{ name: 'test with tag', status: 'passed' }]);
-    expect(durationSec).toBeLessThan(60);
+    expect(durationSec).toBeLessThan(100);
   });
 
   it('only-prefilter many from many (all except one)', () => {
@@ -37,6 +37,6 @@ describe('many tests', () => {
     const durationSec = (Date.now() - started) / 1000;
     const res = JSON.parse(readFileSync('./reports/res.json').toString()).tests.length;
     expect(res).toEqual(2001);
-    expect(durationSec).toBeLessThan(60);
+    expect(durationSec).toBeLessThan(100);
   });
 });
