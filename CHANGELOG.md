@@ -1,5 +1,5 @@
 ## Change Log
-### 1.6.2
+### 1.6.3
 - speedup filtering (filtering from 1000 files for less than 30 seconds)
 - added helper script
 
