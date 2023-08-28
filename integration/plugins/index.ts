@@ -37,6 +37,7 @@ export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
 
   redirectLog(on, config, ['exception', 'test:log', 'log', 'warn']);
   configureAllureAdapterPlugins(on, config);
+  console.log(config.env);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables

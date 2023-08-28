@@ -24,7 +24,7 @@ describe('test tags object', () => {
     .each([
       {
         desc: '01 Should run all tests no tags (as array)',
-        args: ['--no-show-excluded-tests'],
+        args: ['--no-show-excluded-tests', '--no-t'],
         suite: 'Single',
         suiteTags: [],
         tests: [{ title: 'hello no tags', tags: [] }],
@@ -36,7 +36,7 @@ describe('test tags object', () => {
       },
       {
         desc: '02 Should run only tests with tags specified by grep (as array)',
-        args: ["--grep '@myTest'", '--no-show-excluded-tests'],
+        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
         suite: 'Single',
         suiteTags: ['@suite'],
         tests: [
@@ -47,7 +47,7 @@ describe('test tags object', () => {
       },
       {
         desc: '03 Should run only tests with tags specified by grep (as string)',
-        args: ["--grep '@myTest'", '--no-show-excluded-tests'],
+        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
         suite: 'Single',
         suiteTags: ['@suite'],
         tests: [
@@ -58,7 +58,7 @@ describe('test tags object', () => {
       },
       {
         desc: '04 Should run only tests with tags specified by grep (show-excluded-tests)',
-        args: ["--grep '@myTest'", '--show-excluded-tests'],
+        args: ["--grep '@myTest'", '--show-excluded-tests', '--no-t'],
         suite: 'Single',
         suiteTags: ['@suite'],
         tests: [
@@ -86,7 +86,7 @@ describe('test tags object', () => {
       },
       {
         desc: '06 Should run only tests with tags specified by grep - suite tag',
-        args: ["--grep '@suite'"],
+        args: ["--grep '@suite'", '--no-t'],
         suite: 'Single',
         suiteTags: ['@suite'],
         tests: [

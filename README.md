@@ -27,6 +27,7 @@ cy-grep --script 'npm run cy:run' --grep '!@theOne'
 1. [Run by Tags](#run-by-tags)
    - [Select tests by pseudo regex](#select-tests-by-pseudo-regexp)
    - [Select tests by regex](#select-tests-by-regexp)
+1. [Examples](#examples)
 1. [UI Control](#ui-control)
    - [Show tags in title](#show-tags-in-title)
    - [Show excluded tests](#show-excluded-tests)
@@ -166,9 +167,10 @@ describe('login', { tags: '@smoke' }, () => {
 
 Test `01. should login` will have tags [`@smoke`, `@P1`]
 
-Test `02. should have error on login` will have tags [`@smoke`, `@errors`, `@P1`]
+Test `02. should have error on login` will have tags [`@smoke`, `@errors`, `@P2`]
 
 Test `03. should do smth on err` will have tags [`@smoke`, `@errors`]
+
 
 ## Run by tags
 
@@ -295,6 +297,16 @@ Examples:
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests WITH `@smoke` and WITH `@p1`
 - `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and WITH `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
+
+## Environment variables
+ - `GREP_addControlToUI` - Add UI control to filter test (only for interactive mode), default true
+ - `GREP_showTagsInTitle` - Show tags in test title, default true
+ - `GREP_showExcludedTests` - Show excluded tests as pending or not show at all, default true
+ - `GREP_failOnNotFound` - Whether to fail run when no tests are found, default true
+
+## Examples
+- example [JS project](https://github.com/mmisty/cypress-grep-example)
+- example [TS project](https://github.com/mmisty/cypress-grep-example-ts)
 
 ## UI Control
 

@@ -1,6 +1,6 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.6.2",
+  "version": "1.6.7",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",

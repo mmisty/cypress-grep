@@ -19,11 +19,15 @@ export const taskWrite = (
 
     const cyan = '\x1b[36m';
     const end = '\x1b[0m';
-    console.log(
-      `${pkgName} filtered:\n  ${cyan}◌${end} ${contents.tests
-        .map(t => `${cyan}${`${t.filteredTitle}`.replace(/\/\//g, '/')}${end}`)
-        .join(`\n  ${cyan}◌${end} `)}\n`,
-    );
+
+    if (contents.tests.length > 0) {
+      console.log(
+        `${pkgName} filtered:\n  ${cyan}◌${end} ${contents.tests
+          .map(t => `${cyan}${`${t.filteredTitle}`.replace(/\/\//g, '/')}${end}`)
+          .join(`\n  ${cyan}◌${end} `)}\n`,
+      );
+    }
+
     console.log(
       `${pkgName} filtered ${contents.tests.length} from total ${contents.total} tests by spec pattern: ${config.env['originalSpecPattern']}`,
     );

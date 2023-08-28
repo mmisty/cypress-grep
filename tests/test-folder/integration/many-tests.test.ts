@@ -20,7 +20,11 @@ describe('many tests', () => {
 
   it('should filter one test from many files', () => {
     const started = Date.now();
-    runTests('specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', ["--g '@oneTag'", '--no-show-excluded-tests']);
+    runTests('specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', [
+      "--g '@oneTag'",
+      '--no-show-excluded-tests',
+      '--no-t',
+    ]);
     const durationSec = (Date.now() - started) / 1000;
 
     expect(resSorted()).toEqual([{ name: 'test with tag', status: 'passed' }]);

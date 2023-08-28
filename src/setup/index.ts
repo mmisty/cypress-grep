@@ -49,7 +49,18 @@ const logCreate = (config?: GrepConfig) => (message: unknown) => {
   }
 };
 
-export const registerCypressGrep = (config?: GrepConfig) => {
+const boolOrDefault = (val: unknown, res: boolean) => {
+  return val === undefined ? res : val === 'true' || val === true;
+};
+
+export const registerCypressGrep = (configInput?: GrepConfig) => {
+  const defaultConfig = {
+    addControlToUI: boolOrDefault(Cypress.env(grepEnvVars.addControlToUI), true),
+    showTagsInTitle: boolOrDefault(Cypress.env(grepEnvVars.showTagsInTitle), true),
+    showExcludedTests: boolOrDefault(Cypress.env(grepEnvVars.showExcludedTests), true),
+  };
+  const config: GrepConfig = configInput ? { ...defaultConfig, ...configInput } : defaultConfig;
+
   const debug = logCreate(config);
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
