@@ -21,7 +21,7 @@ export const taskWrite = (
     const end = '\x1b[0m';
     console.log(
       `${pkgName} filtered:\n  ${cyan}◌${end} ${contents.tests
-        .map(t => `${cyan}${`${parentFolder}${t.filteredTitle}`.replace(/\/\//g, '/')}${end}`)
+        .map(t => `${cyan}${`${t.filteredTitle}`.replace(/\/\//g, '/')}${end}`)
         .join(`\n  ${cyan}◌${end} `)}\n`,
     );
     console.log(

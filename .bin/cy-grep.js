@@ -9,6 +9,7 @@ const argv = yargs(process.argv.slice(2))
   .options({
     script: {
       type: 'string',
+      default: 'npx cypress run',
       demandOption: true,
       describe: `script that runs tests. ex. 'npm run cy:run' or 'npx cypress run'`,
       alias: 's',
@@ -62,8 +63,15 @@ const argv = yargs(process.argv.slice(2))
   .help('help')
   .parseSync();
 
-const { script, grep, prefilterFile, deletePrefiltered, onlyPrefilter, onlyRun, showExcludedTests, showTagsTitle } =
+const { script, grep: grepInput, prefilterFile, deletePrefiltered, onlyPrefilter, onlyRun, showExcludedTests, showTagsTitle } =
   argv;
+
+let grep;
+if(!grepInput && process.env.CYPRESS_GREP){
+  grep = process.env.CYPRESS_GREP;
+} else{
+  grep = grepInput;
+}
 
 const getGrepEnvVariableStr = grepInput => {
   if (grepInput) {
