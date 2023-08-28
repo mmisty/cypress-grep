@@ -14,11 +14,12 @@
 /integration/screenshots
 
 # prefilter
-all-tests.ts
+all-tests*.ts
 filtered_test_paths.json
 filtered_tests.json
 filtered.json
 spec_pattern.json
+/temp_grep
 
 # coverage and test reports
 /reports

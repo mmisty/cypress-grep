@@ -3,7 +3,7 @@ const { execSync } = require('child_process');
 const { existsSync, rmSync, readFileSync } = require('fs');
 const yargs = require('yargs');
 const packagename = '[cypress-grep]';
-const fileSpecPatternOriginal = 'spec_pattern.json';
+const fileSpecPatternOriginal = () => `temp_grep/spec_pattern.json`;
 
 const argv = yargs(process.argv.slice(2))
   .options({
@@ -22,8 +22,6 @@ const argv = yargs(process.argv.slice(2))
     },
     'prefilter-file': {
       type: 'string',
-      demandOption: true,
-      default: './filtered_tests.json',
       describe: `file where prefiltered results will be stored`,
       alias: 'p',
     },
@@ -66,7 +64,7 @@ const argv = yargs(process.argv.slice(2))
 const {
   script,
   grep: grepInput,
-  prefilterFile,
+  prefilterFile: prefilterFileInput,
   deletePrefiltered,
   onlyPrefilter,
   onlyRun,
@@ -99,8 +97,8 @@ const getSpecPattern = file => {
   const res = getRes();
 
   try {
-    if (existsSync(fileSpecPatternOriginal)) {
-      rmSync(fileSpecPatternOriginal);
+    if (existsSync(fileSpecPatternOriginal())) {
+      rmSync(fileSpecPatternOriginal());
     }
   } catch (e) {
     // ignore
@@ -145,7 +143,27 @@ try {
   
   const started = Date.now();
   let grepExpression = getGrepEnvVariableStr(grep);
+ 
+  const random = 4000000 + Math.round(Math.random() * 1000000);
+  const prefilterFile = prefilterFileInput ??  `./temp_grep/filtered_tests_${!onlyRun ? random : ''}.json`;
+
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
+  
+ /* process.on('signal', async (signal) => {
+    console.log('signal: ', signal);
+    if (signal === 'SIGINT') {
+      try {
+        console.log('SIGINT'  +random)
+        if (existsSync(fileSpecPatternOriginal(random))) {
+          rmSync(fileSpecPatternOriginal(random));
+          console.log('DEL'  +random);
+        }
+      } catch (e) {
+        // ignore
+      }
+      process.exit(0);
+    }
+  });*/
 
   if (onlyRun || !grep) {
     if (!existsSync(prefilterFile) && !grep) {
@@ -167,7 +185,7 @@ try {
     }
   } else {
     console.log(`${packagename} PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
-    execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true'], script);
+    execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true', `CYPRESS_GREP_RANDOM=${random}`], script);
     const prefilteringDuration = `${(Date.now() - started) / 1000}s`;
     if (onlyPrefilter) {
       console.log(
@@ -199,6 +217,8 @@ try {
   }
 
   console.log(`${packagename} FINISHED === `);
+  
+ 
 } catch (err) {
   console.log(`${packagename} FINISHED (exit code: 1) === `);
   // console.log(err);

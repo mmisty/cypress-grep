@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { createAllTestsFile, createOneTestsFile } from './all-tests-combine';
 import { getRootFolder } from './utils';
 import { uniq } from '../utils/functions';
@@ -9,6 +9,7 @@ import path from 'path';
 import { pkgName } from '../common/logs';
 import Spec = Cypress.Spec;
 import PluginEvents = Cypress.PluginEvents;
+import PluginConfigOptions = Cypress.PluginConfigOptions;
 
 const defaultSpecPattern = 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}';
 
@@ -48,6 +49,24 @@ const lastUpdatedDate = (file: string) => {
   return mtime;
 };
 
+const createSpecPatternFile = (config: PluginConfigOptions, specPattern: string | string[]) => {
+  const tempDir = config.env['GREP_TEMP_DIR'] ?? 'temp_grep';
+
+  try {
+    if (!existsSync(tempDir)) {
+      mkdirSync(tempDir, { recursive: true });
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    writeFileSync(`${tempDir}/spec_pattern.json`, JSON.stringify({ specPattern }));
+  } catch (e) {
+    // ignore
+  }
+};
+
 const warningWhenFilteredResultExistMore = (timeExistMin: number, filteredSpecs: string) => {
   const ms = timeExistMin * 1000 * 60;
   const updated = lastUpdatedDate(filteredSpecs);
@@ -84,7 +103,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const isDeleteAllFile = isTrue(config.env[grepEnvVars.GREP_DELETE_ALL_FILE] ?? true);
   const grep = config.env[grepEnvVars.GREP];
   const filteredSpecs = config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths.json`;
-  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? 'all-tests.js';
+  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? `all-tests-${config.env['GREP_RANDOM']}.js`;
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
   on('task', taskWrite(config, parentTestsFolder, filteredSpecs));
 
@@ -104,7 +123,9 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
     return;
   }
-  writeFileSync('spec_pattern.json', JSON.stringify({ specPattern: specPattern }));
+
+  createSpecPatternFile(config, specPattern);
+
   config.reporter = 'spec';
   config.video = false;
   config.env['REDIRECT_BROWSER_LOG'] = false;

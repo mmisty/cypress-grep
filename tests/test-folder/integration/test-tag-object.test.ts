@@ -1,24 +1,23 @@
-import { createTests, createTestsTagsObj, deleteResults, resSorted, runTests } from '../../utils/helper';
+import { createTests, createTestsTagsObj, runTests } from '../../utils/helper';
 import expect from 'expect';
+import { existsSync, rmSync } from 'fs';
+import { basename } from 'path';
 
 describe('test tags object', () => {
-  beforeEach(() => {
-    deleteResults();
-  });
-
   its()
-    .each([
+    .each([{ folder: basename(__filename) }])
+    .each(t => [
       {
         desc: 'pattern as string',
-        file: 'reports/tests1/folder/demo1.cy.ts',
-        file2: 'reports/tests1/demo2.cy.ts',
-        pattern: 'specPattern="reports/tests1/**/*.*"',
+        file: `reports/tests/${t.folder}/folder/demo1.cy.ts`,
+        file2: `reports/tests/${t.folder}/demo2.cy.ts`,
+        pattern: `specPattern="reports/tests/${t.folder}/**/*.*"`,
       },
       {
         desc: 'pattern as array',
-        file: 'reports/tests1/folder/demo1.cy.ts',
-        file2: 'reports/tests1/demo2.cy.ts',
-        pattern: 'specPattern="[reports/tests1/**/*.*,reports/tests1/one.*]"',
+        file: `reports/tests/${t.folder}/folder/demo1.cy.ts`,
+        file2: `reports/tests/${t.folder}/demo2.cy.ts`,
+        pattern: `specPattern="[reports/tests/${t.folder}/**/*.*,reports/tests/${t.folder}/one.*]"`,
       },
     ])
     .each([
@@ -103,11 +102,14 @@ describe('test tags object', () => {
     ])
     // .only(t => t.id == 1)
     .run(t => {
+      if (existsSync(`reports/tests/${t.folder}`)) {
+        rmSync(`reports/tests/${t.folder}`, { recursive: true });
+      }
       createTestsTagsObj(t.suite, t.suiteTags, t.tests, t.file);
       createTests('other', ['hello @oneTest', 'second'], t.file2);
 
-      runTests(t.pattern, t.args);
+      const res = runTests(t.folder, t.pattern, t.args);
 
-      expect(resSorted()).toEqual(t.expected);
+      expect(res).toEqual(t.expected);
     });
 });

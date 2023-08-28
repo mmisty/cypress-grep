@@ -372,3 +372,6 @@ To avoid that:
 
 ## Change log
 [see change log](./CHANGELOG.md)
+
+## Todo
+ - parallel run 

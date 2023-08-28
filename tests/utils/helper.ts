@@ -4,7 +4,7 @@ import { dirname } from 'path';
 import { parseAllure } from 'allure-js-parser';
 
 export const deleteResults = () => {
-  if (existsSync('allure-results')) {
+  /*if (existsSync('allure-results')) {
     rmSync('allure-results', { recursive: true });
   }
 
@@ -14,19 +14,32 @@ export const deleteResults = () => {
 
   if (existsSync('reports/tests1')) {
     rmSync('reports/tests1', { recursive: true });
-  }
+  }*/
 };
 
-export const runTests = (specPattern: string, args: string[] = []) => {
+export const resSorted = (dir: string) => {
+  return parseAllure(dir)
+    .map(t => ({ name: t.name, status: t.status }))
+    .sort((a, b) => (a.name && b.name && a.name < b.name ? -1 : 1));
+};
+
+export const runTests = (dirName: string, specPattern: string, args: string[] = []) => {
+  const folder = `allure-results/tests_${dirName}${Date.now()}`;
+
+  if (existsSync(folder)) {
+    rmSync(folder, { recursive: true });
+  }
   execSync(
     `cd ${process.cwd()} &&
-    node ./.bin/cy-grep.js --script 'COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
+    node ./.bin/cy-grep.js --script 'CYPRESS_allureResults='${folder}' COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
       ' ',
     )}`,
     {
       stdio: 'inherit',
     },
   );
+
+  return resSorted(folder);
 };
 
 export const createTests = (suite: string, titles: string[], file: string) => {
@@ -67,10 +80,4 @@ export const createTestsTagsObj = (
     file,
     `describe("${suite}", { tags: ${suiteTags ? JSON.stringify(suiteTags) : 'undefined'} }, () => {\n${tests}\n})`,
   );
-};
-
-export const resSorted = () => {
-  return parseAllure('allure-results')
-    .map(t => ({ name: t.name, status: t.status }))
-    .sort((a, b) => (a.name && b.name && a.name < b.name ? -1 : 1));
 };
