@@ -1,19 +1,21 @@
 # @mmisty/cypress-grep
 
-The package enables filtering of cypress tests based on tags or test / suite title,
-by utilizing substring or regular expressions.
+This package helps to quickly filter cypress tests by tags or title using regular expressions or pseudo regular expressions
+(any **dynamic** tags will be also filtered), also it adds [UI control](#ui-control) for filtering which eliminates the need of using `.only` during tests development.
 
-Here are key features:
+For reference: the package filters tests from 1000 spec files for less than 30 seconds and runs only filtered spec files which reduces execution time significantly.
 
-- quickly filter tests by tags / title using regular expressions and pseudo regular expressions
-  (will be filtered any dynamic tags / or title )
-- ability to add tags to test (inline or with
-  cypress configuration for test or suite)
-- UI control to filter tests within a selected spec file in Cypress interactive mode.
+For example you have 1000 spec files in your `cypress/e2e` folder and only one test that you want to run with tag `@theOne`([how to add tags for test](#specify-tags))
 
-  It eliminates the need of using `.only`
+After running this your test will start running after <30 seconds:
+```
+cy-grep --script 'npm run cy:run' --grep '@theOne'
+```
 
-  ![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/demo.gif)
+If you need to run all test except`@theOne` you can inverse the expression by `!`: 
+```
+cy-grep --script 'npm run cy:run' --grep '!@theOne'
+```
 
 ## Table of Contents
 
@@ -23,9 +25,8 @@ Here are key features:
    - [4.Specify tags](#specify-tags)
      - [Tags inheritance](#tags-inheritance)
 1. [Run by Tags](#run-by-tags)
-   - [Prefilter](#prefilter)
-   - [Pseudo regexp](#pseudo-regexp)
-   - [Regexp](#regexp)
+   - [Select tests by pseudo regex](#select-tests-by-pseudo-regexp)
+   - [Select tests by regex](#select-tests-by-regexp)
 1. [UI Control](#ui-control)
    - [Show tags in title](#show-tags-in-title)
    - [Show excluded tests](#show-excluded-tests)
@@ -49,22 +50,6 @@ import '@mmisty/cypress-grep/register';
 ```
 
 Once this is done, types will be added automatically.
-
-<details><summary>Override default environment variables for UI control</summary>
-
-Override environment variables if needed to control UI feature (within cypress.config.ts or other way):
-
-- `GREP_addControlToUI` - add UI control to filter tests (only for interactive mode), default is `true`
-- `GREP_showTagsInTitle` - show tags in test title, default is `true`
-- `GREP_showExcludedTests` - show excluded tests as pending, default is `true`,
-
-With this configuration, you will be able to control how tags are displayed in
-the title, and whether excluded tests should be displayed as pending or not be displayed at all.
-
-The `addControlToUI` parameter adds the UI control feature to Cypress Interactive mode,
-allowing you to filter tests easily.
-
-</details>
 
 <details><summary>Advanced - if you don't want to use ECMA2015 syntax for importing</summary>
 
@@ -101,7 +86,7 @@ registerCypressGrep({
 
 ### Setup Plugins
 
-Add plugin `pluginGrep` to you plugins to have ability to prefilter tests.
+Add plugin `pluginGrep` to you plugins.
 
 Do not forget to return config from setupNodeEvents function.
 
@@ -198,51 +183,9 @@ it will run cypress twice:
 - to prefilter tests
 - to run prefiltered tests
 
-### To only prefilter tests
+Prefiltering significantly saves time when dealing with huge amount of spec files.
 
-```
-cy-grep --script 'npm run cy:run' --grep '@p1' --only-prefilter
-```
-
-or
-
-```
-cy-grep --s 'npm run cy:run' --g '@p1' --f
-```
-
-### To only run prefiltered tests
-
-That were prefiltered previously execute:
-
-```
-cy-grep --script 'npm run cy:run' --grep '@p1' --only-run-prefiltered
-```
-
-or
-
-```
-cy-grep --s 'npm run cy:run' --g '@p1' --r
-```
-
-### Specify file for prefiltered results
-
-```
-cy-grep --s 'npm run cy:run' --g '@p1' --p 'results.json'
-```
-
-### To keep file with results
-
-```
-cy-grep --s 'npm run cy:run' --g '@p1' --no-delete-prefiltered
-```
-
-Or
-
-```
-cy-grep --s 'npm run cy:run' --g '@p1' --no-d
-```
-
-### Add script to package.json (old)
+#### Add script to package.json
 
 To have faster filtering it is better to add the following script into your package.json
 
@@ -259,47 +202,63 @@ And run it by:
 
 ```shell
 npm run cy:grep -- --grep='@p1'
+# or
+CYPRESS_GREP='@p1' npm run cy:grep
 ```
 
-To run all tests:
+To run all tests without prefiltering:
 
 ```shell
 npm run cy:grep
 ```
 
-#### Note
-
-There is some cypress misbehavior when there are **several spec patterns in config** (array of patterns),
-you (actually we, as developers of this plugin) cannot totally change spec pattern from the inside
-of cypress plugin, it still will have several items from initial spec pattern.
-
-In this case after prefiltering mode you'll need to run cypress with `--config specPattern='*.*'` to override spec pattern from config.
-
-Example:
-
-```javascript
-// cypress.config.ts / js
-e2e: {
-  specPattern: [`cypress/e2e/example/*.(cy|test|spec).ts`, `cypress/e2e/regression/**/*.(cy|test|spec).ts`];
-}
-```
-
-In this case grep script will be:
+### To only prefilter tests
 
 ```
-"cy:run:grep": "export CYPRESS_GREP_RESULTS_FILE='./filtered.json' && CYPRESS_GREP_PRE_FILTER=true npm run cy:run && npm run cy:run -- --config specPattern='*.*'",
+cy-grep --script 'npm run cy:run' --grep '@p1' --only-prefilter
 ```
 
-Let's say we run `CYPRESS_GREP='@smoke' cy:run:grep` and prefiltering found only tests from `example` folder.
-If not overriding config spec pattern it will go through
-specs from `regression`(in addition to `example`) folder as well in run mode.
+or
 
-It will not find any matches there but will slow down the execution.
-So just add `--config specPattern='*.*'` to your run script after prefiltering is done.
+```
+cy-grep --s 'npm run cy:run' --g '@p1' --f
+```
 
-### Pseudo regexp
+#### To only run prefiltered tests
 
-`GREP` env variable accepts pseudo regexps to filter tests:
+That were prefiltered previously execute:
+
+```
+cy-grep --script 'npm run cy:run' --grep '@p1' --only-run-prefiltered
+```
+
+or
+
+```
+cy-grep --s 'npm run cy:run' --g '@p1' --r
+```
+
+#### Specify file for prefiltered results
+
+```
+cy-grep --s 'npm run cy:run' --g '@p1' --p 'results.json'
+```
+
+#### To keep file with results
+
+```
+cy-grep --s 'npm run cy:run' --g '@p1' --no-delete-prefiltered
+```
+
+Or
+
+```
+cy-grep --s 'npm run cy:run' --g '@p1' --no-d
+```
+
+### Select tests by pseudo regexp
+
+`CYPRESS_GREP` env variable or `--grep` option accept pseudo regexps to filter tests like `--grep '@p1&!@smoke'`:
 
 - Symbol `!` = not
 - Symbol `&` = and
@@ -324,7 +283,7 @@ Here are some examples of pseudo regexp:
 - line `@suite @test` will NOT match this expression: `GREP='(@test&@suite)|@tag'`(for `@test @suite` matches), as a workaround rewrite to `GREP='(@test|@tag)&(@suite|@tag)'`
 - all other cases pass - you can check tested cases here if you are interested [tests/test-folder/regexp.test.ts](https://github.com/mmisty/cypress-grep/blob/main/tests/test-folder/regexp.test.ts#L5)
 
-### Regexp
+### Select tests by regexp
 
 There is also possibility to input pure regexp.
 To do that you need to write regexp in the following form `GREP='=/.*/i'`
@@ -348,6 +307,8 @@ Controls have settings:
 - filter tests by title/tags
 - to show/hide tags in title
 - to show/hide excluded tests
+
+![p1.gif](https://github.com/mmisty/cypress-grep/blob/main/docs-template/demo.gif)
 
 ![tags_search.jpg](https://github.com/mmisty/cypress-grep/blob/main/docs-template/tags_search.jpg)
 
@@ -398,7 +359,7 @@ To avoid that:
    ```
 
 ## Change log
-### 1.6.0
+### 1.6.1
 - speedup filtering (filtering from 1000 files for less than 30 seconds)
 - added helper script
 
