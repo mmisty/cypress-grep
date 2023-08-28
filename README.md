@@ -27,6 +27,7 @@ cy-grep --script 'npm run cy:run' --grep '!@theOne'
 1. [Run by Tags](#run-by-tags)
    - [Select tests by pseudo regex](#select-tests-by-pseudo-regexp)
    - [Select tests by regex](#select-tests-by-regexp)
+1. [Examples](#examples)
 1. [UI Control](#ui-control)
    - [Show tags in title](#show-tags-in-title)
    - [Show excluded tests](#show-excluded-tests)
@@ -170,6 +171,7 @@ Test `02. should have error on login` will have tags [`@smoke`, `@errors`, `@P2`
 
 Test `03. should do smth on err` will have tags [`@smoke`, `@errors`]
 
+
 ## Run by tags
 
 To run by tags you can use script
@@ -295,6 +297,9 @@ Examples:
 - `GREP='=/(?=.*@smoke)(?=.*@p1).*/i'` - runs all tests WITH `@smoke` and WITH `@p1`
 - `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and WITH `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
+
+## Examples
+- example [JS project](https://github.com/mmisty/cypress-grep-example)
 
 ## UI Control
 
