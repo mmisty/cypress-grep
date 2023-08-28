@@ -20,7 +20,7 @@ export const deleteResults = () => {
 export const runTests = (specPattern: string, args: string[] = []) => {
   execSync(
     `cd ${process.cwd()} &&
-    node ./.bin/cy-grep.js --script 'CYPRESS_GREP_showExcludedTests=true CYPRESS_GREP_showTagsInTitle=false COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
+    node ./.bin/cy-grep.js --script 'COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
       ' ',
     )}`,
     {
