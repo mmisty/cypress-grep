@@ -49,7 +49,7 @@ const argv = yargs(process.argv.slice(2))
       // sets GREP_showExcludedTests
       type: 'boolean',
       default: true,
-      describe: `show excluded tests as skipped or not show them at all`,
+      describe: `show excluded tests as skipped or not show them at all (for not showing --no-show-excluded-tests or --not-e)`,
       alias: 'e',
     },
     'show-tags-title': {
