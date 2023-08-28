@@ -1,3 +1,11 @@
+## Change Log
+### 1.6.2
+- speedup filtering (filtering from 1000 files for less than 30 seconds)
+- added helper script
+
+### 1.4.6
+- fixed test object to have tags for retried tests
+
 ## 1.4.3
 
 - **[Breaking change]** renamed env var `GREP_TEMP_PATH` to `GREP_RESULTS_FILE`

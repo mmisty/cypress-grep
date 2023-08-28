@@ -9,6 +9,11 @@
     "strict": true,
     "skipLibCheck": true,
     "types": ["node", "cypress"],
+    "baseUrl": "./src",
+    "paths": {
+      "@src": ["./index.ts"],
+      "@src/*": ["./*"]
+    }
   },
 
   "include": ["src"]

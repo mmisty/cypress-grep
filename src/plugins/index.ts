@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync, statSync } from 'fs';
+import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { createAllTestsFile, createOneTestsFile } from './all-tests-combine';
 import { getRootFolder } from './utils';
 import { uniq } from '../utils/functions';
@@ -78,6 +78,7 @@ const warningNoResultsFileNoGrep = (grep: string | undefined) => {
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
   const specPattern = config.specPattern || defaultSpecPattern;
+  config.env['originalSpecPattern'] = specPattern;
   const parentTestsFolder = parentFolder(specPattern, config);
   const isPreFilter = isTrue(config.env[grepEnvVars.GREP_PRE_FILTER] ?? false);
   const isDeleteAllFile = isTrue(config.env[grepEnvVars.GREP_DELETE_ALL_FILE] ?? true);
@@ -85,7 +86,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const filteredSpecs = config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths.json`;
   const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? 'all-tests.js';
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
-  on('task', taskWrite(parentTestsFolder, filteredSpecs));
+  on('task', taskWrite(config, parentTestsFolder, filteredSpecs));
 
   console.log(`${pkgName} grep: '${grep}'`);
   console.log(`${pkgName} parent tests folder: '${parentTestsFolder}'`);
@@ -103,8 +104,10 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
     return;
   }
-
+  writeFileSync('spec_pattern.json', JSON.stringify({ specPattern: specPattern }));
   config.reporter = 'spec';
+  config.video = false;
+  config.env['REDIRECT_BROWSER_LOG'] = false;
 
   if (existsSync(filteredSpecs)) {
     rmSync(filteredSpecs);
@@ -145,12 +148,15 @@ const changeSpecsForRun = (
     absolute: path.resolve(config.projectRoot, s),
   }));
 
-  if (Array.isArray(specPattern)) {
+  /*if (Array.isArray(specPattern)) {
     // need to remove everything from existing
     config.specPattern = specPattern?.splice(0, specPattern.length);
-  }
+  }*/
 
   config.specPattern = specsNew.map(t => t.relative);
+  /*
+  config.specPattern = specsPatterns.length > 0 ? specsPatterns : specPattern;
+ ;*/
   console.log(`${pkgName} Spec Pattern: ${config.specPattern}`);
 };
 

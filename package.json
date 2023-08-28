@@ -1,12 +1,15 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.4.6",
+  "version": "1.6.2",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
   "homepage": "https://github.com/mmisty/cypress-grep#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "cy-grep": ".bin/cy-grep.js"
   },
   "keywords": [
     "cypress",
@@ -23,7 +26,7 @@
     "husky:install": "husky install",
     "lint": "eslint --fix '**/*.{ts,tsx,js}'",
     "test": "jest",
-    "test:cov": "jest --coverage --coverageDirectory reports/coverage-jest",
+    "test:cov": "jest --coverage --runInBand --coverageDirectory reports/coverage-jest",
     "cy": "cypress",
     "cy:open": "npm run cy -- open --browser chrome --e2e",
     "cy:filter": "CYPRESS_GREP_PRE_FILTER=true npm run cy:run",
@@ -49,19 +52,21 @@
     "build:cy": "cd integration && tsc",
     "build:all": "npm run build && npm run build:cy && npm run build:tests",
     "test:all": "rm -rf filtered_test_paths.json && npm run test:cov && npm run cy:run:cov",
-    "cov:merge": "node ./.scripts/merge.js --cypress reports/coverage-cypress  --jest reports/coverage-jest --out reports/coverage-temp --report reports/coverage-full",
+    "cov:merge": "node ./.scripts/merge.js --cypress reports/coverage-cypress  --jest reports/coverage-jest --out reports/coverage-temp --report reports/coverage-full && npm run cov:fin",
     "cov": "http-server reports/coverage-full/lcov-report",
     "cov:jest": "http-server reports/coverage-jest/lcov-report",
     "cov:cy": "http-server reports/coverage-cypress/lcov-report",
     "cov:check": "COVERAGE_TEMP=reports/coverage-temp nyc check-coverage",
     "cov:show": "COVERAGE_TEMP=reports/coverage-temp nyc report --reporter=text",
+    "cov:fin": "npx nyc report -t reports/coverage-full --report-dir reports/coverage-full-total",
     "all": "npm run pre && npm run cov:check && npm run cov",
     "pre": "rm -rf ./node_modules/.cache lib reports coverage-nyc .nyc_output  && npm run lint && npm run build:all && npm run test:all && npm run cov:merge",
     "extract": "node .scripts/extract.js  --source lib --target . --package package.json",
     "extract:undo": "npm run extract -- --undo",
     "prepublishOnly": "rm -rf ./node_modules/.cache lib && npm run build && npm run extract",
     "postpublish": "npm run extract:undo",
-    "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish"
+    "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish",
+    "fmt": "pretty-quick"
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.10.0",
@@ -73,6 +78,7 @@
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
+    "allure-js-parser": "^0.0.7",
     "cypress": "^12.17.4",
     "cypress-redirect-browser-log": "^1.1.1",
     "eslint": "^8.28.0",
@@ -88,6 +94,7 @@
     "jest-environment-jsdom": "^29.3.1",
     "jest-test-each": "^0.9.1",
     "nyc": "^15.1.0",
+    "pretty-quick": "^3.1.3",
     "ts-jest": "^29.0.3",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
@@ -97,6 +104,7 @@
   },
   "dependencies": {
     "cypress-controls-ext": "^0.2.0",
-    "fast-glob": "^3.2.12"
+    "fast-glob": "^3.2.12",
+    "yargs": "^17.7.2"
   }
 }

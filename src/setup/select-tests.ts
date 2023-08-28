@@ -125,6 +125,7 @@ function filterTests(
   testRoot: Mocha.Test | undefined,
   suiteRoot: Mocha.Suite,
   regexp: RegExp,
+  isPrerun: boolean,
   settings: GrepConfig,
   onFilteredTest: (test: Mocha.Test) => void,
   onExcludedTest: (test: Mocha.Test) => void,
@@ -132,6 +133,7 @@ function filterTests(
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
     // when root test we filter suites again, so we don't need to filter other tests than the root
+
     if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
       return;
     }
@@ -141,13 +143,16 @@ function filterTests(
     if (regexp.test(fullTitleWithTags)) {
       onFilteredTest(test);
 
-      return;
+      if (!isPrerun) {
+        return;
+      }
+    } else {
+      onExcludedTest(test);
     }
-    onExcludedTest(test);
 
     // Remove not matched test
     if (test.parent) {
-      if (settings.showExcludedTests) {
+      if (!isPrerun && settings.showExcludedTests) {
         test.parent.tests.forEach(t => {
           if (t.fullTitle() === test.fullTitle()) {
             t.pending = true;
@@ -195,8 +200,6 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
     tags: test.tags,
     title: test.title,
   });
-
-  test.pending = true;
 };
 
 const createFilterSuiteTests =
@@ -213,6 +216,7 @@ const createFilterSuiteTests =
       test,
       suite,
       regexp,
+      isPrerun,
       settings,
       createOnFiltered(isPrerun, filtered),
       createOnExcluded(isPrerun, filtered),
@@ -300,8 +304,10 @@ export const setupSelectTests = (
 
       if (match.length === 0 && settings.failOnNotFound) {
         const msg = [
-          `Not found any tests matching ${grepEnvVars.GREP} '${grep}'`,
-          'To disable this error set `failOnNotFound` to `false` in registerCypressGrep or set environment variable failOnNotFound to false',
+          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.env(
+            'originalSpecPattern',
+          )}`,
+          `To disable this error set \`failOnNotFound\` to \`false\` in registerCypressGrep or set environment variable ${grepEnvVars.failOnNotFound} to false`,
         ];
         throw new Error(msg.join('\n'));
       }
