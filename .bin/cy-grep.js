@@ -61,18 +61,25 @@ const argv = yargs(process.argv.slice(2))
     },
   })
   .help('help')
+  .help('h')
   .parseSync();
 
 const {
-  script,
+  script: scriptInput,
   grep: grepInput,
-  prefilterFile,
+  prefilterFile: prefilterFileInput,
   deletePrefiltered,
   onlyPrefilter,
   onlyRun,
   showExcludedTests,
   showTagsTitle,
 } = argv;
+
+let grep = !grepInput && process.env.CYPRESS_GREP ? process.env.CYPRESS_GREP : grepInput;
+let script = Array.isArray(scriptInput) ? scriptInput[scriptInput.length - 1] : scriptInput;
+let prefilterFile = Array.isArray(prefilterFileInput)
+  ? prefilterFileInput[prefilterFileInput.length - 1]
+  : prefilterFileInput;
 
 const getGrepEnvVariableStr = grepInputT => {
   if (grepInputT) {
@@ -136,15 +143,12 @@ const execute = (vars, scriptInput) => {
 };
 
 try {
-  let grep;
-  if (!grepInput && process.env.CYPRESS_GREP) {
-    grep = process.env.CYPRESS_GREP;
-  } else {
-    grep = grepInput;
-  }
-  
-  const started = Date.now();
   let grepExpression = getGrepEnvVariableStr(grep);
+  // console.log('grep: ' + (grepExpression || '-'));
+  // console.log('script: ' + script);
+  // console.log('prefilterFile: ' + (prefilterFile || '-'));
+
+  const started = Date.now();
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
 
   if (onlyRun || !grep) {

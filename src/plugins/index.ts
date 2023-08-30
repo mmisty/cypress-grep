@@ -88,7 +88,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
   on('task', taskWrite(config, parentTestsFolder, filteredSpecs));
 
-  console.log(`${pkgName} grep: '${grep}'`);
+  console.log(`${pkgName} grep: ${grep ?? 'not set'}`);
   console.log(`${pkgName} parent tests folder: '${parentTestsFolder}'`);
 
   if (!isPreFilter) {
