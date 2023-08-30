@@ -1,11 +1,11 @@
-import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { createAllTestsFile, createOneTestsFile } from './all-tests-combine';
 import { getRootFolder } from './utils';
 import { uniq } from '../utils/functions';
 import { taskWrite } from './tasks';
 import { grepEnvVars, isTrue } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
-import path from 'path';
+import path, { dirname } from 'path';
 import { pkgName } from '../common/logs';
 import Spec = Cypress.Spec;
 import PluginEvents = Cypress.PluginEvents;
@@ -90,6 +90,10 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
   console.log(`${pkgName} grep: ${grep ?? 'not set'}`);
   console.log(`${pkgName} parent tests folder: '${parentTestsFolder}'`);
+
+  if (!existsSync(dirname(filteredSpecs))) {
+    mkdirSync(dirname(filteredSpecs), { recursive: true });
+  }
 
   if (!isPreFilter) {
     if (!existsSync(filteredSpecs)) {

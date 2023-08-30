@@ -151,7 +151,7 @@ try {
   const started = Date.now();
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
 
-  if (onlyRun || !grep) {
+  if (!onlyPrefilter && (onlyRun || !grep) ) {
     if (!existsSync(prefilterFile) && !grep) {
       console.log(
         `${packagename} Will run all tests: prefilter tests by adding \`--grep \` for faster filtering (for help \`cy-grep --help\`)`,
@@ -198,7 +198,7 @@ try {
     script,
   );
 
-  if (!onlyRun && deletePrefiltered && existsSync(prefilterFile)) {
+  if (!onlyRun && !onlyPrefilter && deletePrefiltered && existsSync(prefilterFile)) {
     rmSync(prefilterFile);
   }
 

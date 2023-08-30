@@ -377,3 +377,4 @@ To avoid that:
 ## todo
  - [ ] ability to run parallel
  - [ ] tech - publish on github
+ - [ ] correct publishing
