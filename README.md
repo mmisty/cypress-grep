@@ -372,3 +372,8 @@ To avoid that:
 
 ## Change log
 [see change log](./CHANGELOG.md)
+
+
+## todo
+ - [ ] ability to run parallel
+ - [ ] tech - publish on github
