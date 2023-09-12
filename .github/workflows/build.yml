@@ -1,4 +1,5 @@
 name: NodeJS with Webpack
+permissions: write-all
 
 on:
   push:
@@ -10,53 +11,123 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
+      - uses: volta-cli/action@v4
+      - name: Install
+        run: npm ci
 
-    - name: Install
-      run: npm ci
-        
-    - name: Lint
-      run: npm run lint
+      - name: Versions
+        run: |
+          node --version
+          npm --version  
 
-    - name: Build
-      run: npm run build:all
+      - name: Lint
+        run: npm run lint
 
-    - name: Test jest
-      run: npm run test:cov
+      - name: Build
+        run: npm run build:all
 
-    - name: Test cy
-      run: npm run cy:run:cov
+      - name: Test jest
+        run: npm run test:cov
 
-    - name: Merge cov
-      run: npm run cov:merge
+      - name: Publish Jest Test Report 1
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/reports/jest/*.xml'
+          check_name: 'Jest Test Report Unit'
+          detailed_summary: true
 
-    - name: Show coverage
-      run: npm run cov:show
+      - name: Test cy
+        run: npm run cy:run:cov
 
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
-      with:
-        name: code-coverage-report
-        path: ./reports/coverage-full-total/
+      - name: Merge cov
+        run: npm run cov:merge
 
-    - name: Comment coverage
-      continue-on-error: true
-      uses: danhunsaker/clover-reporter-action@v0.2.17-clover
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        clover-file: ./reports/coverage-full-total/clover.xml
+      - name: Test jest:integration
+        run: |
+          rm -rf 'reports/jest' || true
+          npm run test:cov:int
 
-    - name: Monitor coverage
-      run: npm run cov:check
+      - name: Merge cov
+        run: npm run cov:merge:fin
 
+      - name: Show coverage
+        run: npm run cov:show
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: ./reports/coverage-full-total/
+
+      - name: Comment coverage
+        continue-on-error: true
+        uses: danhunsaker/clover-reporter-action@v0.2.17-clover
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          clover-file: ./reports/coverage-full-total/clover.xml
+
+      - name: Monitor coverage
+        continue-on-error: true
+        run: npm run cov:check
+
+      - name: Publish Jest Test Report Integration
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/reports/jest/*.xml'
+          check_name: 'Jest Test Report Integration'
+          detailed_summary: true
+
+      - name: Publish
+        if: success()
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          branch=${{ github.ref }}
+          echo "Branch: $branch" 
+          
+          gitmsg="${{ github.event.commits[0].message }}"
+          echo "Commit: $gitmsg" 
+          
+          if [[ "$gitmsg" =~ "[patch]" ]]; then
+            echo "publish patch"
+            npm run publish:patch
+            git push --tags
+            exit 0
+          fi 
+          
+          if [[ "$gitmsg" =~ "[fix]" ]]; then
+            echo "publish patch"
+            npm run publish:patch
+            git push --tags
+            exit 0
+          fi
+          
+          if [[ "$gitmsg" =~ "[minor]" ]]; then
+            echo "publish minor"
+            npm run publish:minor
+            git push --tags
+            exit 0
+          fi
+          
+          if [[ "$gitmsg" =~ "[major]" ]]; then
+            echo "publish major"
+            npm run publish:major
+            git push --tags
+            exit 0
+          fi
+          
+          # echo "publishing alpha, for other commit message should contain [minor], [major] or [patch]/[fix]"
+          # npm run publish:alpha
+          # git push --tags    
+  
 

@@ -1,5 +1,6 @@
 import { createTests, createTestsTagsObj, deleteResults, resSorted, runTests } from '../../utils/helper';
 import expect from 'expect';
+import { existsSync, rmSync } from 'fs';
 
 describe('test tags object', () => {
   beforeEach(() => {
@@ -23,6 +24,17 @@ describe('test tags object', () => {
     ])
     .each([
       {
+        desc: '02 Should run only tests with tags specified by grep (as array)',
+        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
+        suite: 'Single',
+        suiteTags: ['@suite'],
+        tests: [
+          { title: '01. hello tag', tags: ['@myTest'] },
+          { title: '02. hello tag', tags: undefined },
+        ],
+        expected: [{ name: '01. hello tag', status: 'passed' }],
+      },
+      {
         desc: '01 Should run all tests no tags (as array)',
         args: ['--no-show-excluded-tests', '--no-t'],
         suite: 'Single',
@@ -33,17 +45,6 @@ describe('test tags object', () => {
           { name: 'hello no tags', status: 'passed' },
           { name: 'second', status: 'passed' },
         ],
-      },
-      {
-        desc: '02 Should run only tests with tags specified by grep (as array)',
-        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
-        suite: 'Single',
-        suiteTags: ['@suite'],
-        tests: [
-          { title: '01. hello tag', tags: ['@myTest'] },
-          { title: '02. hello tag', tags: undefined },
-        ],
-        expected: [{ name: '01. hello tag', status: 'passed' }],
       },
       {
         desc: '03 Should run only tests with tags specified by grep (as string)',
@@ -101,13 +102,18 @@ describe('test tags object', () => {
         ],
       },
     ])
-    // .only(t => t.id == 1)
     .run(t => {
+      const resultFolder = `allure-results/${Date.now()}`;
+
+      if (existsSync(resultFolder)) {
+        rmSync(resultFolder, { recursive: true });
+      }
+
       createTestsTagsObj(t.suite, t.suiteTags, t.tests, t.file);
       createTests('other', ['hello @oneTest', 'second'], t.file2);
 
-      runTests(t.pattern, t.args);
+      runTests(resultFolder, t.pattern, t.args);
 
-      expect(resSorted()).toEqual(t.expected);
+      expect(resSorted(resultFolder)).toEqual(t.expected);
     });
 });
