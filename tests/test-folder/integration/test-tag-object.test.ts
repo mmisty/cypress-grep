@@ -24,6 +24,17 @@ describe('test tags object', () => {
     ])
     .each([
       {
+        desc: '02 Should run only tests with tags specified by grep (as array)',
+        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
+        suite: 'Single',
+        suiteTags: ['@suite'],
+        tests: [
+          { title: '01. hello tag', tags: ['@myTest'] },
+          { title: '02. hello tag', tags: undefined },
+        ],
+        expected: [{ name: '01. hello tag', status: 'passed' }],
+      },
+      {
         desc: '01 Should run all tests no tags (as array)',
         args: ['--no-show-excluded-tests', '--no-t'],
         suite: 'Single',
@@ -34,17 +45,6 @@ describe('test tags object', () => {
           { name: 'hello no tags', status: 'passed' },
           { name: 'second', status: 'passed' },
         ],
-      },
-      {
-        desc: '02 Should run only tests with tags specified by grep (as array)',
-        args: ["--grep '@myTest'", '--no-show-excluded-tests', '--no-t'],
-        suite: 'Single',
-        suiteTags: ['@suite'],
-        tests: [
-          { title: '01. hello tag', tags: ['@myTest'] },
-          { title: '02. hello tag', tags: undefined },
-        ],
-        expected: [{ name: '01. hello tag', status: 'passed' }],
       },
       {
         desc: '03 Should run only tests with tags specified by grep (as string)',
