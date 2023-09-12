@@ -43,6 +43,12 @@ jobs:
       - name: Merge cov
         run: npm run cov:merge
 
+      - name: Test cy
+        run: npm run test:cov:int
+
+      - name: Merge cov
+        run: npm run cov:merge:fin
+
       - name: Show coverage
         run: npm run cov:show
 
