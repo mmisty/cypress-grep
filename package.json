@@ -8,7 +8,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "bin": "bin/cy-grep.js",
+  "bin": {
+    "cy-grep": "bin/cy-grep.js"
+  },
   "keywords": [
     "cypress",
     "e2e",
