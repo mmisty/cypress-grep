@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
-const { existsSync, rmSync, readFileSync } = require('fs');
-const yargs = require('yargs');
+import { execSync } from 'child_process';
+import { existsSync, readFileSync, rmSync } from 'fs';
+import yargs from 'yargs';
+
 const packagename = '[cypress-grep]';
 const fileSpecPatternOriginal = 'spec_pattern.json';
 
@@ -11,52 +12,53 @@ const argv = yargs(process.argv.slice(2))
       type: 'string',
       default: 'npx cypress run',
       demandOption: true,
-      describe: `script that runs tests. ex. 'npm run cy:run' or 'npx cypress run'`,
+      describe: "script that runs tests. ex. 'npm run cy:run' or 'npx cypress run'",
       alias: 's',
     },
     grep: {
       type: 'string',
       demandOption: false,
-      describe: `grep - tags or test title (see docs https://www.npmjs.com/package/@mmisty/cypress-grep)`,
+      describe: 'grep - tags or test title (see docs https://www.npmjs.com/package/@mmisty/cypress-grep)',
       alias: 'g',
     },
     'prefilter-file': {
       type: 'string',
       demandOption: true,
       default: './filtered_tests.json',
-      describe: `file where prefiltered results will be stored`,
+      describe: 'file where prefiltered results will be stored',
       alias: 'p',
     },
     'only-prefilter': {
       type: 'boolean',
       default: false,
-      describe: `only prefilter, no run - will prefilter tests and create file with results`,
+      describe: 'only prefilter, no run - will prefilter tests and create file with results',
       alias: 'f',
     },
     'only-run': {
       type: 'boolean',
       default: false,
-      describe: `will run prefiltered tests from file specified by --prefilter-file or --p option `,
+      describe: 'will run prefiltered tests from file specified by --prefilter-file or --p option ',
       alias: 'r',
     },
     'delete-prefiltered': {
       type: 'boolean',
       default: true,
-      describe: `whether to delete pre-filtered results file or keep`,
+      describe: 'whether to delete pre-filtered results file or keep',
       alias: 'd',
     },
     'show-excluded-tests': {
       // sets GREP_showExcludedTests
       type: 'boolean',
       default: undefined, // true,
-      describe: `show excluded tests as skipped or not show them at all (for not showing --no-show-excluded-tests or --not-e)`,
+      describe:
+        'show excluded tests as skipped or not show them at all (for not showing --no-show-excluded-tests or --not-e)',
       alias: 'e',
     },
     'show-tags-title': {
       // sets GREP_showTagsInTitle
       type: 'boolean',
       default: undefined, // false,
-      describe: `show tags in test title`,
+      describe: 'show tags in test title',
       alias: 't',
     },
   })
@@ -85,8 +87,10 @@ const getGrepEnvVariableStr = grepInputT => {
   if (grepInputT) {
     return `CYPRESS_GREP='${grepInputT}'`;
   }
+
   return '';
 };
+
 /**
  * Get original spec pattern
  * @return {undefined|string|string[]}
@@ -100,6 +104,7 @@ const getSpecPattern = file => {
         // ignore
       }
     }
+
     return undefined;
   };
 
@@ -133,12 +138,12 @@ const getSpecPatternVar = (origSpecPattern, grepInputT, onlyRunInput) => {
     return '';
   }
 
-  return `CYPRESS_SPEC_PATTERN="[]"`;
+  return 'CYPRESS_SPEC_PATTERN="[]"';
 };
 
 const execute = (vars, scriptInput) => {
   const args = [...vars, scriptInput].filter(t => t !== '').join(' ');
-  console.log(packagename + ' execute: "' + args + '"');
+  console.log(`${packagename} execute: "${args}"`);
   execSync(`${vars.filter(t => t !== '').join(' ')} ${scriptInput}`, { stdio: 'inherit', env: process.env });
 };
 
@@ -151,7 +156,7 @@ try {
   const started = Date.now();
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
 
-  if (!onlyPrefilter && (onlyRun || !grep) ) {
+  if (!onlyPrefilter && (onlyRun || !grep)) {
     if (!existsSync(prefilterFile) && !grep) {
       console.log(
         `${packagename} Will run all tests: prefilter tests by adding \`--grep \` for faster filtering (for help \`cy-grep --help\`)`,
@@ -173,6 +178,7 @@ try {
     console.log(`${packagename} PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
     execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true'], script);
     const prefilteringDuration = `${(Date.now() - started) / 1000}s`;
+
     if (onlyPrefilter) {
       console.log(
         `${packagename} FINISHED pre-filtering only (in ${prefilteringDuration}), results in ${prefilterFile}, to run execute with --r option === `,
