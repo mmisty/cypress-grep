@@ -1,6 +1,6 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.6.13",
+  "version": "0.0.0",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
@@ -9,9 +9,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "type": "module",
-  "bin": "bin/cy-grep.js",
+  "bin": ".bin/cy-grep.js",
   "exports": {
-    "./bin": "./bin/cy-grep.js"
+    "./.bin": "./.bin/cy-grep.js"
   },
   "keywords": [
     "cypress",
@@ -47,7 +47,7 @@
     "cy:run:9": "npm run cy:run:grep:cov -- -- --f",
     "cy:run:cov": "npm run cy:run:1 && npm run cy:run:2 && npm run cy:run:3 && npm run cy:run:4 && npm run cy:run:5 && npm run cy:run:6&& npm run cy:run:7&& npm run cy:run:8&& npm run cy:run:9 ",
     "cy:open:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy:open",
-    "build": "tsc --project tsconfig.build.json && mv lib/.bin lib/bin",
+    "build": "rm -rf lib && tsc --project tsconfig.build.json",
     "build:tests": "tsc && cd tests && tsc",
     "build:cy": "cd integration && tsc",
     "build:all": "npm run build && npm run build:cy && npm run build:tests",
@@ -61,11 +61,15 @@
     "cov:fin": "npx nyc report -t reports/coverage-full --report-dir reports/coverage-full-total",
     "all": "npm run pre && npm run cov:check && npm run cov",
     "pre": "rm -rf ./node_modules/.cache lib reports coverage-nyc .nyc_output  && npm run lint && npm run build:all && npm run test:all && npm run cov:merge",
-    "extract": "node .scripts/extract.js  --source lib --target . --package package.json",
-    "extract:undo": "npm run extract -- --undo",
-    "prepublishOnly": "rm -rf ./node_modules/.cache lib && npm run build && npm run extract",
-    "postpublish": "npm run extract:undo",
     "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish",
+    "pack": "npm run build && cp package.json ./lib/package.json && cp README.pack.md ./lib/README.md && cp CHANGELOG.md ./lib/CHANGELOG.md && sh .scripts/remove.sh && cd lib && npm version $ver --no-git-tag-version ",
+    "publishPack": "npm run pack && cd lib && npm publish",
+    "publish:alpha": "export ver=$(semver $(npm show . version) --increment -i prerelease  --preid 'alpha') && npm run publishPack && npm run postpublish",
+    "publish:patch": "export ver=$(semver $(npm show . version) --increment -i patch) && npm run publishPack && npm run postpublish",
+    "publish:minor": "export ver=$(semver $(npm show . version) --increment -i minor) && npm run publishPack && npm run postpublish",
+    "publish:major": "export ver=$(semver $(npm show . version) --increment -i major) && npm run publishPack && npm run postpublish",
+    "publish:pack": "export ver=\"0.0.2-alpha-2\" && npm run publishPack && npm run postpublish",
+    "postpublish": "git tag v$ver",
     "fmt": "pretty-quick"
   },
   "devDependencies": {
