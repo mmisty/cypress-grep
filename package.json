@@ -9,9 +9,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "type": "module",
-  "bin": ".bin/cy-grep.js",
+  "bin": "bin/cy-grep.js",
   "exports": {
-    "./.bin": "./.bin/cy-grep.js"
+    "./bin": "./bin/cy-grep.js"
   },
   "keywords": [
     "cypress",
@@ -47,7 +47,7 @@
     "cy:run:9": "npm run cy:run:grep:cov -- -- --f",
     "cy:run:cov": "npm run cy:run:1 && npm run cy:run:2 && npm run cy:run:3 && npm run cy:run:4 && npm run cy:run:5 && npm run cy:run:6&& npm run cy:run:7&& npm run cy:run:8&& npm run cy:run:9 ",
     "cy:open:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy:open",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsc --project tsconfig.build.json && mv lib/.bin lib/bin",
     "build:tests": "tsc && cd tests && tsc",
     "build:cy": "cd integration && tsc",
     "build:all": "npm run build && npm run build:cy && npm run build:tests",
