@@ -103,7 +103,7 @@ describe('test tags object', () => {
       },
     ])
     .run(t => {
-      const resultFolder = 'allure-results';
+      const resultFolder = `allure-results/${Date.now()}`;
 
       if (existsSync(resultFolder)) {
         rmSync(resultFolder, { recursive: true });
