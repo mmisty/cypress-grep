@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { execSync } from 'child_process';
-import { existsSync, readFileSync, rmSync } from 'fs';
-import yargs from 'yargs';
+const { execSync } = require('child_process');
+const { existsSync, rmSync, readFileSync } = require('fs');
+const yargs = require('yargs');
 
 const packagename = '[cypress-grep]';
 const fileSpecPatternOriginal = 'spec_pattern.json';

@@ -8,7 +8,6 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "type": "module",
   "bin": "bin/cy-grep.js",
   "keywords": [
     "cypress",
