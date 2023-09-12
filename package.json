@@ -10,9 +10,6 @@
   },
   "type": "module",
   "bin": "bin/cy-grep.js",
-  "exports": {
-    "./bin": "./bin/cy-grep.js"
-  },
   "keywords": [
     "cypress",
     "e2e",
