@@ -122,5 +122,13 @@
     "cypress-controls-ext": "^0.2.0",
     "fast-glob": "^3.3.1",
     "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8"
+  },
+  "volta": {
+    "node": "18.12.0",
+    "npm": "8.19.2"
   }
 }
