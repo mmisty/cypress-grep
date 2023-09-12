@@ -51,7 +51,7 @@ jobs:
       - name: Merge cov
         run: npm run cov:merge
 
-      - name: Test cy
+      - name: Test jest:integration
         run: |
           rm -rf 'reports/jest' || true
           npm run test:cov:int
