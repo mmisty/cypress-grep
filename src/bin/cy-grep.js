@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { execSync } = require('child_process');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { existsSync, rmSync, readFileSync } = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const yargs = require('yargs');
 
 const packagename = '[cypress-grep]';

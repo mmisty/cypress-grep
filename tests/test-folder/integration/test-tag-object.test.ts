@@ -1,5 +1,6 @@
 import { createTests, createTestsTagsObj, deleteResults, resSorted, runTests } from '../../utils/helper';
 import expect from 'expect';
+import { existsSync, rmSync } from 'fs';
 
 describe('test tags object', () => {
   beforeEach(() => {
@@ -101,13 +102,18 @@ describe('test tags object', () => {
         ],
       },
     ])
-    // .only(t => t.id == 1)
     .run(t => {
+      const resultFolder = 'allure-results';
+
+      if (existsSync(resultFolder)) {
+        rmSync(resultFolder, { recursive: true });
+      }
+
       createTestsTagsObj(t.suite, t.suiteTags, t.tests, t.file);
       createTests('other', ['hello @oneTest', 'second'], t.file2);
 
-      runTests(t.pattern, t.args);
+      runTests(resultFolder, t.pattern, t.args);
 
-      expect(resSorted()).toEqual(t.expected);
+      expect(resSorted(resultFolder)).toEqual(t.expected);
     });
 });

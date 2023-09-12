@@ -20,20 +20,20 @@ describe('many tests', () => {
 
   it('should filter one test from many files', () => {
     const started = Date.now();
-    runTests('specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', [
+    runTests('allure-results', 'specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', [
       "--g '@oneTag'",
       '--no-show-excluded-tests',
       '--no-t',
     ]);
     const durationSec = (Date.now() - started) / 1000;
 
-    expect(resSorted()).toEqual([{ name: 'test with tag', status: 'passed' }]);
+    expect(resSorted('allure-results')).toEqual([{ name: 'test with tag', status: 'passed' }]);
     expect(durationSec).toBeLessThan(100);
   });
 
   it('only-prefilter many from many (all except one)', () => {
     const started = Date.now();
-    runTests('specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', [
+    runTests('allure-results', 'specPattern="[reports/tests/**/*.*,reports/tests/one.*]"', [
       "--g '!@oneTag'",
       '--only-prefilter',
       '--prefilter-file ./reports/res.json',

@@ -17,10 +17,10 @@ export const deleteResults = () => {
   }
 };
 
-export const runTests = (specPattern: string, args: string[] = []) => {
+export const runTests = (allureRes: string, specPattern: string, args: string[] = []) => {
   execSync(
     `cd ${process.cwd()} &&
-    node ./src/bin/cy-grep.js --script 'COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
+    CYPRESS_allureResults=${allureRes} node ./src/bin/cy-grep.js --script 'COVERAGE_REPORT_DIR=reports/coverage-cypress CYPRESS_COVERAGE=true npm run cy:run -- --config ${specPattern}' ${args.join(
       ' ',
     )}`,
     {
@@ -69,8 +69,8 @@ export const createTestsTagsObj = (
   );
 };
 
-export const resSorted = () => {
-  return parseAllure('allure-results')
+export const resSorted = (res?: string) => {
+  return parseAllure(res ?? 'allure-results')
     .map(t => ({ name: t.name, status: t.status }))
     .sort((a, b) => (a.name && b.name && a.name < b.name ? -1 : 1));
 };
