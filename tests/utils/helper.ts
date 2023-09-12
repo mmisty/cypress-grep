@@ -24,7 +24,7 @@ export const runTests = (allureRes: string, specPattern: string, args: string[] 
       ' ',
     )}`,
     {
-      stdio: 'inherit',
+      stdio: process.env.CI === 'true' ? 'ignore' : 'inherit',
     },
   );
 };
