@@ -37,6 +37,14 @@ jobs:
       - name: Test jest
         run: npm run test:cov
 
+      - name: Publish Jest Test Report 1
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/reports/jest/*.xml'
+          check_name: 'Jest Test Report Unit'
+          detailed_summary: true
+
       - name: Test cy
         run: npm run cy:run:cov
 
@@ -44,7 +52,9 @@ jobs:
         run: npm run cov:merge
 
       - name: Test cy
-        run: npm run test:cov:int
+        run: |
+          rm -rf 'reports/jest' || true
+          npm run test:cov:int
 
       - name: Merge cov
         run: npm run cov:merge:fin
@@ -69,12 +79,12 @@ jobs:
         continue-on-error: true
         run: npm run cov:check
 
-      - name: Publish Jest Test Report
+      - name: Publish Jest Test Report Integration
         uses: mikepenz/action-junit-report@v3
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/reports/jest/*.xml'
-          check_name: 'Jest Test Report'
+          check_name: 'Jest Test Report Integration'
           detailed_summary: true
 
       - name: Publish
