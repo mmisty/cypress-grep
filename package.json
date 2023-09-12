@@ -1,6 +1,6 @@
 {
   "name": "@mmisty/cypress-grep",
-  "version": "1.6.11",
+  "version": "1.6.12",
   "description": "Filters tests by tags/title using substring or regular expressions (can find dynamic tags)",
   "main": "index.js",
   "repository": "git@github.com:mmisty/cypress-grep.git",
@@ -8,6 +8,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "type": "module",
   "bin": ".bin/cy-grep.js",
   "exports": {
     "./.bin": "./.bin/cy-grep.js"
