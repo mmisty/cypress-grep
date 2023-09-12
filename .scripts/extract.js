@@ -4,11 +4,11 @@
 // - extracts directories from source folder (build folder where js was build to parent folder)
 // - should be run only before publishing
 
-const fs = require('fs');
-const path = require('path');
-const exec = require('child_process');
-const chalk = require('chalk');
-const yargs = require('yargs');
+import fs from "fs";
+import path from "path";
+import exec from "child_process";
+import chalk from "chalk";
+import yargs from "yargs";
 
 const argv = yargs(process.argv.slice(2))
   .options({
