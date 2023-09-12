@@ -1,4 +1,7 @@
 ## Change Log
+### 1.6.10
+ - [cy-grep] yarn support
+
 ### 1.6.8
  - [cy-grep] get last script when several as input
 
