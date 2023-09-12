@@ -17,5 +17,5 @@
     }
   },
 
-  "include": ["src", "./.bin/*.js"]
+  "include": ["src", "src/.bin/*.js"]
 }
