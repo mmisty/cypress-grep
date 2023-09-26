@@ -21,6 +21,7 @@
     "select",
     "filter"
   ],
+  "license": "Apache-2.0",
   "author": "Taisia Pitko (mmisty) <minydas@yandex.ru>",
   "scripts": {
     "husky:install": "husky install",
