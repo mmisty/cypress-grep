@@ -4,6 +4,10 @@ export enum grepEnvVars {
    * Will search trough tags / test title and all suite titles for the test
    */
   'GREP' = 'GREP',
+
+  /**
+   * Session number to not have conflicts with all_tests files and filtered results
+   */
   'GREP_SESSION' = 'GREP_SESSION',
 
   /**
