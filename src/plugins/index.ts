@@ -83,13 +83,17 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const isPreFilter = isTrue(config.env[grepEnvVars.GREP_PRE_FILTER] ?? false);
   const isDeleteAllFile = isTrue(config.env[grepEnvVars.GREP_DELETE_ALL_FILE] ?? true);
   const grep = config.env[grepEnvVars.GREP];
-  const filteredSpecs = config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths.json`;
-  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? 'all-tests.js';
+  const randomSession = config.env[grepEnvVars.GREP_SESSION];
+
+  const filteredSpecs =
+    config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths${randomSession}.json`;
+  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? `all-tests${randomSession}.js`;
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
   on('task', taskWrite(config, parentTestsFolder, filteredSpecs));
 
   console.log(`${pkgName} grep: ${grep ?? 'not set'}`);
   console.log(`${pkgName} parent tests folder: '${parentTestsFolder}'`);
+  console.log(`${pkgName} grep: session number ${randomSession}`);
 
   if (!existsSync(dirname(filteredSpecs))) {
     mkdirSync(dirname(filteredSpecs), { recursive: true });
@@ -108,7 +112,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
     return;
   }
-  writeFileSync('spec_pattern.json', JSON.stringify({ specPattern: specPattern }));
+  writeFileSync(`spec_pattern${randomSession}.json`, JSON.stringify({ specPattern: specPattern }));
   config.reporter = 'spec';
   config.video = false;
   config.env['REDIRECT_BROWSER_LOG'] = false;

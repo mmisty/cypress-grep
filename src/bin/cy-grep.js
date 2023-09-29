@@ -7,7 +7,6 @@ const { existsSync, rmSync, readFileSync } = require('fs');
 const yargs = require('yargs');
 
 const packagename = '[cypress-grep]';
-const fileSpecPatternOriginal = 'spec_pattern.json';
 
 const argv = yargs(process.argv.slice(2))
   .options({
@@ -27,9 +26,15 @@ const argv = yargs(process.argv.slice(2))
     'prefilter-file': {
       type: 'string',
       demandOption: true,
-      default: './filtered_tests.json',
+      default: `./filtered_tests${randomSession}.json`,
       describe: 'file where prefiltered results will be stored',
       alias: 'p',
+    },
+    session: {
+      type: 'string',
+      default: 400000 + Math.round(Math.random() * 250000),
+      describe: 'seesion number (to not have conflicts with parallel runs), default random number',
+      alias: 'ss',
     },
     'only-prefilter': {
       type: 'boolean',
@@ -73,6 +78,7 @@ const {
   script: scriptInput,
   grep: grepInput,
   prefilterFile: prefilterFileInput,
+  session: randomSession,
   deletePrefiltered,
   onlyPrefilter,
   onlyRun,
@@ -80,11 +86,19 @@ const {
   showTagsTitle,
 } = argv;
 
+const fileSpecPatternOriginal = `spec_pattern${randomSession}.json`;
+
 let grep = !grepInput && process.env.CYPRESS_GREP ? process.env.CYPRESS_GREP : grepInput;
 let script = Array.isArray(scriptInput) ? scriptInput[scriptInput.length - 1] : scriptInput;
 let prefilterFile = Array.isArray(prefilterFileInput)
   ? prefilterFileInput[prefilterFileInput.length - 1]
   : prefilterFileInput;
+
+if (prefilterFile.indexOf(randomSession) === -1) {
+  const extPos = `${prefilterFile}`.lastIndexOf('.');
+  const ext = prefilterFile.slice(extPos);
+  prefilterFile = `${prefilterFile.slice(0, extPos)}${randomSession}${ext}`;
+}
 
 const getGrepEnvVariableStr = grepInputT => {
   if (grepInputT) {
@@ -179,7 +193,15 @@ try {
     }
   } else {
     console.log(`${packagename} PRE-FILTERING MODE ${onlyPrefilter ? 'only prefilter' : ''}=== `);
-    execute([grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=true'], script);
+    execute(
+      [
+        grepExpression,
+        resultsFileEnvVariableStr,
+        'CYPRESS_GREP_PRE_FILTER=true',
+        `CYPRESS_GREP_SESSION=${randomSession}`,
+      ],
+      script,
+    );
     const prefilteringDuration = `${(Date.now() - started) / 1000}s`;
 
     if (onlyPrefilter) {
@@ -203,7 +225,15 @@ try {
   const showTags = showTagsTitle !== undefined ? `CYPRESS_GREP_showTagsInTitle=${showTagsTitle === true}` : '';
 
   execute(
-    [grepExpression, resultsFileEnvVariableStr, 'CYPRESS_GREP_PRE_FILTER=false', specString, exclTests, showTags],
+    [
+      grepExpression,
+      resultsFileEnvVariableStr,
+      'CYPRESS_GREP_PRE_FILTER=false',
+      `CYPRESS_GREP_SESSION=${randomSession}`,
+      specString,
+      exclTests,
+      showTags,
+    ],
     script,
   );
 

@@ -4,6 +4,7 @@ export enum grepEnvVars {
    * Will search trough tags / test title and all suite titles for the test
    */
   'GREP' = 'GREP',
+  'GREP_SESSION' = 'GREP_SESSION',
 
   /**
    * Whether to fail run when no tests are found, default true
