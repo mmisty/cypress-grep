@@ -1,6 +1,7 @@
 import expect from 'expect';
 import { createTests, deleteResults, resSorted, runTests } from '../../utils/helper';
 import { readFileSync } from 'fs';
+import glob from 'fast-glob';
 
 describe('many tests', () => {
   beforeEach(() => {
@@ -39,7 +40,8 @@ describe('many tests', () => {
       '--prefilter-file ./reports/res.json',
     ]);
     const durationSec = (Date.now() - started) / 1000;
-    const res = JSON.parse(readFileSync('./reports/res.json').toString()).tests.length;
+    const files = glob.sync('./reports/res*.json');
+    const res = JSON.parse(readFileSync(files[0]).toString()).tests.length;
     expect(res).toEqual(2001);
     expect(durationSec).toBeLessThan(100);
   });

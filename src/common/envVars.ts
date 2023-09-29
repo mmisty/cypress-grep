@@ -6,6 +6,11 @@ export enum grepEnvVars {
   'GREP' = 'GREP',
 
   /**
+   * Session number to not have conflicts with all_tests files and filtered results
+   */
+  'GREP_SESSION' = 'GREP_SESSION',
+
+  /**
    * Whether to fail run when no tests are found, default true
    */
   'failOnNotFound' = 'GREP_failOnNotFound',
