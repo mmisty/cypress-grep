@@ -49,7 +49,7 @@
     "cy:run:7": "CYPRESS_GREP_TESTS_FOLDER='integration/e2e' CYPRESS_GREP='@navbar' CYPRESS_GREP_showTagsInTitle=false npm run cy:run:grep:cov",
     "cy:run:8": "CYPRESS_GREP_TESTS_FOLDER='integration/e2e' CYPRESS_GREP='@notExisting' npm run cy:run:grep:cov || true",
     "cy:run:9": "npm run cy:run:grep:cov -- -- --f",
-    "cy:run:cov": "npm run cy:run:1 && npm run cy:run:2 && npm run cy:run:3 && npm run cy:run:4 && npm run cy:run:5 && npm run cy:run:6&& npm run cy:run:7&& npm run cy:run:8&& npm run cy:run:9 && cy:run:parallel",
+    "cy:run:cov": "npm run cy:run:1 && npm run cy:run:2 && npm run cy:run:3 && npm run cy:run:4 && npm run cy:run:5 && npm run cy:run:6&& npm run cy:run:7&& npm run cy:run:8&& npm run cy:run:9 && npm run cy:run:parallel",
     "cy:open:cov": "COVERAGE_REPORT_DIR=reports/coverage-cypress COVERAGE=true npm run cy:open",
     "build": "rm -rf lib && tsc --project tsconfig.build.json",
     "build:tests": "tsc && cd tests && tsc",
