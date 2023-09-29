@@ -1,4 +1,13 @@
 ## Change Log
+### 1.8.0
+ - support for parallel runs on one machine
+
+### 1.7.1
+ - added license field
+
+### 1.7.0
+- yarn support
+
 ### 1.6.10
  - [cy-grep] yarn support
 

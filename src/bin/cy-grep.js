@@ -26,7 +26,7 @@ const argv = yargs(process.argv.slice(2))
     'prefilter-file': {
       type: 'string',
       demandOption: true,
-      default: `./filtered_tests${randomSession}.json`,
+      default: './filtered_tests.json',
       describe: 'file where prefiltered results will be stored',
       alias: 'p',
     },
