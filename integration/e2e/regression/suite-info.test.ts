@@ -1,4 +1,4 @@
-import { tag } from 'cy-local/utils/tags';
+import { tag } from '@mmisty/cypress-tags/utils/tags';
 
 // todo  tests for title should not have info
 describe('info should be in tags object major test ', { tags: [tag('P1', 'critical')] }, () => {

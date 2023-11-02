@@ -1,4 +1,4 @@
-import { tag } from 'cy-local/utils/tags';
+import { tag } from '@mmisty/cypress-tags/utils/tags';
 
 it('test no root @P1', () => {
   cy.log('no root');

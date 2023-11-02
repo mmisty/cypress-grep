@@ -27,7 +27,7 @@ const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
 
-const prepareTestTitle = (test: Mocha.Test): string => {
+export const prepareTestTitle = (test: Mocha.Test): string => {
   return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
 };
 
@@ -90,12 +90,12 @@ function filterTests(
 type FilterTest = TransportTest & { match: boolean; filteredTitle: string };
 
 const createOnExcluded = (isPrerun: boolean, list: Partial<FilterTest>[]) => (test: Mocha.Test) => {
-  list.push({ match: false, filteredTitle: test.fullTitleWithTags ?? '' });
+  list.push({ match: false, filteredTitle: prepareTestTitle(test) ?? '' });
 };
 
 const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (test: Mocha.Test) => {
   if (!isPrerun) {
-    list.push({ match: true, filteredTitle: test.fullTitleWithTags ?? '' });
+    list.push({ match: true, filteredTitle: prepareTestTitle(test) ?? '' });
 
     return;
   }
@@ -107,7 +107,7 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
 
   list.push({
     match: true,
-    filteredTitle: test.fullTitleWithTags ?? '',
+    filteredTitle: prepareTestTitle(test) ?? '',
     filePath,
     tags: test.tags,
     title: test.title,

@@ -1,4 +1,5 @@
 import { registerCypressGrep } from 'cy-local';
+import { prepareTestTitle } from 'cy-local/setup/select-tests';
 
 export const suiteTest = (title: string, grep: string, testedSuite: () => void, expected: string[]) => {
   const tests: string[] = [];
@@ -13,7 +14,7 @@ export const suiteTest = (title: string, grep: string, testedSuite: () => void, 
 
   describe('parent', () => {
     beforeEach(function () {
-      tests.push(this.currentTest?.fullTitleWithTags ?? '');
+      tests.push(prepareTestTitle(this.currentTest as any) ?? '');
     });
 
     testedSuite();
