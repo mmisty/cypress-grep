@@ -1,10 +1,12 @@
 import type { Suite } from 'mocha';
-import { parseInlineTags, removeTagsFromTitle, uniqTags } from '../utils/tags';
-import type { GrepConfig } from './config.types';
-import type { GrepTagObject, ParsedSpecs, TransportTest } from '../common/types';
+import type { ParsedSpecs, TransportTest } from '../common/types';
 import { uniq } from '../utils/functions';
 import { grepEnvVars } from '../common/envVars';
 import { pkgName } from '../common/logs';
+import { registerTags } from '@mmisty/cypress-tags/register';
+import { GrepTagObject } from '@mmisty/cypress-tags/common/types';
+import { GrepConfig } from './config.types';
+import { removeTagsFromTitle } from '@mmisty/cypress-tags/utils/tags';
 
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -17,108 +19,16 @@ export const origins = () => ({
   originSkip: describe.skip,
 });
 
-type TestConfig = {
-  _testConfig: Cypress.TestConfigOverrides;
-};
-
-const getCurrentTestTags = (test: Mocha.Test): GrepTagObject[] => {
-  // config tags only for test
-  const testTags = (test as unknown as TestConfig)._testConfig?.tags;
-  const inlineTagsTest = parseInlineTags(test.title);
-  const tagsArr: string[] = testTags ? (typeof testTags === 'string' ? [testTags] : testTags ?? []) : [];
-  const fromConfig: GrepTagObject[] = tagsArr.flatMap(t => parseInlineTags(t));
-
-  return uniqTags([...fromConfig, ...inlineTagsTest]);
-};
-
-const getTestTags = (test: Mocha.Test, suiteTags: GrepTagObject[]): GrepTagObject[] => {
-  const testTags = getCurrentTestTags(test);
-
-  return uniqTags([...suiteTags, ...testTags]);
-};
-
-const tagsLineForTitle = (tags: GrepTagObject[]): string => {
-  return tags.map(t => t.tag).join(' ');
-};
-
-const tagsFormConfig = (tags?: string | string[]): string[] => {
-  return tags ? (typeof tags === 'string' ? [tags] : tags) : [];
-};
-
-/**
- * Get all tags for suite - inline and from config
- * @param st - suite
- */
-const tagsSuite = (st: Mocha.Suite): GrepTagObject[] => {
-  const tagsFromConfig = tagsFormConfig((st as unknown as TestConfig)._testConfig?.tags);
-  const tagsArrParsed: GrepTagObject[] = tagsFromConfig.flatMap(t => parseInlineTags(t));
-  const inlineTagsSuite = parseInlineTags(st.title);
-
-  return uniqTags([...tagsArrParsed, ...inlineTagsSuite]);
-};
-
-/**
- * Add tags to title when specific setting
- * @param rootSuite
- * @param setting
- */
-const suiteTitleChange = (rootSuite: Mocha.Suite, setting: GrepConfig) => {
-  const suiteTags = tagsSuite(rootSuite);
-
-  rootSuite.title = removeTagsFromTitle(rootSuite.title);
-
-  if (setting.showTagsInTitle && suiteTags.length > 0) {
-    const tagsLine = tagsLineForTitle(suiteTags);
-    rootSuite.title = `${rootSuite.title} ${tagsLine}`;
-  }
-
-  for (const suite of rootSuite.suites) {
-    suiteTitleChange(suite, setting);
-  }
-};
-
-// search only by tag name, not by tag info
+// search by infoToo
 const tagsSearchLine = (allTags: GrepTagObject[]): string => {
-  const tagsLine = (tags: GrepTagObject[]): string => tags.map(t => t.tag).join(' ');
+  const tagsLine = (tags: GrepTagObject[]): string =>
+    tags.map(t => t.tag + t.info?.map(x => x).join('') ?? '').join(' ');
 
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
 
-/**
- * Get all suite tags for test
- * @param test
- */
-const getSuiteTagsForTest = (test: Mocha.Test): GrepTagObject[] => {
-  const tags: GrepTagObject[] = [];
-
-  let suite: Mocha.Suite | undefined = test.parent;
-
-  while (suite) {
-    const suiteTags = tagsSuite(suite);
-    tags.push(...suiteTags);
-
-    suite = suite.parent;
-  }
-
-  return tags;
-};
-
-const prepareTestTitle = (test: Mocha.Test, suiteTags: GrepTagObject[], settings: GrepConfig): string => {
-  const testTagsAll = getTestTags(test, suiteTags);
-  const line = test.fullTitle();
-
-  const tags = tagsLineForTitle(getCurrentTestTags(test));
-  test.title = removeTagsFromTitle(test.title);
-
-  if (settings.showTagsInTitle) {
-    const add = tags ? ` ${tags}` : '';
-    test.title = `${test.title}${add}`;
-  }
-  const fullTitleWithTags = `${removeTagsFromTitle(line)}${tagsSearchLine(testTagsAll)}`.replace(/\s\s*/g, ' ');
-  test.tags = testTagsAll;
-  test.fullTitleWithTags = fullTitleWithTags;
-
-  return fullTitleWithTags;
+const prepareTestTitle = (test: Mocha.Test): string => {
+  return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
 };
 
 function filterTests(
@@ -133,12 +43,14 @@ function filterTests(
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
     // when root test we filter suites again, so we don't need to filter other tests than the root
+    console.log(test.tags);
 
     if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
       return;
     }
-    const testSuiteTags = getSuiteTagsForTest(test);
-    const fullTitleWithTags = prepareTestTitle(test, testSuiteTags, settings);
+    // const testSuiteTags = getSuiteTagsForTest(test);
+    const fullTitleWithTags = prepareTestTitle(test);
+    console.log(fullTitleWithTags);
 
     if (regexp.test(fullTitleWithTags)) {
       onFilteredTest(test);
@@ -225,7 +137,6 @@ const createFilterSuiteTests =
     const count = uniq(filtered.filter(t => t.match).map(t => t.filteredTitle)).length;
 
     onCount(count);
-    suiteTitleChange(suite, settings);
 
     if (settings.debugLog) {
       const filteredUniq = uniq(filtered.map(t => ` ${t.match ? ' + ' : ' - '}${t.filteredTitle}`));
@@ -262,6 +173,9 @@ export const setupSelectTests = (
     // some tests uses visit in before
     turnOffBeforeHook();
   }
+
+  Cypress.env('cyTagsShowTagsInTitle', settings.showTagsInTitle);
+  registerTags();
 
   const originalSuites = origins();
   const filteredSuites: FilterTest[] = [];
@@ -335,25 +249,4 @@ export const setupSelectTests = (
   (global as GlobalMochaFunc).it = itWithTags;
   (global as GlobalMochaExtensions).it.only = originalSuites.originItOnly;
   (global as GlobalMochaExtensions).it.skip = originalSuites.originItSkip;
-
-  const handleRetries = () => {
-    const runner = (Cypress as any).mocha.getRunner() as Mocha.Runner;
-
-    let prevTest: Mocha.Test | undefined;
-
-    runner
-      .on('retry', test => {
-        prevTest = test;
-      })
-      .on('test', (test: Mocha.Test) => {
-        if ((test as any)._currentRetry > 0 && prevTest) {
-          test.tags = prevTest.tags;
-          test.fullTitleWithTags = prevTest.fullTitleWithTags;
-        } else {
-          prevTest = undefined;
-        }
-      });
-  };
-
-  handleRetries();
 };
