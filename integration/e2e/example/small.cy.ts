@@ -6,7 +6,7 @@ describe('suite', () => {
 
     describe('sub suite with inline tag @candy', { tags: '@fruit' }, () => {
       it('test in suite with inline tag @R3', function () {
-        expect(this.test?.tags?.map(t => t.tag)).to.deep.eq(['@fruit', '@candy', '@smoke', '@R3']);
+        expect(this.test?.tags?.map(t => t.tag)).to.deep.eq(['@R3', '@fruit', '@candy', '@smoke']);
       });
     });
 

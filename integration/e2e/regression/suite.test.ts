@@ -29,19 +29,19 @@ describe('p31 @inline1', () => {
       cy.log('should login successfully');
       cy.log(tags(this.test));
       expect(tagsArr(this.test?.tags)).to.deep.eq([
-        '@smoke',
-        '@inline2',
-        '@inline1',
         '@P0',
         '@regression',
         '@inlineTag',
+        '@smoke',
+        '@inline2',
+        '@inline1',
       ]);
     });
 
     it('special case on login', { tags: ['@P2', '@regression'] }, function () {
       cy.log('should login on special case');
       cy.log(tags(this.test));
-      expect(tagsArr(this.test?.tags)).to.deep.eq(['@smoke', '@inline2', '@inline1', '@P2', '@regression']);
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@P2', '@regression', '@smoke', '@inline2', '@inline1']);
     });
 
     describe('p33 @inline3', () => {

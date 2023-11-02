@@ -43,14 +43,12 @@ function filterTests(
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
     // when root test we filter suites again, so we don't need to filter other tests than the root
-    console.log(test.tags);
 
     if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
       return;
     }
-    // const testSuiteTags = getSuiteTagsForTest(test);
+
     const fullTitleWithTags = prepareTestTitle(test);
-    console.log(fullTitleWithTags);
 
     if (regexp.test(fullTitleWithTags)) {
       onFilteredTest(test);

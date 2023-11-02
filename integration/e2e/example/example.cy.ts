@@ -31,13 +31,13 @@ describe('authentication', () => {
     it('should login @P0 @regression @inlineTag', function () {
       cy.log('should login successfully');
       cy.log(tags(this.test));
-      expect(tagsArr(this.test?.tags)).to.deep.eq(['@smoke', '@P0', '@regression', '@inlineTag']);
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@P0', '@regression', '@inlineTag', '@smoke']);
     });
 
     it('special case on login', { tags: ['@P2', '@regression'] }, function () {
       cy.log('should login on special case');
       cy.log(tags(this.test));
-      expect(tagsArr(this.test?.tags)).to.deep.eq(['@smoke', '@P2', '@regression']);
+      expect(tagsArr(this.test?.tags)).to.deep.eq(['@P2', '@regression', '@smoke']);
     });
 
     describe('suite with tag', { tags: ['@spec'] }, () => {
@@ -60,13 +60,13 @@ describe('authentication', () => {
       it('should logout @P1', function () {
         cy.log('should logout');
         cy.log(tags(this.test));
-        expect(tagsArr(this.test?.tags)).to.deep.eq(['@smoke', '@P1']);
+        expect(tagsArr(this.test?.tags)).to.deep.eq(['@P1', '@smoke']);
       });
 
       it('should logout without tags', { tags: '@testTag' }, function () {
         cy.log('should logout no tags');
         cy.log(tags(this.test));
-        expect(tagsArr(this.test?.tags)).to.deep.eq(['@smoke', '@testTag']);
+        expect(tagsArr(this.test?.tags)).to.deep.eq(['@testTag', '@smoke']);
       });
     });
   });
