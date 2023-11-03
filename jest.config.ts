@@ -20,7 +20,6 @@ export default {
     '!**/lib/**',
     '!src/mocha/**',
     '!src/**/*.types.ts',
-    '!src/cypress/**',
     '!**/node_modules/**',
     '!**/mocks.ts',
     '!*.types.ts',

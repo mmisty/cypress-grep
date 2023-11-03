@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="./cypress/cypress.ts" />
+/// <reference types="@mmisty/cypress-tags" />
 
 // here export only functions to run in browser
 export { registerCypressGrep } from './setup';
