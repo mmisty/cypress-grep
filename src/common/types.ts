@@ -1,10 +1,4 @@
-export interface GrepTagObject {
-  tag: string;
-  info?: string[];
-}
-
-export type GrepTagSimple = string;
-export type GrepTag = GrepTagObject | GrepTagSimple;
+import { GrepTag } from '@mmisty/cypress-tags/common/types';
 
 export type TransportTest = { filePath: string; title?: string; tags?: GrepTag[]; filteredTitle?: string };
 
