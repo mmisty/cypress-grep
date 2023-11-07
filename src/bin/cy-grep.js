@@ -94,7 +94,7 @@ let prefilterFile = Array.isArray(prefilterFileInput)
   ? prefilterFileInput[prefilterFileInput.length - 1]
   : prefilterFileInput;
 
-if (prefilterFile.indexOf(randomSession) === -1) {
+if (!onlyRun && prefilterFile.indexOf(randomSession) === -1) {
   const extPos = `${prefilterFile}`.lastIndexOf('.');
   const ext = prefilterFile.slice(extPos);
   prefilterFile = `${prefilterFile.slice(0, extPos)}${randomSession}${ext}`;
@@ -174,6 +174,13 @@ try {
   let resultsFileEnvVariableStr = `CYPRESS_GREP_RESULTS_FILE='${prefilterFile}'`;
 
   if (!onlyPrefilter && (onlyRun || !grep)) {
+    if (onlyRun && !existsSync(prefilterFile)) {
+      console.log(`${packagename} Will not run since no prefilter file found ${prefilterFile}`);
+      process.exit(0);
+
+      return;
+    }
+
     if (!existsSync(prefilterFile) && !grep) {
       console.log(
         `${packagename} Will run all tests: prefilter tests by adding \`--grep \` for faster filtering (for help \`cy-grep --help\`)`,
@@ -183,6 +190,16 @@ try {
       if (existsSync(prefilterFile)) {
         // run all tests from prefiltered file or all
         console.log(`${packagename} Will run tests from ${prefilterFile}`);
+
+        if (!grep) {
+          try {
+            // update grep from prefiltered file
+            grep = JSON.parse(readFileSync(prefilterFile)).grep;
+            grepExpression = getGrepEnvVariableStr(grep);
+          } catch (e) {
+            console.log(`${packagename} Could not read/parse ${prefilterFile}: ${e.message}`);
+          }
+        }
       } else {
         resultsFileEnvVariableStr = '';
         console.log(
