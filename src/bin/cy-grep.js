@@ -190,16 +190,19 @@ try {
       if (existsSync(prefilterFile)) {
         // run all tests from prefiltered file or all
         console.log(`${packagename} Will run tests from ${prefilterFile}`);
+        const existingGrep = grep;
 
-        if (!grep) {
-          try {
-            // update grep from prefiltered file
-            grep = JSON.parse(readFileSync(prefilterFile)).grep;
-            grepExpression = getGrepEnvVariableStr(grep);
-          } catch (e) {
-            console.log(`${packagename} Could not read/parse ${prefilterFile}: ${e.message}`);
-          }
+        try {
+          // update grep from prefiltered file
+          grep = JSON.parse(readFileSync(prefilterFile)).grep;
+        } catch (e) {
+          console.log(`${packagename} Could not read/parse ${prefilterFile}: ${e.message}`);
         }
+
+        if (existingGrep) {
+          grep = `(${grep}&(${existingGrep}))`;
+        }
+        grepExpression = getGrepEnvVariableStr(grep);
       } else {
         resultsFileEnvVariableStr = '';
         console.log(
