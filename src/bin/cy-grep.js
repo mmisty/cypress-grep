@@ -234,10 +234,17 @@ try {
     }
   }
 
-  console.log(`${packagename} Running tests === `);
-
   let specPattern = getSpecPattern(fileSpecPatternOriginal);
   let specString = getSpecPatternVar(specPattern, grep, onlyRun);
+
+  if (process.env['CYPRESS_GREP_failOnNotFound'] === 'false' && specString === 'CYPRESS_SPEC_PATTERN="[]"') {
+    console.log(`${packagename} Not found any specs matching ${grepExpression}`);
+    console.log(`${packagename} To throw error when not found set CYPRESS_GREP_failOnNotFound to true`);
+    console.log(`${packagename} FINISHED (exit code: 0) === `);
+    process.exit(0);
+  }
+
+  console.log(`${packagename} Running tests === `);
 
   // to use from cypress config when not set
   const exclTests =
