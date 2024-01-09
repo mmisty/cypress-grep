@@ -219,7 +219,7 @@ export const setupSelectTests = (
           `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.env(
             'originalSpecPattern',
           )}`,
-          `To disable this error set \`failOnNotFound\` to \`false\` in registerCypressGrep or set environment variable ${grepEnvVars.failOnNotFound} to false`,
+          `To disable this error set environment variable \`${grepEnvVars.failOnNotFound}\` to false or set \`failOnNotFound\` to \`false\` in registerCypressGrep`,
         ];
         throw new Error(msg.join('\n'));
       }
