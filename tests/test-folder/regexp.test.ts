@@ -33,6 +33,39 @@ describe('suite', () => {
           ],
         },
         {
+          desc: 'parenthesis',
+          GREP: '(my test)',
+          regExpected: /my test.*/i,
+          cases: [
+            { expectMatch: true, testLine: 'hello my test' },
+            { expectMatch: false, testLine: 'my tes hello ' },
+          ],
+        },
+        {
+          desc: 'parenthesis several',
+          GREP: '!(my test)&!(his test)',
+          regExpected: /(?=.*^(?!.*my test.*))+(?=.*^(?!.*his test.*))+.*/i,
+          cases: [
+            { expectMatch: true, testLine: 'her test' },
+            { expectMatch: false, testLine: 'my test' },
+            { expectMatch: false, testLine: 'his test' },
+            { expectMatch: true, testLine: 'his tesPP' },
+          ],
+        },
+        {
+          desc: 'parenthesis several complex',
+          GREP: '(((her)&!(my test|his test)))',
+          regExpected: /(?=.*her)+(?=.*^(?!.*(my test|his test).*))+.*/i,
+          cases: [
+            { expectMatch: true, testLine: 'test her' },
+            { expectMatch: true, testLine: 'her test' },
+            { expectMatch: false, testLine: 'her his test' },
+            { expectMatch: false, testLine: 'her my test' },
+            { expectMatch: false, testLine: 'my test' },
+            { expectMatch: false, testLine: 'his test' },
+          ],
+        },
+        {
           desc: 'tag with dot encoded',
           GREP: '@test\\.1',
           regExpected: /@test\.1.*/i,
@@ -71,7 +104,7 @@ describe('suite', () => {
         {
           desc: 'or',
           GREP: '@e2e|@regression',
-          regExpected: /@e2e|@regression.*/i,
+          regExpected: /(@e2e|@regression).*/i,
           cases: [
             { expectMatch: true, testLine: 'sdd @e2e dsd' },
             { expectMatch: true, testLine: 'sd @regression' },
@@ -84,7 +117,7 @@ describe('suite', () => {
         {
           desc: 'or',
           GREP: '@e2e/@regression',
-          regExpected: /@e2e|@regression.*/i,
+          regExpected: /(@e2e|@regression).*/i,
           cases: [
             { expectMatch: true, testLine: 'sdd @e2e dsd' },
             { expectMatch: true, testLine: 'sd @regression' },
@@ -127,7 +160,7 @@ describe('suite', () => {
         {
           desc: 'tag and not',
           GREP: '@test&!suite',
-          regExpected: /(?=.*@test)+^(?!.*suite)+.*/i,
+          regExpected: /(?=.*@test)+^(?!.*suite.*)+.*/i,
           cases: [
             { expectMatch: true, testLine: 'abc @test my world' },
             { expectMatch: true, testLine: '@test' },
@@ -140,7 +173,7 @@ describe('suite', () => {
         {
           desc: 'not and not',
           GREP: '!@test&!@suite',
-          regExpected: /(?=.*^(?!.*@test)+^(?!.*@suite.*))+.*/i,
+          regExpected: /(?=.*^(?!.*@test)+^(?!.*@suite.*).*)+.*/i,
           cases: [
             { expectMatch: true, testLine: 'abc my world' },
             { expectMatch: false, testLine: '@test' },
@@ -154,9 +187,10 @@ describe('suite', () => {
         {
           desc: 'not and not Inversed',
           GREP: '!(!@test&!@suite)',
-          regExpected: /^(?!.*(?=.*^(?!.*@test)+^(?!.*@suit.*))+).*/i,
+          regExpected: /^(?!.*(?=.*^(?!.*@test)+^(?!.*@suite.*).*)+.*).*/i,
           cases: [
             { expectMatch: false, testLine: 'abc my world' },
+            { expectMatch: false, testLine: '@suit abc my' },
             { expectMatch: true, testLine: '@test' },
             { expectMatch: true, testLine: '@TEST' },
             { expectMatch: true, testLine: 'abc @test my suite' },
@@ -182,7 +216,7 @@ describe('suite', () => {
         {
           desc: 'not and or combination different order',
           GREP: '(@suite|@tag)&!@test',
-          regExpected: /(?=.*(@suite|@tag))+^(?!.*@test)+.*/i,
+          regExpected: /(?=.*(@suite|@tag))+^(?!.*@test.*)+.*/i,
           cases: [
             { expectMatch: false, testLine: 'abc my @test world' },
             { expectMatch: false, testLine: 'abc @suite @tag my @test world' },
@@ -197,7 +231,7 @@ describe('suite', () => {
         {
           desc: 'and with parenthesis and or combination',
           GREP: '(@test&@suite)|@tag',
-          regExpected: /(?=.*(@test)+(?=.*@suite)|@tag)+.*/i,
+          regExpected: /((?=.*@test)+(?=.*@suite)+|@tag).*/i,
           cases: [
             { expectMatch: true, testLine: 'abc my @test @world @suite' },
             { expectMatch: false, testLine: 'abc my @suite' },
@@ -205,8 +239,7 @@ describe('suite', () => {
             { expectMatch: true, testLine: 'abc my @tag' },
             { expectMatch: true, testLine: 'abc my @test @tag' },
             { expectMatch: true, testLine: 'abc@suite my @test @tag' },
-            // this case does not work
-            { expectMatch: true, testLine: '@suite @test', fixThis: true, actualResult: false },
+            { expectMatch: true, testLine: '@suite @test' },
           ],
         },
         {
@@ -226,10 +259,11 @@ describe('suite', () => {
         {
           desc: 'not with parenthesis',
           GREP: '!(@test&@suite)',
-          regExpected: /^(?!.*(?=.*@test)+(?=.*@suit)+).*/i,
+          regExpected: /^(?!.*(?=.*@test)+(?=.*@suite)+.*).*/i,
           cases: [
             { expectMatch: false, testLine: '@test @suite' },
             { expectMatch: false, testLine: '@suite @test' },
+            { expectMatch: true, testLine: '@suit @test' },
             { expectMatch: true, testLine: 'no suite test' },
             { expectMatch: true, testLine: 'only @test' },
             { expectMatch: true, testLine: 'only @TEST' },
@@ -239,7 +273,6 @@ describe('suite', () => {
       ])
       .each(t => [{ desc: `: '${t.GREP}'` }])
       .each(t => t.cases)
-
       // .only(t => t.id === '1')
       .run(t => {
         const regActual = selectionTestGrep(t.GREP);
@@ -251,7 +284,7 @@ describe('suite', () => {
         }
 
         // remove actualResult when fixed
-        if (t.actualResult ?? t.expectMatch) {
+        if (t.expectMatch) {
           expect(t.testLine).toMatch(regActual);
         } else {
           expect(t.testLine).not.toMatch(regActual);

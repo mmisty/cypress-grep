@@ -280,10 +280,8 @@ Here are some examples of pseudo regexp:
 - `GREP='@smoke&!@P2&!@P1'` - runs all tests with `smoke` and without `@P2` and without `@P1`
 - `GREP='(@P1|@P2)&!@smoke'` or `GREP='(@P[12])&!@smoke'` - runs all tests with `@P2` or `@P1` and without `@smoke`
 
-**Minor known issue with pseudo regexp**:
-
-- line `@suite @test` will NOT match this expression: `GREP='(@test&@suite)|@tag'`(for `@test @suite` matches), as a workaround rewrite to `GREP='(@test|@tag)&(@suite|@tag)'`
-- all other cases pass - you can check tested cases here if you are interested [tests/test-folder/regexp.test.ts](https://github.com/mmisty/cypress-grep/blob/main/tests/test-folder/regexp.test.ts#L5)
+#### dev
+- you can check tested cases here if you are interested [tests/test-folder/regexp.test.ts](https://github.com/mmisty/cypress-grep/blob/main/tests/test-folder/regexp.test.ts#L5)
 
 ### Select tests by regexp
 
