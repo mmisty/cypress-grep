@@ -1,31 +1,35 @@
 type Replacement = { mapName: string; exp: string; inverse: boolean };
 
 /**
- * replace all parenthesis groups with placesholder
+ * replace all parenthesis groups with placeholder
  * @param input
  * @param replacements
  * @param num
  */
-const replaceParenthesis = (input: string, replacements: Replacement[], num = 1) => {
+const replaceParenthesisGroups = (input: string, replacements: Replacement[], num = 1): string => {
+  let replaced = input;
   const groupsNeg = input.match(/!\(([^()]*)\)/);
   const groups = input.match(/\(([^()]*)\)/);
 
-  const mapName = `##R${num}##`;
-
-  if (groupsNeg) {
-    replacements.push({ mapName, exp: groupsNeg[1], inverse: true });
-    input = input.replace(groupsNeg[0], mapName);
-
-    return replaceParenthesis(input, replacements, num + 1);
-  } else if (groups) {
-    replacements.push({ mapName, exp: groups[1], inverse: false });
-
-    input = input.replace(groups[0], mapName);
-
-    return replaceParenthesis(input, replacements, num + 1);
+  if (!groupsNeg && !groups) {
+    return replaced;
   }
 
-  return input;
+  const replaceExpression = (expression: string, group: string) => {
+    const mapName = `##R${num}##`;
+    replacements.push({ mapName, exp: group, inverse: true });
+    replaced = replaced.replace(expression, mapName);
+
+    return replaceParenthesisGroups(replaced, replacements, num + 1);
+  };
+
+  if (groupsNeg) {
+    return replaceExpression(groupsNeg[0], groupsNeg[1]);
+  } else if (groups) {
+    return replaceExpression(groups[0], groups[1]);
+  }
+
+  return replaced;
 };
 
 /**
@@ -64,7 +68,7 @@ export const selectionTestGrep = (str: string): RegExp => {
   }
 
   const replacements: Replacement[] = [];
-  const replacedString = replaceParenthesis(str, replacements);
+  const replacedString = replaceParenthesisGroups(str, replacements);
   let convertedString = convertOneGroup(replacedString, false);
   const groups = replacements.map(t => ({ ...t, reg: convertOneGroup(t.exp, t.inverse) }));
 
