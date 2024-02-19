@@ -15,18 +15,18 @@ const replaceParenthesisGroups = (input: string, replacements: Replacement[], nu
     return replaced;
   }
 
-  const replaceExpression = (expression: string, group: string) => {
+  const replaceExpression = (expression: string, group: string, inverse: boolean) => {
     const mapName = `##R${num}##`;
-    replacements.push({ mapName, exp: group, inverse: true });
+    replacements.push({ mapName, exp: group, inverse });
     replaced = replaced.replace(expression, mapName);
 
     return replaceParenthesisGroups(replaced, replacements, num + 1);
   };
 
   if (groupsNeg) {
-    return replaceExpression(groupsNeg[0], groupsNeg[1]);
+    return replaceExpression(groupsNeg[0], groupsNeg[1], true);
   } else if (groups) {
-    return replaceExpression(groups[0], groups[1]);
+    return replaceExpression(groups[0], groups[1], false);
   }
 
   return replaced;
