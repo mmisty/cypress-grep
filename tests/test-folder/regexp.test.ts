@@ -66,6 +66,19 @@ describe('suite', () => {
           ],
         },
         {
+          desc: 'parenthesis several more complex - many parent parenthesis',
+          GREP: '((((((.*)&!((my test)|(his test))&(.*))))))',
+          regExpected: /(?=.*.*)+(?=.*^(?!.*(my test|his test).*))+(?=.*.*)+.*/i,
+          cases: [
+            { expectMatch: true, testLine: 'test her' },
+            { expectMatch: true, testLine: 'her test' },
+            { expectMatch: false, testLine: 'her his test' },
+            { expectMatch: false, testLine: 'her my test' },
+            { expectMatch: false, testLine: 'my test' },
+            { expectMatch: false, testLine: 'his test' },
+          ],
+        },
+        {
           desc: 'tag with dot encoded',
           GREP: '@test\\.1',
           regExpected: /@test\.1.*/i,
