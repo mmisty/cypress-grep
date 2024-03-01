@@ -1,4 +1,4 @@
-type Replacement = { mapName: string; exp: string; inverse: boolean };
+type Replacement = { order: number; mapName: string; exp: string; inverse: boolean };
 
 /**
  * replace all parenthesis groups with placeholder
@@ -17,7 +17,7 @@ const replaceParenthesisGroups = (input: string, replacements: Replacement[], nu
 
   const replaceExpression = (expression: string, group: string, inverse: boolean) => {
     const mapName = `##R${num}##`;
-    replacements.push({ mapName, exp: group, inverse });
+    replacements.push({ mapName, exp: group, inverse, order: num });
     replaced = replaced.replace(expression, mapName);
 
     return replaceParenthesisGroups(replaced, replacements, num + 1);
@@ -74,7 +74,7 @@ export const selectionTestGrep = (str: string): RegExp => {
 
   // last group should be converted first
   groups
-    .sort((a, b) => (a.mapName > b.mapName ? -1 : 1))
+    .sort((a, b) => (a.order > b.order ? -1 : 1))
     .forEach(r => {
       convertedString = convertedString.replace(r.mapName, r.reg);
     });
