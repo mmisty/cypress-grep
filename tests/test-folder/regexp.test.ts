@@ -256,6 +256,26 @@ describe('suite', () => {
           ],
         },
         {
+          desc: 'parenthesis in title',
+          GREP: 'should stay enabled \\(not disabled\\)',
+          regExpected: /should stay enabled \(not disabled\).*/i,
+          cases: [
+            { expectMatch: true, testLine: 'should stay enabled (not disabled)' },
+            { expectMatch: false, testLine: 'should stay enabled  not disabled ' },
+          ],
+        },
+        {
+          desc: 'parenthesis in title several with not',
+          GREP: '!(suite test 1 \\(addition\\)|suite test 2 \\(addition\\)|suite test 3 \\(addition\\))',
+          regExpected: /^(?!.*(suite test 1 \(addition\)|suite test 2 \(addition\)|suite test 3 \(addition\)).*).*/i,
+          cases: [
+            { expectMatch: false, testLine: 'suite test 1 (addition)' },
+            { expectMatch: false, testLine: 'suite test 2 (addition)' },
+            { expectMatch: false, testLine: 'suite test 3 (addition)' },
+            { expectMatch: true, testLine: 'suite test 3 addition' },
+          ],
+        },
+        {
           desc: 'and with parenthesis and or combination (diff writing)',
           GREP: '(@test|@tag)&(@suite|@tag)',
           regExpected: /(?=.*(@test|@tag))+(?=.*(@suite|@tag))+.*/i,
@@ -286,7 +306,7 @@ describe('suite', () => {
       ])
       .each(t => [{ desc: `: '${t.GREP}'` }])
       .each(t => t.cases)
-      // .only(t => t.id === '1')
+      //.only(t => t.id === '1')
       .run(t => {
         const regActual = selectionTestGrep(t.GREP);
 
