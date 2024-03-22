@@ -66,8 +66,11 @@ export const selectionTestGrep = (str: string): RegExp => {
 
     return new RegExp(expr, flags);
   }
-
+  const leftParenth = '##LP##';
+  const rightParenth = '##RP##';
   const replacements: Replacement[] = [];
+
+  str = str.replace(/\\\(/g, leftParenth).replace(/\\\)/g, rightParenth);
   const replacedString = replaceParenthesisGroups(str, replacements);
   let convertedString = convertOneGroup(replacedString, false);
   const groups = replacements.map(t => ({ ...t, reg: convertOneGroup(t.exp, t.inverse) }));
@@ -78,6 +81,10 @@ export const selectionTestGrep = (str: string): RegExp => {
     .forEach(r => {
       convertedString = convertedString.replace(r.mapName, r.reg);
     });
+
+  convertedString = convertedString
+    .replace(new RegExp(leftParenth, 'g'), '\\(')
+    .replace(new RegExp(rightParenth, 'g'), '\\)');
 
   return new RegExp(`${convertedString}.*`, 'i');
 };
