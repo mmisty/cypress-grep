@@ -60,16 +60,23 @@ function filterTests(
       onExcludedTest(test);
     }
 
+    const isEqualTitleWithTags = (t1, t2) => {
+      const t1Full = prepareTestTitle(t1);
+      const t2Full = prepareTestTitle(t2);
+
+      return t1Full === t2Full;
+    };
+
     // Remove not matched test
     if (test.parent) {
       if (!isPrerun && settings.showExcludedTests) {
         test.parent.tests.forEach(t => {
-          if (t.fullTitle() === test.fullTitle()) {
+          if (isEqualTitleWithTags(t, test)) {
             t.pending = true;
           }
         });
       } else {
-        test.parent.tests = test.parent.tests.filter(t => t.fullTitle() !== test.fullTitle());
+        test.parent.tests = test.parent.tests.filter(t => !isEqualTitleWithTags(t, test));
       }
     }
 
@@ -78,8 +85,7 @@ function filterTests(
 
     while (suite && suite.tests.length === 0 && suite.suites.length === 0) {
       if (suite.parent) {
-        const suiteTitle = suite.fullTitle();
-        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
+        suite.parent.suites = suite.parent.suites.filter(t => !isEqualTitleWithTags(t, suite));
       }
       suite = suite.parent;
     }
