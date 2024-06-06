@@ -27,7 +27,7 @@ const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
 
-export const prepareTestTitle = (test: Mocha.Test): string => {
+export const prepareTestTitle = (test: Mocha.Suite | Mocha.Test): string => {
   return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
 };
 
@@ -60,7 +60,7 @@ function filterTests(
       onExcludedTest(test);
     }
 
-    const isEqualTitleWithTags = (t1, t2) => {
+    const isEqualTitleWithTags = (t1: Mocha.Suite | Mocha.Test, t2: Mocha.Suite | Mocha.Test) => {
       const t1Full = prepareTestTitle(t1);
       const t2Full = prepareTestTitle(t2);
 
