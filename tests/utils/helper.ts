@@ -45,6 +45,22 @@ export const createTests = (suite: string, titles: string[], file: string) => {
   writeFileSync(file, `describe("${suite}", () => {\n${tests}\n})`);
 };
 
+export const createTestsWithTags = (suite: string, tests: { name: string; tags: string[] }[], file: string) => {
+  if (!existsSync(`${process.cwd()}/${dirname(file)}`)) {
+    mkdirSync(dirname(`${process.cwd()}/${file}`), { recursive: true });
+  }
+
+  const ts = tests
+    .map(
+      t => `it('${t.name}', {tags: ${JSON.stringify(t.tags)}}, () => {
+    cy.log('test');
+    })\n`,
+    )
+    .join('\n');
+
+  writeFileSync(file, `describe("${suite}", () => {\n${ts}\n})`);
+};
+
 export const createTestsTagsObj = (
   suite: string,
   suiteTags: any,
