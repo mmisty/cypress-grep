@@ -46,9 +46,18 @@ function filterTests(
 ): void {
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
-    // when root test we filter suites again, so we don't need to filter other tests than the root
+    const isEqualTitleWithTags = (
+      t1: Mocha.Suite | Mocha.Test | undefined,
+      t2: Mocha.Suite | Mocha.Test | undefined,
+    ) => {
+      const t1Full = prepareTestTitle(t1);
+      const t2Full = prepareTestTitle(t2);
 
-    if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
+      return t1Full === t2Full;
+    };
+
+    // when root test we filter suites again, so we don't need to filter other tests than the root
+    if (testRoot && !isEqualTitleWithTags(testRoot, test)) {
       return;
     }
 
@@ -63,16 +72,6 @@ function filterTests(
     } else {
       onExcludedTest(test);
     }
-
-    const isEqualTitleWithTags = (
-      t1: Mocha.Suite | Mocha.Test | undefined,
-      t2: Mocha.Suite | Mocha.Test | undefined,
-    ) => {
-      const t1Full = prepareTestTitle(t1);
-      const t2Full = prepareTestTitle(t2);
-
-      return t1Full === t2Full;
-    };
 
     // Remove not matched test
     if (test.parent) {
