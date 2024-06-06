@@ -27,7 +27,11 @@ const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
 
-export const prepareTestTitle = (test: Mocha.Test): string => {
+export const prepareTestTitle = (test: Mocha.Suite | Mocha.Test | undefined): string => {
+  if (!test) {
+    return 'null';
+  }
+
   return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
 };
 
@@ -42,9 +46,18 @@ function filterTests(
 ): void {
   // Remove filtered tests and their parent suites
   suiteRoot.eachTest((test: Mocha.Test): void => {
-    // when root test we filter suites again, so we don't need to filter other tests than the root
+    const isEqualTitleWithTags = (
+      t1: Mocha.Suite | Mocha.Test | undefined,
+      t2: Mocha.Suite | Mocha.Test | undefined,
+    ) => {
+      const t1Full = prepareTestTitle(t1);
+      const t2Full = prepareTestTitle(t2);
 
-    if (testRoot && testRoot.fullTitle() !== test.fullTitle()) {
+      return t1Full === t2Full;
+    };
+
+    // when root test we filter suites again, so we don't need to filter other tests than the root
+    if (testRoot && !isEqualTitleWithTags(testRoot, test)) {
       return;
     }
 
@@ -64,12 +77,12 @@ function filterTests(
     if (test.parent) {
       if (!isPrerun && settings.showExcludedTests) {
         test.parent.tests.forEach(t => {
-          if (t.fullTitle() === test.fullTitle()) {
+          if (isEqualTitleWithTags(t, test)) {
             t.pending = true;
           }
         });
       } else {
-        test.parent.tests = test.parent.tests.filter(t => t.fullTitle() !== test.fullTitle());
+        test.parent.tests = test.parent.tests.filter(t => !isEqualTitleWithTags(t, test));
       }
     }
 
@@ -78,8 +91,7 @@ function filterTests(
 
     while (suite && suite.tests.length === 0 && suite.suites.length === 0) {
       if (suite.parent) {
-        const suiteTitle = suite.fullTitle();
-        suite.parent.suites = suite.parent.suites.filter(t => t.fullTitle() !== suiteTitle);
+        suite.parent.suites = suite.parent.suites.filter(t => !isEqualTitleWithTags(t, suite));
       }
       suite = suite.parent;
     }
