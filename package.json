@@ -69,7 +69,8 @@
     "try:pack": "npm run prepublishOnly && npm pack && npm run postpublish",
     "pack": "npm run build && cp package.json ./lib/package.json && cp README.pack.md ./lib/README.md && cp CHANGELOG.md ./lib/CHANGELOG.md && sh .scripts/remove.sh && cd lib && npm version $ver --no-git-tag-version ",
     "publishPack": "npm run pack && cd lib && npm publish --tag $TAG",
-    "publish:alpha": "export TAG=alpha && export ver=$(semver $(npm show . version) --increment -i prerelease  --preid 'alpha') && npm run publishPack && npm run postpublish",
+    "publish:alpha": "export TAG=alpha && export ver=$(semver $(npm show . version --tag alpha || npm show . version) --increment -i prerelease  --preid 'alpha') && npm run publishPack && npm run postpublish",
+    "publish:alpha:init": "export TAG=alpha && export ver=$(semver $(npm show . version) --increment -i prerelease  --preid 'alpha') && npm run publishPack && npm run postpublish",
     "publish:patch": "export TAG=latest && export ver=$(semver $(npm show . version) --increment -i patch) && npm run publishPack && npm run postpublish",
     "publish:minor": "export TAG=latest && export ver=$(semver $(npm show . version) --increment -i minor) && npm run publishPack && npm run postpublish",
     "publish:major": "export TAG=latest && export ver=$(semver $(npm show . version) --increment -i major) && npm run publishPack && npm run postpublish",
@@ -91,7 +92,7 @@
     "@cypress/code-coverage": "^3.12.39",
     "@ephesoft/webpack.istanbul.loader": "^2.2.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@mmisty/cypress-allure-adapter": "^0.16.9",
+    "@mmisty/cypress-allure-adapter": "^0.16.10",
     "@types/jest": "^29.5.12",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.19.34",
@@ -126,7 +127,7 @@
     "loader-utils": "1.4.2"
   },
   "dependencies": {
-    "@mmisty/cypress-tags": "^1.0.15",
+    "@mmisty/cypress-tags": "^1.0.16",
     "cypress-controls-ext": "^0.2.0",
     "fast-glob": "^3.3.2",
     "yargs": "^17.7.2"
