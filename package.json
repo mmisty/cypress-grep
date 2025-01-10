@@ -127,7 +127,7 @@
     "loader-utils": "1.4.2"
   },
   "dependencies": {
-    "@mmisty/cypress-tags": "^1.0.17",
+    "@mmisty/cypress-tags": "^1.1.0",
     "cypress-controls-ext": "^0.2.0",
     "fast-glob": "^3.3.3",
     "yargs": "^17.7.2"
