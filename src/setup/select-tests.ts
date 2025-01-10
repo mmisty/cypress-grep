@@ -120,7 +120,7 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
     filteredTitle: prepareTestTitle(test) ?? '',
     filePath,
     tags: test.tags,
-    title: test.title,
+    title: removeTagsFromTitle(test.title),
   });
 };
 
