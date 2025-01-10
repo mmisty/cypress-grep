@@ -14,7 +14,7 @@ describe('info should be in tags object major test ', { tags: [tag('P1', 'critic
     const infoForP2 = this.test?.tags?.find(t => t.tag === '@P2');
 
     expect(infoForP1).to.deep.eq({ tag: '@P1', info: ['critical'] });
-    expect(infoForP2).to.deep.eq({ tag: '@P2', info: ['major'] });
+    expect(infoForP2).to.deep.eq({ tag: '@P2', info: ['major'], isOwnTag: true });
     cy.log(`infoForP1: **${infoForP1?.info?.join('')}**`);
     cy.log(`infoForP2: **${infoForP2?.info?.join('')}**`);
   });
