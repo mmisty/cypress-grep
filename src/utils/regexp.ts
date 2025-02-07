@@ -1,13 +1,24 @@
 type Replacement = { order: number; mapName: string; exp: string; inverse: boolean };
 
+export const simplifyParentheses = (input: string): string => {
+  // Replace deeply nested parentheses with a single group
+  let simplified = input;
+
+  while (/\(\(([^()]+)\)\)/.test(simplified)) {
+    simplified = simplified.replace(/\(\(([^()]+)\)\)/, '($1)');
+  }
+
+  return simplified.replace(/&\(\.\*\)/g, '');
+};
+
 /**
  * replace all parenthesis groups with placeholder
  * @param input
  * @param replacements
  * @param num
  */
-const replaceParenthesisGroups = (input: string, replacements: Replacement[], num = 1): string => {
-  let replaced = input;
+export const replaceParenthesisGroups = (input: string, replacements: Replacement[], num = 1): string => {
+  let replaced = simplifyParentheses(input);
   const groupsNeg = input.match(/!\(([^()]*)\)/);
   const groups = input.match(/\(([^()]*)\)/);
 
@@ -26,6 +37,10 @@ const replaceParenthesisGroups = (input: string, replacements: Replacement[], nu
   if (groupsNeg) {
     return replaceExpression(groupsNeg[0], groupsNeg[1], true);
   } else if (groups) {
+    if (replaced === '(.*)') {
+      return '';
+    }
+
     return replaceExpression(groups[0], groups[1], false);
   }
 
@@ -37,7 +52,7 @@ const replaceParenthesisGroups = (input: string, replacements: Replacement[], nu
  * @param exp
  * @param inverse
  */
-const convertOneGroup = (exp: string, inverse: boolean): string => {
+export const convertOneGroup = (exp: string, inverse: boolean): string => {
   const reg = exp
     .split('/')
     .map(t => (t.startsWith('!') ? t.replace(/^!(.*)/, '^(?!.*$1.*)') : t))
@@ -83,6 +98,7 @@ export const selectionTestGrep = (str: string): RegExp => {
     });
 
   convertedString = convertedString
+    .replace(/\.\*\.\*/g, '.*')
     .replace(new RegExp(leftParenth, 'g'), '\\(')
     .replace(new RegExp(rightParenth, 'g'), '\\)');
 

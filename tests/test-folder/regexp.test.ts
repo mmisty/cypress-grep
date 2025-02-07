@@ -1,4 +1,4 @@
-import { selectionTestGrep } from '../../src/utils/regexp';
+import { convertOneGroup, selectionTestGrep, simplifyParentheses } from '../../src/utils/regexp';
 import expect from 'expect';
 
 describe('suite', () => {
@@ -68,7 +68,7 @@ describe('suite', () => {
         {
           desc: 'parenthesis several more complex - many parent parenthesis',
           GREP: '((((((.*)&!((my test)|(his test))&(.*))))))',
-          regExpected: /(?=.*.*)+(?=.*^(?!.*(my test|his test).*))+(?=.*.*)+.*/i,
+          regExpected: /(?=.*)+(?=.*^(?!.*(my test|his test).*))+.*/i,
           cases: [
             { expectMatch: true, testLine: 'test her' },
             { expectMatch: true, testLine: 'her test' },
@@ -376,6 +376,23 @@ describe('suite', () => {
             { expectMatch: false, testLine: '@otherTest' },
           ],
         },
+        {
+          desc: 'simplify regexp',
+          GREP: '(.*)&((((.*))))',
+          regExpected: /.*/i,
+          cases: [{ expectMatch: true, testLine: '@test sdd @test2 dsd' }],
+        },
+        {
+          desc: 'simplify regexp',
+          GREP: '((((((((((((((@V1&!@V2)&(.*)))&(.*)))&(.*)))&(@V1&!@V2)))&(.*)))&(.*))))', // '(@V1&!@V2)&(@V1&!@V2)',
+          regExpected: /(?=.*(?=.*@V1)+^(?!.*@V2.*)+)+(?=.*(?=.*@V1)+^(?!.*@V2.*)+)+.*/i,
+          cases: [
+            { expectMatch: false, testLine: '@V1 sdd @V2 dsd' },
+            { expectMatch: false, testLine: '@V2 sdd @V1 dsd' },
+            { expectMatch: true, testLine: '@V1 sdd  dsd' },
+            { expectMatch: false, testLine: '@V3 sdd  dsd' },
+          ],
+        },
       ])
       .each(t => t.cases)
       // .only(t => t.id === '1')
@@ -394,5 +411,95 @@ describe('suite', () => {
           expect(t.testLine).not.toMatch(regActual);
         }
       });
+  });
+
+  it('should simplify expression', () => {
+    const grep = '(.*)&((((.*))))';
+    const regActual = selectionTestGrep(grep);
+
+    expect(regActual).toEqual(/.*/i);
+  });
+
+  describe('simplifyParentheses', () => {
+    it('simplifyParentheses 1', () => {
+      const grep = '(.*)&((((.*))))';
+      expect(simplifyParentheses(grep)).toEqual('(.*)');
+    });
+
+    it('simplifyParentheses 2', () => {
+      const grep = '(.*)&((((.*))))&((((something))))';
+      expect(simplifyParentheses(grep)).toEqual('(.*)&(something)');
+    });
+
+    it('simplifyParentheses 3', () => {
+      const grep = '(.*)&((((.*))))&((((something))))';
+      expect(simplifyParentheses(grep)).toEqual('(.*)&(something)');
+    });
+
+    it('simplifyParentheses 4', () => {
+      const grep = '(.*)&((((.*))))&(((((A)&(B|(V&D))))))&((((something))))';
+      expect(simplifyParentheses(grep)).toEqual('(.*)&(((((A)&(B|(V&D))))))&(something)');
+    });
+
+    it('simplifyParentheses incorrect', () => {
+      const grep = '(.*)&((((.*))))&((((something)))))';
+      expect(simplifyParentheses(grep)).toEqual('(.*)&(something))');
+    });
+  });
+
+  describe('simplify expression', () => {
+    it('should simplify expression 1', () => {
+      const grep = '(.*)&((((.*))))';
+      const regActual = selectionTestGrep(grep);
+
+      expect(regActual).toEqual(/.*/i);
+    });
+
+    it('should simplify expression 2', () => {
+      const grep = '(A)&((((C))))';
+      const regActual = selectionTestGrep(grep);
+
+      expect(regActual).toEqual(/(?=.*A)+(?=.*C)+.*/i);
+    });
+
+    it('should simplify expression - groups inside parenthesis', () => {
+      const grep = '(.*)&((((.*))))&(((((A)&(B|(V&D))))))&((((something))))';
+      const regActual = selectionTestGrep(grep);
+
+      expect(regActual).toEqual(/(?=.*)+(?=.*(?=.*A)+(?=.*(B|(?=.*V)+(?=.*D)+))+)+(?=.*something)+.*/i);
+      expect(regActual.test('A')).toEqual(false);
+      expect(regActual.test('A gogo B else something')).toEqual(true);
+      expect(regActual.test('B gogo A else something')).toEqual(true);
+      expect(regActual.test('V gogo A else something D')).toEqual(true);
+      expect(regActual.test('V gogo A else something')).toEqual(false);
+      expect(regActual.test('X')).toEqual(false);
+    });
+
+    it('should simplify expression 4', () => {
+      const grep = '(.*)&((((.*))))&((((something))))';
+      const regActual = selectionTestGrep(grep);
+
+      expect(regActual).toEqual(/(?=.*)+(?=.*something)+.*/i);
+    });
+  });
+
+  describe('convertOneGroup', () => {
+    it('convertOneGroup 1', () => {
+      const grep = '.*';
+      const regActual = convertOneGroup(grep, false);
+      expect(regActual).toEqual('.*');
+    });
+
+    it('convertOneGroup 2 - or', () => {
+      const grep = 'A|C';
+      const regActual = convertOneGroup(grep, false);
+      expect(regActual).toEqual('(A|C)');
+    });
+
+    it('convertOneGroup 3 - and', () => {
+      const grep = 'A&C';
+      const regActual = convertOneGroup(grep, false);
+      expect(regActual).toEqual('(?=.*A)+(?=.*C)+');
+    });
   });
 });
