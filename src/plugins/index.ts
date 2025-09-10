@@ -107,6 +107,14 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
       return;
     }
 
+    let filteredSpecsResult: Partial<ParsedSpecs> = {};
+
+    try {
+      filteredSpecsResult = JSON.parse(readFileSync(filteredSpecs).toString());
+      config.env['filteredSpecsResult'] = filteredSpecsResult;
+    } catch {
+      // ignore
+    }
     warningWhenFilteredResultExistMore(1, filteredSpecs);
     updateSpecPattern(specPattern, config, filteredSpecs);
 
