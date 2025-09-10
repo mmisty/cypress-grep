@@ -72,12 +72,19 @@ const updateGrepForSpec = () => {
 
   const tests =
     filteredSpecsResult.tests
-      ?.filter((x: any) => spec.relative.includes(`${filteredSpecsResult.parentFolder}${x.filePath}`))
+      ?.filter((x: any) => {
+        const pathFixed = `${filteredSpecsResult.parentFolder ?? ''}/${x.filePath}`.replace(/\/\//g, '/');
+
+        return spec.relative.includes(pathFixed.startsWith('/') ? pathFixed.slice(1) : pathFixed);
+      })
       .filter((x: any) => !!x.title) ?? [];
 
   if (tests.length > 0) {
     const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
-    Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+
+    if (specGrep) {
+      Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+    }
   }
 };
 
