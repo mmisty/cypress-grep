@@ -72,10 +72,10 @@ const updateGrepForSpec = () => {
 
   const tests =
     filteredSpecsResult.tests
-      ?.filter(x => spec.relative.includes(`${filteredSpecsResult.parentFolder}${x.filePath}`))
-      .filter(x => !!x.title) ?? [];
+      ?.filter((x: any) => spec.relative.includes(`${filteredSpecsResult.parentFolder}${x.filePath}`))
+      .filter((x: any) => !!x.title) ?? [];
 
-  const specGrep = tests.map(x => replaceSpecialChars(x.title ?? '')).join('|');
+  const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
 
   Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
 };
