@@ -75,9 +75,10 @@ const updateGrepForSpec = () => {
       ?.filter((x: any) => spec.relative.includes(`${filteredSpecsResult.parentFolder}${x.filePath}`))
       .filter((x: any) => !!x.title) ?? [];
 
-  const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
-
-  Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+  if (tests.length > 0) {
+    const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
+    Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+  }
 };
 
 // this is being executed at first before any cypress events
