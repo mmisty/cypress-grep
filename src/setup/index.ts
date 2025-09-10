@@ -64,6 +64,10 @@ const updateGrepForSpec = () => {
   const originalGrep = Cypress.env(grepEnvVars.GREP);
   const filteredSpecsResult = Cypress.env('filteredSpecsResult');
 
+  if (!filteredSpecsResult) {
+    return;
+  }
+
   const spec = Cypress.spec;
 
   const tests =
