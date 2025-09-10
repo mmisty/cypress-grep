@@ -53,7 +53,35 @@ const boolOrDefault = (val: unknown, res: boolean) => {
   return val === undefined ? res : val === 'true' || val === true;
 };
 
+const replaceSpecialChars = (str: string) => {
+  const encodedTitle = str.replace(/([(){}[\]*^.!|$]+)/g, '\\$1');
+
+  // replace specific symbols for parsing by grep to any symbol
+  return encodedTitle.replace(/[/'&"]/g, '.');
+};
+
+const updateGrepForSpec = () => {
+  const originalGrep = Cypress.env(grepEnvVars.GREP);
+  const filteredSpecsResult = Cypress.env('filteredSpecsResult');
+
+  const spec = Cypress.spec;
+
+  const tests =
+    filteredSpecsResult.tests
+      ?.filter(x => spec.relative.includes(`${filteredSpecsResult.parentFolder}${x.filePath}`))
+      .filter(x => !!x.title) ?? [];
+
+  const specGrep = tests.map(x => replaceSpecialChars(x.title ?? '')).join('|');
+
+  Cypress.env(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+};
+
+// this is being executed at first before any cypress events
+// and Cypress GREP env var is being read once before filtering tests
+// So you cannot change it dynamically during spec execution
 export const registerCypressGrep = (configInput?: GrepConfig) => {
+  updateGrepForSpec();
+
   const defaultConfig = {
     addControlToUI: boolOrDefault(Cypress.env(grepEnvVars.addControlToUI), true),
     showTagsInTitle: boolOrDefault(Cypress.env(grepEnvVars.showTagsInTitle), true),
