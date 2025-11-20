@@ -43,7 +43,7 @@ export const addSearchInput = (showTags: boolean, showPending: boolean): string 
     id,
     mode: { open: true, run: isInteractive() },
     inject: 'insertAfter',
-    selectorToInject: '.reporter header .toggle-specs-wrapper',
+    selectorToInject: '[aria-label="Stats"]',
     style: style(testsCountSelector, iconSearch),
     control: () => html(testsCountSelector, inputGrep, iconSearch, showTags, showPending),
     addEventListener: (parentId, listener, cyStop, cyRestart) => {
