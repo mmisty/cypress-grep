@@ -1,4 +1,4 @@
-const controlsHeight = 30;
+const controlsHeight = 32;
 const iconHeight = 20;
 const inputWidth = 116;
 
@@ -34,7 +34,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   display: flex;
   align-items: center;
   border-radius: 4px;
-  padding: 5px;
+  border: 1px solid #e1e1e124;
 }
 
 #${parentId} .btn-wrapper-icon {
@@ -74,6 +74,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
 #${parentId} .tooltip {
   display: none;
   position: absolute;
+  z-index:2;
   padding: 10px;
   border-radius: 4px;
   background-color: #f3f3fb;
@@ -104,7 +105,7 @@ export const style = (testsCountSelector: string, iconContainerSearch: string) =
   display: flex;
   align-items: center;
   flex-grow: 1;
-  margin-top: -7px;
+  margin-top: -2px;
 }
 
 #${parentId} input[type="text"] {
