@@ -45,8 +45,16 @@ jobs:
           check_name: 'Jest Test Report Unit'
           detailed_summary: true
 
+      # for memory
+      - name: Add swap
+        run: |
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
       - name: Test cy
-        run: npm run cy:run:cov
+        run: NODE_OPTIONS="--max-old-space-size=8192" npm run cy:run:cov
 
       - name: Merge cov
         run: npm run cov:merge
