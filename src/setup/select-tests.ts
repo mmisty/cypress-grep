@@ -27,12 +27,15 @@ const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
 
+const getMochaTags = (testOrSuite: Mocha.Suite | Mocha.Test): GrepTagObject[] =>
+  ((testOrSuite as unknown as { tags?: GrepTagObject[] }).tags ?? []) as GrepTagObject[];
+
 export const prepareTestTitle = (test: Mocha.Suite | Mocha.Test | undefined): string => {
   if (!test) {
     return 'null';
   }
 
-  return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
+  return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(getMochaTags(test))}`.replace(/\s\s*/g, ' ');
 };
 
 function filterTests(
@@ -119,7 +122,7 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
     match: true,
     filteredTitle: prepareTestTitle(test) ?? '',
     filePath,
-    tags: test.tags,
+    tags: (test as unknown as { tags?: GrepTagObject[] }).tags,
     title: removeTagsFromTitle(test.title),
   });
 };
