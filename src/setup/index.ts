@@ -5,24 +5,26 @@ import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
 import { grepEnvVars, isTrue } from '../common/envVars';
 import { pkgName } from '../common/logs';
+import { getPublic, setPublic } from './public-config';
 
 // this controlWrapper- is hardcoded in controls package
 const wrapperId = (id: string) => `controlWrapper-${id}`;
 
 export const isInteractive = () => {
   // INTER env var for testing
-  return Cypress.config('isInteractive') || isTrue(Cypress.expose('INTER' as never));
+  return Cypress.config('isInteractive') || isTrue(getPublic('INTER') as string | boolean);
 };
 
 const getGrepExpression = (parentId: string): string => {
   const uiValue = cypressAppSelect(`#${wrapperId(parentId)} .grep`).val();
 
   // use UI input value only when interactive mode
-  if (!Cypress.expose('TEST_GREP' as never) && isInteractive() && uiValue != null) {
+  if (!getPublic('TEST_GREP') && isInteractive() && uiValue != null) {
     return `${uiValue}`;
   }
 
-  return Cypress.expose(grepEnvVars.GREP as never) ? `${Cypress.expose(grepEnvVars.GREP as never)}` : '';
+  const grep = getPublic(grepEnvVars.GREP);
+  return grep ? `${grep}` : '';
 };
 
 const selectTests = (parentId: string) => () => {
@@ -61,8 +63,8 @@ const replaceSpecialChars = (str: string) => {
 };
 
 const updateGrepForSpec = () => {
-  const originalGrep = Cypress.expose(grepEnvVars.GREP as never);
-  const filteredSpecsResult = Cypress.expose('filteredSpecsResult' as never);
+  const originalGrep = getPublic(grepEnvVars.GREP);
+  const filteredSpecsResult = getPublic('filteredSpecsResult') as any;
 
   if (!filteredSpecsResult) {
     return;
@@ -83,7 +85,7 @@ const updateGrepForSpec = () => {
     const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
 
     if (specGrep) {
-      Cypress.expose(grepEnvVars.GREP as never, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}` as never);
+      setPublic(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
     }
   }
 };
@@ -95,9 +97,9 @@ export const registerCypressGrep = (configInput?: GrepConfig) => {
   updateGrepForSpec();
 
   const defaultConfig = {
-    addControlToUI: boolOrDefault(Cypress.expose(grepEnvVars.addControlToUI as never), true),
-    showTagsInTitle: boolOrDefault(Cypress.expose(grepEnvVars.showTagsInTitle as never), true),
-    showExcludedTests: boolOrDefault(Cypress.expose(grepEnvVars.showExcludedTests as never), true),
+    addControlToUI: boolOrDefault(getPublic(grepEnvVars.addControlToUI), true),
+    showTagsInTitle: boolOrDefault(getPublic(grepEnvVars.showTagsInTitle), true),
+    showExcludedTests: boolOrDefault(getPublic(grepEnvVars.showExcludedTests), true),
   };
   const config: GrepConfig = configInput ? { ...defaultConfig, ...configInput } : defaultConfig;
 
@@ -105,11 +107,11 @@ export const registerCypressGrep = (configInput?: GrepConfig) => {
   const initShowTagsInTitle = config?.showTagsInTitle ?? false;
   const initShowExcludedTests = config?.showExcludedTests ?? false;
 
-  const failExpose = Cypress.expose(grepEnvVars.failOnNotFound as never);
+  const failExpose = getPublic(grepEnvVars.failOnNotFound);
 
   const envFailNotFound = failExpose != null ? failExpose === 'true' || failExpose === true : undefined;
   const failOnNotFound = envFailNotFound ?? config?.failOnNotFound ?? true;
-  const isPreFilter = isTrue(Cypress.expose(grepEnvVars.GREP_PRE_FILTER as never) as string | boolean);
+  const isPreFilter = isTrue(getPublic(grepEnvVars.GREP_PRE_FILTER) as string | boolean);
 
   console.log(
     `${pkgName} ${

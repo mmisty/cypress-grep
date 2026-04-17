@@ -7,6 +7,7 @@ import { registerTags } from '@mmisty/cypress-tags/register';
 import { GrepTagObject } from '@mmisty/cypress-tags/common/types';
 import { GrepConfig } from './config.types';
 import { removeTagsFromTitle } from '@mmisty/cypress-tags/utils/tags';
+import { getPublic, setPublic } from './public-config';
 
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -172,7 +173,7 @@ export const setupSelectTests = (
   onCount: (num: number) => void,
   isPrerun: boolean,
 ): void => {
-  const grep = `${Cypress.expose(grepEnvVars.GREP as never) ?? ''}`;
+  const grep = `${getPublic(grepEnvVars.GREP) ?? ''}`;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -187,7 +188,8 @@ export const setupSelectTests = (
     turnOffBeforeHook();
   }
 
-  Cypress.expose('cyTagsShowTagsInTitle', settings.showTagsInTitle);
+  // keep compatibility with @mmisty/cypress-tags versions that still read Cypress.env
+  setPublic('cyTagsShowTagsInTitle', settings.showTagsInTitle);
   registerTags();
 
   const originalSuites = origins();
@@ -231,8 +233,8 @@ export const setupSelectTests = (
 
       if (match.length === 0 && settings.failOnNotFound) {
         const msg = [
-          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.expose(
-            'originalSpecPattern' as never,
+          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${getPublic(
+            'originalSpecPattern',
           )}`,
           `To disable this error set environment variable \`${grepEnvVars.failOnNotFound}\` to false or set \`failOnNotFound\` to \`false\` in registerCypressGrep`,
         ];
