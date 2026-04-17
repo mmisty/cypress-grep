@@ -5,7 +5,9 @@ import { pluginGrep } from './src/plugins';
 const cypressFolder = 'integration';
 
 export default defineConfig({
-  env: {
+  // @mmisty/cypress-tags (peer) still reads Cypress.env until a release migrates to expose
+  allowCypressEnv: true,
+  expose: {
     GREP_addControlToUI: true,
     GREP_showTagsInTitle: true,
     GREP_showExcludedTests: true,
@@ -27,6 +29,11 @@ export default defineConfig({
     fixturesFolder: `${cypressFolder}/fixtures`,
     screenshotsFolder: `${cypressFolder}/screenshots`,
     video: false,
+    reporter: 'junit',
+    reporterOptions: {
+      mochaFile: './reports/cypress/[hash].xml',
+      toConsole: false,
+    },
 
     setupNodeEvents(on, config) {
       pluginGrep(on, config);

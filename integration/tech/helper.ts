@@ -3,8 +3,8 @@ import { prepareTestTitle } from 'cy-local/setup/select-tests';
 
 export const suiteTest = (title: string, grep: string, testedSuite: () => void, expected: string[]) => {
   const tests: string[] = [];
-  Cypress.env('GREP', grep);
-  Cypress.env('TEST_GREP', 'true');
+  Cypress.expose('GREP', grep);
+  Cypress.expose('TEST_GREP', 'true');
 
   registerCypressGrep({
     addControlToUI: true,
@@ -20,8 +20,8 @@ export const suiteTest = (title: string, grep: string, testedSuite: () => void, 
     testedSuite();
   });
 
-  Cypress.env('GREP', '');
-  Cypress.env('TEST_GREP', 'true');
+  Cypress.expose('GREP', '');
+  Cypress.expose('TEST_GREP', 'true');
 
   registerCypressGrep({
     addControlToUI: true,

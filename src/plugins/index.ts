@@ -7,6 +7,7 @@ import { grepEnvVars, isTrue } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
 import path, { dirname } from 'path';
 import { pkgName } from '../common/logs';
+import { publicGet, publicSet } from './public-config-plugin';
 import Spec = Cypress.Spec;
 import PluginEvents = Cypress.PluginEvents;
 
@@ -17,11 +18,10 @@ const parentFolder = (specPattern: string[] | string, config: Cypress.PluginConf
     return config.parentTestsFolder;
   }
 
-  if (
-    config.env[grepEnvVars.GREP_TESTS_FOLDER] &&
-    existsSync(path.resolve(config.env[grepEnvVars.GREP_TESTS_FOLDER]))
-  ) {
-    return config.env[grepEnvVars.GREP_TESTS_FOLDER];
+  const grepTestsFolder = publicGet(config, grepEnvVars.GREP_TESTS_FOLDER) as string | undefined;
+
+  if (grepTestsFolder && existsSync(path.resolve(grepTestsFolder))) {
+    return grepTestsFolder;
   }
 
   console.log(
@@ -78,16 +78,19 @@ const warningNoResultsFileNoGrep = (grep: string | undefined) => {
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
   const specPattern = config.specPattern || defaultSpecPattern;
-  config.env['originalSpecPattern'] = specPattern;
+  publicSet(config, 'originalSpecPattern', specPattern);
   const parentTestsFolder = parentFolder(specPattern, config);
-  const isPreFilter = isTrue(config.env[grepEnvVars.GREP_PRE_FILTER] ?? false);
-  const isDeleteAllFile = isTrue(config.env[grepEnvVars.GREP_DELETE_ALL_FILE] ?? true);
-  const grep = config.env[grepEnvVars.GREP];
-  const randomSession = config.env[grepEnvVars.GREP_SESSION];
+  const isPreFilter = isTrue((publicGet(config, grepEnvVars.GREP_PRE_FILTER) ?? false) as string | boolean);
+  const isDeleteAllFile = isTrue((publicGet(config, grepEnvVars.GREP_DELETE_ALL_FILE) ?? true) as string | boolean);
+  const grep = publicGet(config, grepEnvVars.GREP);
+  const randomSession = publicGet(config, grepEnvVars.GREP_SESSION);
 
   const filteredSpecs =
-    config.env[grepEnvVars.GREP_RESULTS_FILE] ?? `${config.projectRoot}/filtered_test_paths${randomSession}.json`;
-  const allFileName = config.env[grepEnvVars.GREP_ALL_TESTS_NAME] ?? `all-tests${randomSession}.js`;
+    (publicGet(config, grepEnvVars.GREP_RESULTS_FILE) as string | undefined) ??
+    `${config.projectRoot}/filtered_test_paths${randomSession}.json`;
+
+  const allFileName =
+    (publicGet(config, grepEnvVars.GREP_ALL_TESTS_NAME) as string | undefined) ?? `all-tests${randomSession}.js`;
   const allTestsFile = `${parentTestsFolder}/${allFileName}`;
   on('task', taskWrite(config, parentTestsFolder, filteredSpecs));
 
@@ -101,7 +104,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
   if (!isPreFilter) {
     if (!existsSync(filteredSpecs)) {
-      warningNoResultsFileNoGrep(config.env[grepEnvVars.GREP]);
+      warningNoResultsFileNoGrep(publicGet(config, grepEnvVars.GREP) as string | undefined);
 
       // todo make option to exist early here when not found
       return;
@@ -111,7 +114,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
 
     try {
       filteredSpecsResult = JSON.parse(readFileSync(filteredSpecs).toString());
-      config.env['filteredSpecsResult'] = filteredSpecsResult;
+      publicSet(config, 'filteredSpecsResult', filteredSpecsResult);
     } catch {
       // ignore
     }
@@ -123,7 +126,7 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   writeFileSync(`spec_pattern${randomSession}.json`, JSON.stringify({ specPattern: specPattern }));
   config.reporter = 'spec';
   config.video = false;
-  config.env['REDIRECT_BROWSER_LOG'] = false;
+  publicSet(config, 'REDIRECT_BROWSER_LOG', false);
 
   if (existsSync(filteredSpecs)) {
     rmSync(filteredSpecs);
@@ -211,7 +214,7 @@ const updateSpecPattern = (
   if (uniqPaths.length === 0) {
     console.warn(
       `${pkgName} Not found any tests with ` +
-        `grep='${config.env[grepEnvVars.GREP]}' and specPattern='${JSON.stringify(specPattern)}'`,
+        `grep='${publicGet(config, grepEnvVars.GREP)}' and specPattern='${JSON.stringify(specPattern)}'`,
     );
   } else {
     const specsCount = `specs files: ${uniqPaths.length} with total tests: ${testParsed.tests.length}`;

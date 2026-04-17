@@ -36,7 +36,7 @@ export const html = (
     <input type="text" class="${grepSelector.slice(
       1,
     )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${
-  Cypress.env('GREP') ?? ''
+  (Cypress.expose('GREP' as never) as string | undefined) ?? ''
 }"/>
      <div class="btn-wrapper" data-tooltip="clear search (Rerun)">
       <div class="btn clear-input flex-center">

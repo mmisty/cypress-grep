@@ -4,7 +4,7 @@ let check = 0;
 
 const toTest = (grep: string, expected: string[]) => {
   const tests: string[] = [];
-  Cypress.env('GREP', grep);
+  Cypress.expose('GREP', grep);
   registerCypressGrep({
     showTagsInTitle: true,
     showExcludedTests: true,

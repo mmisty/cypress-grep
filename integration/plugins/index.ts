@@ -20,7 +20,7 @@ const clearJsFiles = () => {
 };
 
 const isCoverage = (config: PluginConfigOptions) => {
-  return process.env[COVERAGE] || config.env[COVERAGE];
+  return process.env[COVERAGE] === 'true' || config.expose?.[COVERAGE] === true;
 };
 
 export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
@@ -30,14 +30,14 @@ export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
   if (isCov) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('@cypress/code-coverage/task')(on, config);
-    config.env[COVERAGE] = true;
+    config.expose = { ...(config.expose ?? {}), [COVERAGE]: true };
   }
 
   on('file:preprocessor', preprocessor(isCov));
 
   redirectLog(on, config, ['exception', 'test:log', 'log', 'warn']);
   configureAllureAdapterPlugins(on, config);
-  console.log(config.env);
+  console.log(config.expose);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables

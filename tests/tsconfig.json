@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "skipLibCheck": true,
-    "types": ["node", "jest", "jest-test-each"],
+    "types": ["node", "jest", "jest-test-each", "cypress"],
     "baseUrl": "../src",
     "paths": {
       "@src": ["./index.ts"],

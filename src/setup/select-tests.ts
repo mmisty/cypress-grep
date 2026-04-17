@@ -22,7 +22,7 @@ export const origins = () => ({
 // search by infoToo
 const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   const tagsLine = (tags: GrepTagObject[]): string =>
-    tags.map(t => t.tag + t.info?.map(x => x).join('') ?? '').join(' ');
+    tags.map(t => t.tag + (t.info?.map(x => x).join('') ?? '')).join(' ');
 
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
@@ -169,7 +169,7 @@ export const setupSelectTests = (
   onCount: (num: number) => void,
   isPrerun: boolean,
 ): void => {
-  const grep = Cypress.env(grepEnvVars.GREP) ?? '';
+  const grep = `${Cypress.expose(grepEnvVars.GREP as never) ?? ''}`;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -184,7 +184,7 @@ export const setupSelectTests = (
     turnOffBeforeHook();
   }
 
-  Cypress.env('cyTagsShowTagsInTitle', settings.showTagsInTitle);
+  Cypress.expose('cyTagsShowTagsInTitle', settings.showTagsInTitle);
   registerTags();
 
   const originalSuites = origins();
@@ -228,8 +228,8 @@ export const setupSelectTests = (
 
       if (match.length === 0 && settings.failOnNotFound) {
         const msg = [
-          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.env(
-            'originalSpecPattern',
+          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.expose(
+            'originalSpecPattern' as never,
           )}`,
           `To disable this error set environment variable \`${grepEnvVars.failOnNotFound}\` to false or set \`failOnNotFound\` to \`false\` in registerCypressGrep`,
         ];

@@ -298,11 +298,16 @@ Examples:
 - `GREP='=/(?!.*@smoke)(?=.*@p1)/i'` - runs all tests WITHOUT `@smoke` and WITH `@p1`
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
-## Environment variables
- - `GREP_addControlToUI` - Add UI control to filter test (only for interactive mode), default true
- - `GREP_showTagsInTitle` - Show tags in test title, default true
- - `GREP_showExcludedTests` - Show excluded tests as pending or not show at all, default true
- - `GREP_failOnNotFound` - Whether to fail run when no tests are found, default true
+## Configuration (`expose` / `CYPRESS_*`)
+
+Cypress **15.10+** prefers public values in [`expose`](https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv) (and `Cypress.expose()` in the browser) instead of hydrating everything through `Cypress.env()`. This package reads grep options via **`Cypress.expose`** in the support bundle and merges **`expose` + `env`** on the Node side so existing **`CYPRESS_GREP`**, **`CYPRESS_GREP_showTagsInTitle`**, etc. keep working.
+
+Set defaults in `cypress.config` under top-level `expose` (see this repo’s `cypress.config.ts`). CLI: prefer `--expose KEY=value` where Cypress documents it; `cy-grep` still passes **`CYPRESS_*`** for compatibility.
+
+- `GREP_addControlToUI` / `CYPRESS_GREP_addControlToUI` — Add UI control to filter test (interactive only), default true  
+- `GREP_showTagsInTitle` / `CYPRESS_GREP_showTagsInTitle` — Show tags in test title, default true  
+- `GREP_showExcludedTests` / `CYPRESS_GREP_showExcludedTests` — Show excluded tests as pending or hide them, default true  
+- `GREP_failOnNotFound` / `CYPRESS_GREP_failOnNotFound` — Fail run when no tests match grep, default true
 
 ## Examples
 - example [JS project](https://github.com/mmisty/cypress-grep-example)
@@ -311,8 +316,7 @@ Examples:
 ## UI Control
 
 Search input will be injected into Cypress UI to filter tests when running Interactive mode
-(`cypress open`). This is controlled by `addControlToUI` setting or `GREP_addControlToUI`
-environment variable
+(`cypress open`). This is controlled by `addControlToUI` or the `GREP_addControlToUI` setting (via `expose` / `CYPRESS_GREP_addControlToUI`).
 
 Controls have settings:
 
