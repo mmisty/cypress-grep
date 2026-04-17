@@ -5,8 +5,7 @@ import { pluginGrep } from './src/plugins';
 const cypressFolder = 'integration';
 
 export default defineConfig({
-  // @mmisty/cypress-tags (peer) still reads Cypress.env until a release migrates to expose
-  allowCypressEnv: true,
+  allowCypressEnv: false,
   expose: {
     GREP_addControlToUI: true,
     GREP_showTagsInTitle: true,
