@@ -5,7 +5,7 @@ import { pluginGrep } from './src/plugins';
 const cypressFolder = 'integration';
 
 export default defineConfig({
-  allowCypressEnv: false,
+  allowCypressEnv: true, // until all depths are on expose
   expose: {
     GREP_addControlToUI: true,
     GREP_showTagsInTitle: true,

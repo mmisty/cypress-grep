@@ -85,6 +85,14 @@ export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfi
   const grep = publicGet(config, grepEnvVars.GREP);
   const randomSession = publicGet(config, grepEnvVars.GREP_SESSION);
 
+  config.expose = {
+    ...config.expose,
+    GREP_PRE_FILTER: isPreFilter,
+    GREP: grep,
+    GREP_DELETE_ALL_FILE: isDeleteAllFile,
+    GREP_SESSION: randomSession,
+  };
+
   const filteredSpecs =
     (publicGet(config, grepEnvVars.GREP_RESULTS_FILE) as string | undefined) ??
     `${config.projectRoot}/filtered_test_paths${randomSession}.json`;
