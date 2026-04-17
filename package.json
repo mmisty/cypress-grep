@@ -131,7 +131,7 @@
   },
   "dependencies": {
     "@mmisty/cypress-tags": "^2.0.0",
-    "cypress-controls-ext": "^0.2.0",
+    "cypress-controls-ext": "^1.0.1",
     "fast-glob": "^3.3.3",
     "yargs": "^17.7.2"
   },
