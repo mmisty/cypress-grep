@@ -14,7 +14,7 @@
 /integration/screenshots
 
 # prefilter
-all-tests*.ts
+**/all-tests*.js
 filtered_test_paths*.json
 filtered_tests.json
 filtered*.json

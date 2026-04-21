@@ -4,7 +4,7 @@ import { allureAdapterSetup } from '@mmisty/cypress-allure-adapter';
 import 'cy-local/register';
 
 const setupCoverage = () => {
-  if (Cypress.env(COVERAGE) === 'true' || Cypress.env(COVERAGE) === true) {
+  if (`${Cypress.expose(COVERAGE)}` === 'true' || Cypress.expose(COVERAGE) === true) {
     console.log('ENABLE COV');
     require('@cypress/code-coverage/support');
   } else {
@@ -19,7 +19,7 @@ redirectTestLogs({
 
 /*
 const valBoolEq = (name: string, value: boolean): boolean => {
-  return Cypress.env(name) === `${value}` || Cypress.env(name) === value;
+  return Cypress.expose(name as never) === `${value}` || Cypress.expose(name as never) === value;
 };
 
 registerCypressGrep({
