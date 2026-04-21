@@ -39,11 +39,37 @@ export const setupPlugins = (on: PluginEvents, config: PluginConfigOptions) => {
   // client decides what to expose here
   config.expose = { ...(config.expose ?? {}), ...(config.env ?? {}) };
 
-  redirectLog(on, config, ['exception', 'test:log', 'log', 'warn']);
-  configureAllureAdapterPlugins(on, config);
+  // @mmisty/cypress-allure-adapter (current npm) still reads Allure options from `config.env`.
+  // Cypress 15 config uses `expose`; mirror so the node reporter sees `allure` / paths.
+
+  // --- start of support old allure plugin (remove after allure move to new)
+  const ex = (config.expose ?? {}) as Record<string, unknown>;
+  const mergedEnv = { ...(config.env ?? {}) } as Record<string, unknown>;
+
+  if (ex.allure !== undefined && mergedEnv.allure === undefined) {
+    mergedEnv.allure = ex.allure;
+  }
+
+  if (ex.allureResults !== undefined && mergedEnv.allureResults === undefined) {
+    mergedEnv.allureResults = ex.allureResults;
+  }
+
+  if (ex.allureResultsWatchPath !== undefined && mergedEnv.allureResultsWatchPath === undefined) {
+    mergedEnv.allureResultsWatchPath = ex.allureResultsWatchPath;
+  }
+
+  if (process.env.CYPRESS_allureResults) {
+    mergedEnv.allureResults = process.env.CYPRESS_allureResults;
+  }
+
+  config.env = mergedEnv as typeof config.env;
+  // --- end of support old allure plugin
 
   console.log('expose', config.expose);
   console.log('env', config.env);
+
+  redirectLog(on, config, ['exception', 'test:log', 'log', 'warn']);
+  configureAllureAdapterPlugins(on, config);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables
