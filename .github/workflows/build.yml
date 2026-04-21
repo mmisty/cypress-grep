@@ -3,30 +3,32 @@ permissions: write-all
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org/'
 
       - uses: volta-cli/action@v4
+
       - name: Install
         run: npm ci
 
       - name: Versions
         run: |
           node --version
-          npm --version  
+          npm --version
 
       - name: Lint
         run: npm run lint
@@ -37,24 +39,60 @@ jobs:
       - name: Test jest
         run: npm run test:cov
 
-      - name: Publish Jest Test Report 1
-        uses: mikepenz/action-junit-report@v3
-        if: success() || failure() # always run even if the previous step fails
+      - name: Publish Jest Test Report Unit
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
         with:
           report_paths: '**/reports/jest/*.xml'
           check_name: 'Jest Test Report Unit'
           detailed_summary: true
 
-      # for memory
-      - name: Add swap
+      - name: Free up runner resources
         run: |
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          set -eux
+      
+          # Remove unnecessary tools to free disk space
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /usr/local/lib/android || true
+      
+          # --- Swap setup (robust) ---
+      
+          SWAPFILE=/swapfile
+      
+          # Disable swap if already active
+          if sudo swapon --show | grep -q "$SWAPFILE"; then
+            sudo swapoff $SWAPFILE
+          fi
+      
+          # Remove existing swap file if present
+          if [ -f "$SWAPFILE" ]; then
+            sudo rm -f $SWAPFILE
+          fi
+      
+          # Create new swap file
+          sudo fallocate -l 4G $SWAPFILE
+          sudo chmod 600 $SWAPFILE
+          sudo mkswap $SWAPFILE
+          sudo swapon $SWAPFILE
+      
+          # Show available resources
+          echo "=== Memory ==="
+          free -h
+          echo "=== Disk ==="
+          df -h
 
       - name: Test cy
         run: NODE_OPTIONS="--max-old-space-size=8192" npm run cy:run:cov
+
+      - name: Publish Cypress JUnit report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: '**/reports/cypress/*.xml'
+          check_name: 'Cypress Test Report'
+          detailed_summary: true
 
       - name: Merge cov
         run: npm run cov:merge
@@ -64,7 +102,7 @@ jobs:
           rm -rf 'reports/jest' || true
           npm run test:cov:int
 
-      - name: Merge cov
+      - name: Merge cov final
         run: npm run cov:merge:fin
 
       - name: Show coverage
@@ -72,6 +110,7 @@ jobs:
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
+        if: success() || failure()
         with:
           name: code-coverage-report
           path: ./reports/coverage-full-total/
@@ -88,8 +127,8 @@ jobs:
         run: npm run cov:check
 
       - name: Publish Jest Test Report Integration
-        uses: mikepenz/action-junit-report@v3
-        if: success() || failure() # always run even if the previous step fails
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
         with:
           report_paths: '**/reports/jest/*.xml'
           check_name: 'Jest Test Report Integration'
@@ -101,41 +140,39 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           branch=${{ github.ref }}
-          echo "Branch: $branch" 
-          
+          echo "Branch: $branch"
+
           gitmsg="${{ github.event.commits[0].message }}"
-          echo "Commit: $gitmsg" 
-          
+          echo "Commit: $gitmsg"
+
           if [[ "$gitmsg" =~ "[patch]" ]]; then
             echo "publish patch"
             npm run publish:patch
             git push --tags
             exit 0
-          fi 
-          
+          fi
+
           if [[ "$gitmsg" =~ "[fix]" ]]; then
             echo "publish patch"
             npm run publish:patch
             git push --tags
             exit 0
           fi
-          
+
           if [[ "$gitmsg" =~ "[minor]" ]]; then
             echo "publish minor"
             npm run publish:minor
             git push --tags
             exit 0
           fi
-          
+
           if [[ "$gitmsg" =~ "[major]" ]]; then
             echo "publish major"
             npm run publish:major
             git push --tags
             exit 0
           fi
-          
+
           echo "publishing alpha, for other commit message should contain [minor], [major] or [patch]/[fix]"
           npm run publish:alpha
-          git push --tags    
-  
-
+          git push --tags

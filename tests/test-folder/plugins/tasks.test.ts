@@ -29,10 +29,10 @@ describe('plugin/tasks', () => {
 
     const task = taskWrite(
       {
-        env: {
+        expose: {
           originalSpecPattern: 'orign',
         },
-      },
+      } as unknown as Cypress.PluginConfigOptions,
       'parentFolderPath',
       'filteredSpecsPath',
     );

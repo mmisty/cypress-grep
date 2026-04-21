@@ -1,6 +1,8 @@
+/// <reference types="cypress" />
 import { writeFileSync } from 'fs';
 import type { ParsedSpecs } from '../common/types';
 import { pkgName } from '../common/logs';
+import { publicGet } from './public-config-plugin';
 
 /**
  * Write file with contents (file path predefined)
@@ -8,11 +10,7 @@ import { pkgName } from '../common/logs';
  * @param parentFolder - folder relatively to which test ran in prefilter mode
  * @param filteredSpecsFile - path to file (set in plugins)
  */
-export const taskWrite = (
-  config: { env: { [key: string]: unknown } },
-  parentFolder: string,
-  filteredSpecsFile: string,
-) => ({
+export const taskWrite = (config: Cypress.PluginConfigOptions, parentFolder: string, filteredSpecsFile: string) => ({
   writeTempFileWithSelectedTests: (contents: ParsedSpecs) => {
     const result = { parentFolder, ...contents };
     writeFileSync(filteredSpecsFile, JSON.stringify(result, null, '  '));
@@ -29,7 +27,10 @@ export const taskWrite = (
     }
 
     console.log(
-      `${pkgName} filtered ${contents.tests.length} from total ${contents.total} tests by spec pattern: ${config.env['originalSpecPattern']}`,
+      `${pkgName} filtered ${contents.tests.length} from total ${contents.total} tests by spec pattern: ${publicGet(
+        config,
+        'originalSpecPattern',
+      )}`,
     );
     console.log(`${pkgName} file with results written: '${filteredSpecsFile}'`);
 

@@ -7,6 +7,7 @@ import { registerTags } from '@mmisty/cypress-tags/register';
 import { GrepTagObject } from '@mmisty/cypress-tags/common/types';
 import { GrepConfig } from './config.types';
 import { removeTagsFromTitle } from '@mmisty/cypress-tags/utils/tags';
+import { getPublic, setPublic } from './public-config';
 
 // todo rewrite
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -22,17 +23,20 @@ export const origins = () => ({
 // search by infoToo
 const tagsSearchLine = (allTags: GrepTagObject[]): string => {
   const tagsLine = (tags: GrepTagObject[]): string =>
-    tags.map(t => t.tag + t.info?.map(x => x).join('') ?? '').join(' ');
+    tags.map(t => t.tag + (t.info?.map(x => x).join('') ?? '')).join(' ');
 
   return allTags.length > 0 ? ` ${tagsLine(allTags)}` : '';
 };
+
+const getMochaTags = (testOrSuite: Mocha.Suite | Mocha.Test): GrepTagObject[] =>
+  ((testOrSuite as unknown as { tags?: GrepTagObject[] }).tags ?? []) as GrepTagObject[];
 
 export const prepareTestTitle = (test: Mocha.Suite | Mocha.Test | undefined): string => {
   if (!test) {
     return 'null';
   }
 
-  return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(test.tags || [])}`.replace(/\s\s*/g, ' ');
+  return `${removeTagsFromTitle(test.fullTitle())}${tagsSearchLine(getMochaTags(test))}`.replace(/\s\s*/g, ' ');
 };
 
 function filterTests(
@@ -119,7 +123,7 @@ const createOnFiltered = (isPrerun: boolean, list: Partial<FilterTest>[]) => (te
     match: true,
     filteredTitle: prepareTestTitle(test) ?? '',
     filePath,
-    tags: test.tags,
+    tags: (test as unknown as { tags?: GrepTagObject[] }).tags,
     title: removeTagsFromTitle(test.title),
   });
 };
@@ -169,7 +173,7 @@ export const setupSelectTests = (
   onCount: (num: number) => void,
   isPrerun: boolean,
 ): void => {
-  const grep = Cypress.env(grepEnvVars.GREP) ?? '';
+  const grep = `${getPublic(grepEnvVars.GREP) ?? ''}`;
 
   if (settings.debugLog) {
     // eslint-disable-next-line no-console
@@ -184,7 +188,8 @@ export const setupSelectTests = (
     turnOffBeforeHook();
   }
 
-  Cypress.env('cyTagsShowTagsInTitle', settings.showTagsInTitle);
+  // keep compatibility with @mmisty/cypress-tags versions that still read Cypress.env
+  setPublic('cyTagsShowTagsInTitle', settings.showTagsInTitle);
   registerTags();
 
   const originalSuites = origins();
@@ -228,7 +233,7 @@ export const setupSelectTests = (
 
       if (match.length === 0 && settings.failOnNotFound) {
         const msg = [
-          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${Cypress.env(
+          `Not found any tests matching ${grepEnvVars.GREP} '${grep}' satisfying specPattern ${getPublic(
             'originalSpecPattern',
           )}`,
           `To disable this error set environment variable \`${grepEnvVars.failOnNotFound}\` to false or set \`failOnNotFound\` to \`false\` in registerCypressGrep`,
