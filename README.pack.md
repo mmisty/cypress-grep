@@ -297,6 +297,9 @@ Examples:
 - `GREP='=/@P[12]/'` - runs all tests with `@P1` or `@P2`
 
 ## Environment variables
+
+Set these in `cypress.config` under `expose` (Cypress 15.10+) or via `CYPRESS_*`. `pluginGrep` copies `CYPRESS_*` values onto `expose` (including boolean `false`) so the browser does not fall back to plugin defaults.
+
 - `GREP_addControlToUI` - Add UI control to filter test (only for interactive mode), default true
 - `GREP_showTagsInTitle` - Show tags in test title, default true
 - `GREP_showExcludedTests` - Show excluded tests as pending or not show at all, default true

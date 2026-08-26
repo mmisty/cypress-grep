@@ -19,6 +19,7 @@ export const html = (
   iconContainerSearch: string,
   showTags: boolean,
   showPending: boolean,
+  grepValue = '',
 ) => `
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-X7L1bhgb36bF1iFvaqvhgpaGpayKM+vXNNYRlF89BFA5s3vi1qZ8EX9086RlZjy1" crossorigin="anonymous">
 <div class="input-container controls">
@@ -35,9 +36,7 @@ export const html = (
     
     <input type="text" class="${grepSelector.slice(
       1,
-    )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${
-  (Cypress.expose?.('GREP') ?? '') as string
-}"/>
+    )}" placeholder="Search tests..."  onblur="this.placeholder = 'Search tests...'" onfocus="this.placeholder = ''" value="${grepValue}"/>
      <div class="btn-wrapper" data-tooltip="clear search (Rerun)">
       <div class="btn clear-input flex-center">
         <i class="fas fa-times"></i>

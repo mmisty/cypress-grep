@@ -300,7 +300,9 @@ Examples:
 
 ## Configuration (`expose` / `CYPRESS_*`)
 
-Cypress **15.10+** prefers public values in [`expose`](https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv) (and `Cypress.expose()` in the browser) instead of hydrating everything through `Cypress.env()`. This package reads grep options via **`Cypress.expose`** in the support bundle and merges **`expose` + `env`** on the Node side so existing **`CYPRESS_GREP`**, **`CYPRESS_GREP_showTagsInTitle`**, etc. keep working.
+Cypress **15.10+** prefers public values in [`expose`](https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv) (and `Cypress.expose()` in the browser) instead of hydrating everything through `Cypress.env()`. This package reads grep options via **`Cypress.expose`** in the support bundle and merges **`expose` + `env`** on the Node side so existing **`CYPRESS_GREP`**, **`CYPRESS_GREP_showTagsInTitle`**, **`CYPRESS_GREP_showExcludedTests`**, etc. keep working.
+
+`pluginGrep` copies those keys (including boolean `false`) from `env` onto `expose` before Cypress hydrates the browser. Without that copy, flags such as `GREP_showExcludedTests: false` fall back to the plugin default (`true`) and excluded tests stay visible as pending.
 
 Set defaults in `cypress.config` under top-level `expose` (see this repo’s `cypress.config.ts`). CLI: prefer `--expose KEY=value` where Cypress documents it; `cy-grep` still passes **`CYPRESS_*`** for compatibility.
 

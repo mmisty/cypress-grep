@@ -5,7 +5,7 @@ import { cypressAppSelect } from 'cypress-controls-ext';
 import { GrepConfig } from './config.types';
 import { grepEnvVars, isTrue } from '../common/envVars';
 import { pkgName } from '../common/logs';
-import { getPublic, setPublic } from './public-config';
+import { getPublic, persistPublic, readPersistedPublic } from './public-config';
 
 // this controlWrapper- is hardcoded in controls package
 const wrapperId = (id: string) => `controlWrapper-${id}`;
@@ -23,7 +23,8 @@ const getGrepExpression = (parentId: string): string => {
     return `${uiValue}`;
   }
 
-  const grep = getPublic(grepEnvVars.GREP);
+  const grep = readPersistedPublic(grepEnvVars.GREP, getPublic(grepEnvVars.GREP) as string | undefined);
+
   return grep ? `${grep}` : '';
 };
 
@@ -85,7 +86,7 @@ const updateGrepForSpec = () => {
     const specGrep = tests.map((x: any) => replaceSpecialChars(x.title ?? '')).join('|');
 
     if (specGrep) {
-      setPublic(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
+      persistPublic(grepEnvVars.GREP, `(${originalGrep})${specGrep ? '&' + `(${specGrep})` : ''}`);
     }
   }
 };
@@ -97,9 +98,18 @@ export const registerCypressGrep = (configInput?: GrepConfig) => {
   updateGrepForSpec();
 
   const defaultConfig = {
-    addControlToUI: boolOrDefault(getPublic(grepEnvVars.addControlToUI), true),
-    showTagsInTitle: boolOrDefault(getPublic(grepEnvVars.showTagsInTitle), true),
-    showExcludedTests: boolOrDefault(getPublic(grepEnvVars.showExcludedTests), true),
+    addControlToUI: boolOrDefault(
+      readPersistedPublic(grepEnvVars.addControlToUI, getPublic(grepEnvVars.addControlToUI)),
+      true,
+    ),
+    showTagsInTitle: boolOrDefault(
+      readPersistedPublic(grepEnvVars.showTagsInTitle, getPublic(grepEnvVars.showTagsInTitle)),
+      true,
+    ),
+    showExcludedTests: boolOrDefault(
+      readPersistedPublic(grepEnvVars.showExcludedTests, getPublic(grepEnvVars.showExcludedTests)),
+      true,
+    ),
   };
   const config: GrepConfig = configInput ? { ...defaultConfig, ...configInput } : defaultConfig;
 

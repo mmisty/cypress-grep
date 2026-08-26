@@ -188,7 +188,6 @@ export const setupSelectTests = (
     turnOffBeforeHook();
   }
 
-  // keep compatibility with @mmisty/cypress-tags versions that still read Cypress.env
   setPublic('cyTagsShowTagsInTitle', settings.showTagsInTitle);
   registerTags();
 

@@ -1,4 +1,6 @@
 import { cypressAppSelect, ListenerSetting, setupControlsExtension } from 'cypress-controls-ext';
+import { grepEnvVars } from '../common/envVars';
+import { persistPublic, readPersistedPublic } from './public-config';
 import { style } from './select-element/select-element-css';
 import { html } from './select-element/select-element-html';
 import { isInteractive } from './index';
@@ -39,16 +41,30 @@ const tooltipCorrect = (selector: string, listener: ListenerSetting) => {
 
 export const addSearchInput = (showTags: boolean, showPending: boolean): string => {
   const id = 'searchInput';
+  const grepValue = `${readPersistedPublic(grepEnvVars.GREP, '') ?? ''}`;
+  const tagsOn = readPersistedPublic(grepEnvVars.showTagsInTitle, showTags);
+  const pendingOn = readPersistedPublic(grepEnvVars.showExcludedTests, showPending);
+
+  persistPublic(grepEnvVars.GREP, grepValue);
+  persistPublic(grepEnvVars.showTagsInTitle, tagsOn);
+  persistPublic(grepEnvVars.showExcludedTests, pendingOn);
+
   setupControlsExtension({
     id,
     mode: { open: true, run: isInteractive() },
     inject: 'insertAfter',
     selectorToInject: '[aria-label="Stats"]',
     style: style(testsCountSelector, iconSearch),
-    control: () => html(testsCountSelector, inputGrep, iconSearch, showTags, showPending),
+    control: () => html(testsCountSelector, inputGrep, iconSearch, tagsOn, pendingOn, grepValue),
     addEventListener: (parentId, listener, cyStop, cyRestart) => {
       const selector = withParent(parentId);
+
+      const persistInput = () => {
+        persistPublic(grepEnvVars.GREP, `${cypressAppSelect(selector(inputGrep)).val() ?? ''}`);
+      };
+
       listener(selector(inputGrep), 'change', () => {
+        persistInput();
         cyStop();
         cyRestart();
       });
@@ -56,6 +72,7 @@ export const addSearchInput = (showTags: boolean, showPending: boolean): string 
       listener(selector(inputGrep), 'keypress', event => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((event as any).key === 'Enter') {
+          persistInput();
           cyStop();
           cyRestart();
         }
@@ -64,22 +81,27 @@ export const addSearchInput = (showTags: boolean, showPending: boolean): string 
       listener(selector('.clear-input'), 'click', () => {
         const searchField = cypressAppSelect(selector(inputGrep));
         searchField.val('');
+        persistPublic(grepEnvVars.GREP, '');
       });
 
       listener(selector('.show-tags'), 'click', () => {
         const tagsDataSel = 'data-show-tags';
         const tags = cypressAppSelect(selector('.show-tags'));
         const val = tags.attr(tagsDataSel);
+        const next = val !== 'true';
 
-        tags.attr(tagsDataSel, val === 'true' ? 'false' : 'true');
+        tags.attr(tagsDataSel, next ? 'true' : 'false');
+        persistPublic(grepEnvVars.showTagsInTitle, next);
       });
 
       listener(selector('.show-pending'), 'click', () => {
         const pendingDataSel = 'data-show-pending';
         const tags = cypressAppSelect(selector('.show-pending'));
         const val = tags.attr(pendingDataSel);
+        const next = val !== 'true';
 
-        tags.attr(pendingDataSel, val === 'true' ? 'false' : 'true');
+        tags.attr(pendingDataSel, next ? 'true' : 'false');
+        persistPublic(grepEnvVars.showExcludedTests, next);
       });
 
       tooltipCorrect(selector('.btn-wrapper'), listener);
