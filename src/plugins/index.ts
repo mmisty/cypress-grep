@@ -7,7 +7,7 @@ import { grepEnvVars, isTrue } from '../common/envVars';
 import { ParsedSpecs } from '../common/types';
 import path, { dirname } from 'path';
 import { pkgName } from '../common/logs';
-import { publicGet, publicSet } from './public-config-plugin';
+import { promoteEnvToExpose, publicGet, publicSet } from './public-config-plugin';
 import Spec = Cypress.Spec;
 import PluginEvents = Cypress.PluginEvents;
 
@@ -77,6 +77,8 @@ const warningNoResultsFileNoGrep = (grep: string | undefined) => {
  * of tests when utilizing grep
  * */
 export const pluginGrep = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
+  promoteEnvToExpose(config);
+
   const specPattern = config.specPattern || defaultSpecPattern;
   publicSet(config, 'originalSpecPattern', specPattern);
   const parentTestsFolder = parentFolder(specPattern, config);
